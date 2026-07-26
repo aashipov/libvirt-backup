@@ -47,7 +47,3 @@ GNU Coreutils, sed, grep, environment file and shell script 'glue' might be a si
 Live/online backup may produce inconsistent data across VMs which depend on each other.
 
 Logical Volume Manager (LVM) is considered slower than traditional partitions. Virtual disks must be attached to VM as virtio / writeback cache mode
-
-## License
-
-Perl "Artistic License"
