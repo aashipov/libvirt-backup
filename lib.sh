@@ -32,9 +32,11 @@ die() {
 #  Check if all of the mandatory variables are set in the environment
 # ------------------------------------------------------------
 check_mandatory_variables_set() {
-    local MANDATORY_VARIABLES_NAMES=("BACKUP_DIR" "BACKUP_LOG_FILE" "RUNNING_FILE_NAME" "RUNNING_FILE" "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" "VM_NAMES_TO_BACK_UP" "ANOTHER_SERVER_IP" "ANOTHER_SERVER_USERNAME" "DAYS_TO_KEEP_BACKUPS")
+    # .env.template is a single source of truth about mandatory variables
+    local MANDATORY_VARIABLES_NAMES=`grep -v '^#\|^$' .env.template | cut -d '=' -f 1`
     for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
     do
+        printf "${VAR_PTR} \t\t\t ${!VAR_PTR}\n"
         if [ ! -n "${!VAR_PTR}" ]
         then
             die "Mandatory variable ${VAR_PTR} is not defined or blank"
