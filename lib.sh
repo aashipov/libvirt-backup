@@ -29,9 +29,24 @@ die() {
 }
 
 # ------------------------------------------------------------
+#  Check if all of the mandatory variables are set in the environment
+# ------------------------------------------------------------
+check_mandatory_variables_set() {
+    local MANDATORY_VARIABLES_NAMES=("BACKUP_DIR" "BACKUP_LOG_FILE" "RUNNING_FILE_NAME" "RUNNING_FILE" "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" "VM_NAMES_TO_BACK_UP" "ANOTHER_SERVER_IP" "ANOTHER_SERVER_USERNAME" "DAYS_TO_KEEP_BACKUPS")
+    for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
+    do
+        if [ ! -n "${!VAR_PTR}" ]
+        then
+            die "Mandatory variable ${VAR_PTR} is not defined or blank"
+        fi
+    done
+}
+
+# ------------------------------------------------------------
 #  Environment loading
 # ------------------------------------------------------------
 environment() {
+    block_root
     # Loads environment variables from .env
     local ENV_FILE=${_SCRIPT_DIR}/.env
     if [ ! -f ${ENV_FILE} ]
@@ -40,8 +55,8 @@ environment() {
     fi
     # . for bash, zsh, ksh, (d)ash. source for (t)csh
     . ${ENV_FILE}
+    check_mandatory_variables_set
     mkdir -p ${BACKUP_DIR}
-    block_root
 }
 
 create_backup_dir() {
