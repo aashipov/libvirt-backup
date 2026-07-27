@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # ------------------------------------------------------------
 #  lint.sh – Lints Shell Scripts in the project

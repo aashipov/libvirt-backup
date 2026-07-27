@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # ------------------------------------------------------------
 #  lib.sh – Shared functions
@@ -242,7 +242,7 @@ block_root() {
 #  Lint against popular Shell/command-line interpreters, special case of `sh` included
 # ------------------------------------------------------------
 lint_shell_script() {
-    local SHELLS_TO_CHECK_AGAINST="zsh ksh bash dash sh"
+    local SHELLS_TO_CHECK_AGAINST="bash sh"
     for shell in ${SHELLS_TO_CHECK_AGAINST}
     do
         echo "Testing ${shell}"

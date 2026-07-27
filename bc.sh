@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # ------------------------------------------------------------
 #  bc.sh – Live‑disk backup for libvirt VMs

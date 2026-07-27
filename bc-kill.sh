@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # ------------------------------------------------------------
 #  bc-kill.sh – Stop running libvirt VM backups
