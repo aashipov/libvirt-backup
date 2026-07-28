@@ -134,6 +134,10 @@ backup_vm() {
 
         if virsh domstate ${VM_NAME} | grep -q "running"
         then
+            # Workaround target file permissions
+            local TARGET_DISK_CAPACITY=$(virsh domblkinfo ${VM_NAME} ${DISK_NAME} | grep Capacity | awk '{print $2}')
+            qemu-img create -f qcow2 ${TARGET_DISK_FILE_ABSOLUTE_PATH} ${TARGET_DISK_CAPACITY} || die "Failed to create a target file for ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
+
             BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}\n        <disk name='${DISK_NAME}' type='file'>\n            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>\n                <driver type='qcow2'/>\n        </disk>\n"
         else
             # copy offline VM file
@@ -150,7 +154,7 @@ backup_vm() {
         # printf "%s\n" "${BACKUP_JOB_DESCRIPTOR_CONTENT}" would produce an unparseable XML
         printf "${BACKUP_JOB_DESCRIPTOR_CONTENT}\n" > ${BACKUP_TASK_FILE}
         # launch backup
-        virsh backup-begin ${VM_NAME} --backupxml ${BACKUP_TASK_FILE} ||
+        virsh backup-begin ${VM_NAME} --reuse-external --backupxml ${BACKUP_TASK_FILE} ||
                 die "Failed to start backup for ${VM_NAME}"
 
         # wait completion
