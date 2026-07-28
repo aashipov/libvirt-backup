@@ -4,7 +4,7 @@
 
 - libvirt ≥ 7.2.0
 - QEMU ≥ 4.2
-- modern POSIX‑compliant shell
+- modern Bash
 - unprivileged user with `virsh` clearance (as per Distro manual)
 
 ## Setup
@@ -34,6 +34,7 @@ EOF
 - check if `VM_NAMES_TO_BACK_UP` in `.env` is a complete list of VM to back up
 - launch backup jobs `./bc.sh` (consecutive, blocking)
 - kill backup jobs `pkill -f bc.sh ; ./bc-kill.sh`
+- adjust `ANOTHER_SERVER_IP` & `ANOTHER_SERVER_USERNAME` in `.env` to reflect the IP and rsync-capable username of 'another' host in the cluster
 - replicate backups and clean obsoletes `./rc.sh`
 
 ## Technology choice

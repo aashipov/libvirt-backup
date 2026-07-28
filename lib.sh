@@ -36,10 +36,11 @@ check_mandatory_variables_set() {
     local MANDATORY_VARIABLES_NAMES=`grep -v '^#\|^$' .env.template | cut -d '=' -f 1`
     for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
     do
-        printf "${VAR_PTR} \t\t\t ${!VAR_PTR}\n"
         if [ ! -n "${!VAR_PTR}" ]
         then
             die "Mandatory variable ${VAR_PTR} is not defined or blank"
+        else
+            readonly ${VAR_PTR}
         fi
     done
 }
@@ -100,7 +101,7 @@ get_vm_disk_names_and_absolute_paths() {
     # Extract disk name | absolute path to disk file
     # ${VM_NAME} must be set in the calling function
     local DOMBLKLIST=`virsh domblklist --details ${VM_NAME} | grep disk` || die "Could not parse disk list for ${VM_NAME}"
-    local DISK_FILES=`printf "${DOMBLKLIST}\n" | tr -s ' ' | cut -d ' ' -f 4,5 | tr ' ' '|'`
+    local DISK_FILES=`printf "${DOMBLKLIST}\n" | awk '{print $3 "|" $4}'`
     printf "${DISK_FILES}\n"
 }
 
@@ -136,9 +137,8 @@ backup_vm() {
             BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}\n        <disk name='${DISK_NAME}' type='file'>\n            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>\n                <driver type='qcow2'/>\n        </disk>\n"
         else
             # copy offline VM file
-            # virt-sparsify --compress ${DISK_FILE_ABSOLUTE_PATH} ${TARGET_DISK_FILE_ABSOLUTE_PATH}-virt-sparsify
-            #qemu-img convert -O qcow2 -c ${DISK_FILE_ABSOLUTE_PATH} ${TARGET_DISK_FILE_ABSOLUTE_PATH} || die "Copy of ${DISK_FILE_ABSOLUTE_PATH} ${TARGET_DISK_FILE_ABSOLUTE_PATH} failed"
-            cp ${DISK_FILE_ABSOLUTE_PATH} ${VM_BACKUP_DIR}/
+            # qemu-img convert -O qcow2 -c ${DISK_FILE_ABSOLUTE_PATH} ${TARGET_DISK_FILE_ABSOLUTE_PATH} || die "Copy of ${DISK_FILE_ABSOLUTE_PATH} ${TARGET_DISK_FILE_ABSOLUTE_PATH} failed"
+            cp -p ${DISK_FILE_ABSOLUTE_PATH} ${VM_BACKUP_DIR}/
         fi
     done < "${VM_DISKS_FILE}"
     BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}    </disks>\n</domainbackup>"
@@ -200,12 +200,12 @@ kill_backup_jobs() {
 clean_obsolete_backups() {
     if [ -d ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} ]
     then
-        find ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/*/ -mtime +${DAYS_TO_KEEP_BACKUPS} -exec rm -rf {} \;
+        find ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/*/ -mindepth 1 -mtime ${DAYS_TO_KEEP_BACKUPS} -delete
     fi
 
     if [ -d ${BACKUP_DIR} ]
     then
-        find ${BACKUP_DIR}/*/ -mtime ${DAYS_TO_KEEP_BACKUPS} -exec rm -rf {} \;
+        find ${BACKUP_DIR}/*/ -mindepth 1 -mtime ${DAYS_TO_KEEP_BACKUPS} -delete
     fi
 }
 
@@ -247,7 +247,7 @@ lint_shell_script() {
     local SHELLS_TO_CHECK_AGAINST="bash sh"
     for shell in ${SHELLS_TO_CHECK_AGAINST}
     do
-        echo "Testing ${shell}"
+        printf "Testing ${shell}\n"
         ${shell} -n "$@"
     done
 }
