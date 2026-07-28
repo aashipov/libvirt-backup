@@ -26,7 +26,7 @@ closure() {
     #set -x # debug
 
     # Load library
-    local _SCRIPT_DIR=`dirname -- $(readlink -f -- "$0") | cd | pwd`
+    local _SCRIPT_DIR=$(dirname -- $(readlink -f -- "$0") | cd | pwd)
     local _LIB_SH_FILE=${_SCRIPT_DIR}/lib.sh
     if [ ! -f ${_LIB_SH_FILE} ]
     then
@@ -39,7 +39,7 @@ closure() {
     environment
     create_backup_dir # at this point log file must be available
 
-    local LAUNCH_DATE=`date +%Y-%m-%d`
+    local LAUNCH_DATE=$(date +%Y-%m-%d)
     local CURRENT_BACKUP_DIR=${BACKUP_DIR}/${LAUNCH_DATE}
 
     check_running

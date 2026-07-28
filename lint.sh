@@ -13,7 +13,7 @@ closure() {
     #set -x # debug
 
     # Load library
-    local _SCRIPT_DIR=`dirname -- $(readlink -f -- "$0") | cd | pwd`
+    local _SCRIPT_DIR=$(dirname -- $(readlink -f -- "$0") | cd | pwd)
     local _LIB_SH_FILE=${_SCRIPT_DIR}/lib.sh
     if [ ! -f ${_LIB_SH_FILE} ]
     then

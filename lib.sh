@@ -33,7 +33,7 @@ die() {
 # ------------------------------------------------------------
 check_mandatory_variables_set() {
     # .env.template is a single source of truth about mandatory variables
-    local MANDATORY_VARIABLES_NAMES=`grep -v '^#\|^$' .env.template | cut -d '=' -f 1`
+    local MANDATORY_VARIABLES_NAMES=$(grep -v '^#\|^$' .env.template | awk -F'=' '{print $1}')
     for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
     do
         if [ ! -n "${!VAR_PTR}" ]
@@ -100,9 +100,9 @@ rm_running() {
 get_vm_disk_names_and_absolute_paths() {
     # Extract disk name | absolute path to disk file
     # ${VM_NAME} must be set in the calling function
-    local DOMBLKLIST=`virsh domblklist --details ${VM_NAME} | grep disk` || die "Could not parse disk list for ${VM_NAME}"
-    local DISK_FILES=`printf "${DOMBLKLIST}\n" | awk '{print $3 "|" $4}'`
-    printf "${DISK_FILES}\n"
+    local DOMBLKLIST=$(virsh domblklist --details ${VM_NAME} | grep disk) || die "Could not parse disk list for ${VM_NAME}"
+    local DISK_FILES=$(printf "%s\n" "${DOMBLKLIST}" | awk '{print $3 "|" $4}')
+    printf "%s\n" "${DISK_FILES}"
 }
 
 # ------------------------------------------------------------
@@ -127,9 +127,9 @@ backup_vm() {
     # Backup job descriptor content (running VMs only)
     local BACKUP_JOB_DESCRIPTOR_CONTENT="<domainbackup>\n    <disks>"
     while IFS= read -r line; do
-        local DISK_NAME=`printf "${line}\n" | cut -d '|' -f 1`
-        local DISK_FILE_ABSOLUTE_PATH=`printf "${line}\n" | cut -d '|' -f 2`
-        local DISK_FILE_NAME=`basename ${DISK_FILE_ABSOLUTE_PATH}`
+        local DISK_NAME=$(printf "%s\n" "${line}" | awk -F'|' '{print $1}')
+        local DISK_FILE_ABSOLUTE_PATH=$(printf "%s\n" "${line}" | awk -F'|' '{print $2}')
+        local DISK_FILE_NAME=$(basename ${DISK_FILE_ABSOLUTE_PATH})
         local TARGET_DISK_FILE_ABSOLUTE_PATH=${VM_BACKUP_DIR}/${DISK_FILE_NAME}
 
         if virsh domstate ${VM_NAME} | grep -q "running"
@@ -147,6 +147,7 @@ backup_vm() {
     if virsh domstate ${VM_NAME} | grep -q "running"
     then
         local BACKUP_TASK_FILE=${VM_BACKUP_DIR}/${VM_NAME}-backup-job-descriptor.xml
+        # printf "%s\n" "${BACKUP_JOB_DESCRIPTOR_CONTENT}" would produce an unparseable XML
         printf "${BACKUP_JOB_DESCRIPTOR_CONTENT}\n" > ${BACKUP_TASK_FILE}
         # launch backup
         virsh backup-begin ${VM_NAME} --backupxml ${BACKUP_TASK_FILE} ||
@@ -200,12 +201,12 @@ kill_backup_jobs() {
 clean_obsolete_backups() {
     if [ -d ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} ]
     then
-        find ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/*/ -mindepth 1 -mtime ${DAYS_TO_KEEP_BACKUPS} -delete
+        find ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/ -depth -mindepth 1 -mtime ${DAYS_TO_KEEP_BACKUPS} -delete
     fi
 
     if [ -d ${BACKUP_DIR} ]
     then
-        find ${BACKUP_DIR}/*/ -mindepth 1 -mtime ${DAYS_TO_KEEP_BACKUPS} -delete
+        find ${BACKUP_DIR}/ -depth -mindepth 1 -mtime ${DAYS_TO_KEEP_BACKUPS} -delete
     fi
 }
 
@@ -234,7 +235,7 @@ sudo() {
 #  Block privileged execution
 # ------------------------------------------------------------
 block_root() {
-    if [ "${EUID}" -eq 0 ] || [ `id -u` -eq 0 ]
+    if [ "${EUID}" -eq 0 ] || [ $(id -u) -eq 0 ]
     then
         die_privileged
     fi
@@ -247,7 +248,7 @@ lint_shell_script() {
     local SHELLS_TO_CHECK_AGAINST="bash sh"
     for shell in ${SHELLS_TO_CHECK_AGAINST}
     do
-        printf "Testing ${shell}\n"
+        printf "Testing %s\n" "${shell}"
         ${shell} -n "$@"
     done
 }

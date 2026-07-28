@@ -37,7 +37,7 @@ EOF
 - adjust `ANOTHER_SERVER_IP` & `ANOTHER_SERVER_USERNAME` in `.env` to reflect the IP and rsync-capable username of 'another' host in the cluster
 - replicate backups and clean obsoletes `./rc.sh`
 
-## Technology choice
+## Details
 
 [Official manual](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/8/html/configuring_and_managing_virtualization/backing-up-and-recovering-virtual-machines_configuring-and-managing-virtualization)
 
@@ -48,3 +48,5 @@ GNU Coreutils, sed, grep, environment file and shell script 'glue' might be a si
 Live/online backup may produce inconsistent data across VMs which depend on each other.
 
 Logical Volume Manager (LVM) is considered slower than traditional partitions. Virtual disks must be attached to VM as virtio / writeback cache mode
+
+Online backup will produce a 'shrinkable', often twice as large. Become owner (sudo chown -R `id -u`:`id -g` orig.qcow2) then shrink `qemu-img convert -O qcow2 -c orig.qcow2 shrunk.qcow2`
