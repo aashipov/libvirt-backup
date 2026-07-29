@@ -23,6 +23,7 @@ closure() {
     . "${_LIB_SH_FILE}"
 
     # Do the job
+    environment
     for file in "${_SCRIPT_DIR}"/*.sh; do
         printf 'Lint %s start\n' "${file}"
         lint_shell_script "${file}"
