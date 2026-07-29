@@ -210,12 +210,12 @@ clean_obsolete_backups() {
     log "Clean obsolete backups start"
     if [ -d "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}" ]
     then
-        find "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" -depth -mindepth 1 -mtime "${DAYS_TO_KEEP_BACKUPS}" -delete
+        find "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" -depth -mindepth 1 -mtime "${DAYS_TO_KEEP_BACKUPS}" -exec rm -rf {} \;
     fi
 
     if [ -d "${BACKUP_DIR}" ]
     then
-        find "${BACKUP_DIR}/" -depth -mindepth 1 -mtime "${DAYS_TO_KEEP_BACKUPS}" -delete
+        find "${BACKUP_DIR}/" -depth -mindepth 1 -mtime "${DAYS_TO_KEEP_BACKUPS}" -exec rm -rf {} \;
     fi
     log "Clean obsolete backups finish"
 }
