@@ -15,13 +15,13 @@ closure() {
 
     # Load library
     local _SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$0")")
-    local _LIB_SH_FILE=${_SCRIPT_DIR}/lib.sh
-    if [ ! -f ${_LIB_SH_FILE} ]
+    local _LIB_SH_FILE="${_SCRIPT_DIR}/lib.sh"
+    if [ ! -f "${_LIB_SH_FILE}" ]
     then
-        printf "${_LIB_SH_FILE} is missing. Exiting"
+        printf '%s is missing. Exiting\n' "${_LIB_SH_FILE}"
         exit 1
     fi
-    . ${_LIB_SH_FILE}
+    . "${_LIB_SH_FILE}"
 
     # Do the job
     environment

@@ -3,10 +3,6 @@
 # ------------------------------------------------------------
 #  bc.sh – Live‑disk backup for libvirt VMs
 # ------------------------------------------------------------
-#  Requires:
-#    - libvirt ≥ 7.2.0
-#    - QEMU ≥ 4.2
-#    - sh (POSIX‑compliant shell)
 #
 #  Configuration (via .env):
 #    BACKUP_DIR          – local directory for backups
@@ -27,20 +23,20 @@ closure() {
 
     # Load library
     local _SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$0")")
-    local _LIB_SH_FILE=${_SCRIPT_DIR}/lib.sh
-    if [ ! -f ${_LIB_SH_FILE} ]
+    local _LIB_SH_FILE="${_SCRIPT_DIR}/lib.sh"
+    if [ ! -f "${_LIB_SH_FILE}" ]
     then
-        printf "${_LIB_SH_FILE} is missing. Exiting"
+        printf '%s is missing. Exiting\n' "${_LIB_SH_FILE}"
         exit 1
     fi
-    . ${_LIB_SH_FILE}
+    . "${_LIB_SH_FILE}"
 
     # Do the job
     environment
     create_backup_dir # at this point log file must be available
 
     local LAUNCH_DATE=$(date +%Y-%m-%d)
-    local CURRENT_BACKUP_DIR=${BACKUP_DIR}/${LAUNCH_DATE}
+    local CURRENT_BACKUP_DIR="${BACKUP_DIR}/${LAUNCH_DATE}"
 
     check_running
     create_current_backup_dir
