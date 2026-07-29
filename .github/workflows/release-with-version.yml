@@ -1,0 +1,29 @@
+name: Release Tarball with VERSION.txt
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Inject version into file
+        run: |
+          echo "${{ github.event.release.tag_name }}" > VERSION.txt
+
+      - name: Create custom tarball archive
+        run: |
+          # Compress the directory into a .tar.gz file while excluding the git folder
+          tar --exclude='.git' --exclude='.github' -czf "source-code-${{ github.event.release.tag_name }}.tar.gz" .
+
+      - name: Upload tarball to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: source-code-${{ github.event.release.tag_name }}.tar.gz
