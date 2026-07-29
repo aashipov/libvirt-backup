@@ -35,8 +35,7 @@ die() {
 # ------------------------------------------------------------
 check_mandatory_variables_set() {
     # .env.template is a single source of truth about mandatory variables
-    local MANDATORY_VARIABLES_NAMES
-    MANDATORY_VARIABLES_NAMES="$(grep -v '^#\|^$' "${_SCRIPT_DIR}/.env.template" | awk -F'=' '{print $1}')"
+    local MANDATORY_VARIABLES_NAMES="$(cat "${_SCRIPT_DIR}/.env.template" | grep -v '^#' | grep -v '^$' | awk -F'=' '{print $1}')"
     for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
     do
         if [ ! -n "${!VAR_PTR}" ]
@@ -101,8 +100,7 @@ rm_running() {
 get_vm_disk_names_and_absolute_paths() {
     # Extract disk name | absolute path to disk file
     # ${VM_NAME} must be set in the calling function
-    local DOMBLKLIST
-    DOMBLKLIST="$(virsh domblklist --details "${VM_NAME}" | grep disk)" || die "Could not parse disk list for ${VM_NAME}"
+    local DOMBLKLIST="$(virsh domblklist --details "${VM_NAME}" | grep disk)" || die "Could not parse disk list for ${VM_NAME}"
     local DISK_FILES=$(printf "%s\n" "${DOMBLKLIST}" | awk '{print $3 "|" $4}')
     printf "%s\n" "${DISK_FILES}"
 }
@@ -225,7 +223,7 @@ clean_obsolete_backups() {
 # ------------------------------------------------------------
 push_backups_to_another_server() {
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} start"
-    rsync -avz -e "ssh -o BatchMode=yes" "${BACKUP_DIR}/" "${ANOTHER_SERVER_USERNAME}@${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" | tee -a "${BACKUP_LOG_FILE}"
+    rsync -avz -e "ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" "${BACKUP_DIR}/" "${ANOTHER_SERVER_USERNAME}@${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" | tee -a "${BACKUP_LOG_FILE}"
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} finish"
 }
 
