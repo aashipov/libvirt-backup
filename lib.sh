@@ -221,7 +221,7 @@ clean_obsolete_backups() {
 # ------------------------------------------------------------
 push_backups_to_another_server() {
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} start"
-    rsync -avzW --progress --recursive ${BACKUP_DIR} ${ANOTHER_SERVER_USERNAME}@${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} | tee -a "${BACKUP_LOG_FILE}"
+    rsync -avzW -e "ssh -o BatchMode=yes" --recursive ${BACKUP_DIR}/ ${ANOTHER_SERVER_USERNAME}@${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/ | tee -a "${BACKUP_LOG_FILE}"
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} finish"
 }
 
