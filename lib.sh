@@ -203,6 +203,7 @@ kill_backup_jobs() {
 #  Removes obsolete backups
 # ------------------------------------------------------------
 clean_obsolete_backups() {
+    log "Clean obsolete backups start"
     if [ -d ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} ]
     then
         find ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/ -depth -mindepth 1 -mtime ${DAYS_TO_KEEP_BACKUPS} -delete
@@ -212,13 +213,16 @@ clean_obsolete_backups() {
     then
         find ${BACKUP_DIR}/ -depth -mindepth 1 -mtime ${DAYS_TO_KEEP_BACKUPS} -delete
     fi
+    log "Clean obsolete backups finish"
 }
 
 # ------------------------------------------------------------
 #  Pushes backups to remote server
 # ------------------------------------------------------------
 push_backups_to_another_server() {
-    rsync -avzW --progress --recursive ${BACKUP_DIR} ${ANOTHER_SERVER_USERNAME}@${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}
+    log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} start"
+    rsync -avzW --progress --recursive ${BACKUP_DIR} ${ANOTHER_SERVER_USERNAME}@${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} | tee -a "${BACKUP_LOG_FILE}"
+    log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} finish"
 }
 
 # ------------------------------------------------------------
