@@ -17,14 +17,16 @@ readonly _LIB_SH_LOADED=1
 #  Utility helpers
 # ------------------------------------------------------------
 
-log() {
-    # Append timestamped message to log file and optionally to stdout
+_log() {
     printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${1}" | tee -a "${BACKUP_LOG_FILE}"
 }
 
+log() {
+    _log "${1}"
+}
+
 die() {
-    # Log and exit
-    printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${1}" | tee -a "${BACKUP_LOG_FILE}"
+    _log "${1}"
     exit 1
 }
 
@@ -222,9 +224,9 @@ clean_obsolete_backups() {
 #  Pushes backups to remote server
 # ------------------------------------------------------------
 push_backups_to_another_server() {
-    log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} start"
+    log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} start"
     rsync -avz -e "ssh -o BatchMode=yes" "${BACKUP_DIR}/" "${ANOTHER_SERVER_USERNAME}@${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" | tee -a "${BACKUP_LOG_FILE}"
-    log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} finish"
+    log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} finish"
 }
 
 # ------------------------------------------------------------
@@ -238,6 +240,13 @@ die_privileged() {
 #  Block sudo
 # ------------------------------------------------------------
 sudo() {
+    die_privileged
+}
+
+# ------------------------------------------------------------
+#  Block doas
+# ------------------------------------------------------------
+doas() {
     die_privileged
 }
 
