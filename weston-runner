@@ -3,9 +3,9 @@
 # sudo pacman -S weston xorg-xwayland
 
 generate_ini() {
-    local WESTON_INI=${CONFIG_DIR}/weston.ini
-    rm -rf ${WESTON_INI}
-cat <<EOF | tee ${WESTON_INI}
+    WESTON_INI="${CONFIG_DIR}/weston.ini"
+    rm -rf "${WESTON_INI}"
+cat <<EOF | tee "${WESTON_INI}"
 [core]
 xwayland=true
 
@@ -22,9 +22,9 @@ EOF
 }
 
 generate_cert() {
-    if [ ! -f ${CONFIG_DIR}/$(hostname).key ]
+    if [ ! -f "${CONFIG_DIR}/$(hostname).key" ]
     then
-        winpr-makecert3 -rdp -path ${CONFIG_DIR}
+        winpr-makecert3 -rdp -path "${CONFIG_DIR}"
     fi
 }
 
@@ -33,10 +33,10 @@ generate_cert() {
 # `setsid mousepad &` from the terminal unties from terminal
 closure() {
     set -e
-    local CONFIG_DIR=${HOME}/.config
+    CONFIG_DIR="${HOME}/.config"
     generate_cert
     generate_ini
-    exec dbus-run-session -- weston --backend=rdp-backend.so --port=3390 --rdp-tls-cert=${CONFIG_DIR}/$(hostname).crt --rdp-tls-key=${CONFIG_DIR}/$(hostname).key --socket=wayland-0
+    exec dbus-run-session -- weston --backend=rdp-backend.so --port=3390 --rdp-tls-cert="${CONFIG_DIR}/$(hostname).crt" --rdp-tls-key="${CONFIG_DIR}/$(hostname).key" --socket=wayland-0
 }
 
 closure
