@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# sudo pacman -S weston xorg-xwayland
+
+generate_ini() {
+    local WESTON_INI=${CONFIG_DIR}/weston.ini
+    rm -rf ${WESTON_INI}
+cat <<EOF | tee ${WESTON_INI}
+[core]
+xwayland=true
+
+[shell]
+panel-position=top
+background-color=0xff000000
+num-workspaces=1
+
+[launcher]
+icon=/usr/share/icons/hicolor/16x16/apps/org.xfce.terminal.png
+path=/usr/bin/xfce4-terminal
+
+EOF
+}
+
+generate_cert() {
+    if [ ! -f ${CONFIG_DIR}/$(hostname).key ]
+    then
+        winpr-makecert3 -rdp -path ${CONFIG_DIR}
+    fi
+}
+
+# winpr-makecert from freerdp, symlink winpr-makecert3 to winpr-makecert
+# Win + K closes the window, Ctrl-Alt-Backspace exit
+# `setsid mousepad &` from the terminal unties from terminal
+closure() {
+    set -e
+    local CONFIG_DIR=${HOME}/.config
+    generate_cert
+    generate_ini
+    exec dbus-run-session -- weston --backend=rdp-backend.so --port=3390 --rdp-tls-cert=${CONFIG_DIR}/$(hostname).crt --rdp-tls-key=${CONFIG_DIR}/$(hostname).key --socket=wayland-0
+}
+
+closure
