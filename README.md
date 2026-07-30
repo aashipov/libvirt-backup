@@ -4,7 +4,7 @@
 
 - libvirt ≥ 7.2.0
 - QEMU ≥ 4.2
-- modern Bash
+- modern Bash/Dash
 - unprivileged user with `virsh` clearance (as per Distro manual)
 
 ## Setup

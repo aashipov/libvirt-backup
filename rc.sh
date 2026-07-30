@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # ------------------------------------------------------------
 #  rc.sh – Push VM backups to ${ANOTHER_SERVER_IP} via rsync and clean local obsolete backups

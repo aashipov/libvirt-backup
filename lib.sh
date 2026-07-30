@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # ------------------------------------------------------------
 #  lib.sh – Shared functions
@@ -38,11 +38,12 @@ check_mandatory_variables_set() {
     local MANDATORY_VARIABLES_NAMES="$(cat "${_SCRIPT_DIR}/.env.template" | grep -v '^#' | grep -v '^$' | awk -F'=' '{print $1}')"
     for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
     do
-        if [ ! -n "${!VAR_PTR}" ]
+        eval "VAR_VALUE=\"\${${VAR_PTR}:-}\""
+        if [ -z "${VAR_VALUE}" ]
         then
             die "Mandatory variable ${VAR_PTR} is not defined or blank"
         else
-            readonly "${VAR_PTR}"
+            eval "readonly ${VAR_PTR}"
         fi
     done
 }
@@ -154,7 +155,7 @@ backup_vm() {
     then
         local BACKUP_TASK_FILE="${VM_BACKUP_DIR}/${VM_NAME}-backup-job-descriptor.xml"
         # printf "%s\n" "${BACKUP_JOB_DESCRIPTOR_CONTENT}" would produce an unparseable XML
-        printf "${BACKUP_JOB_DESCRIPTOR_CONTENT}\n" > "${BACKUP_TASK_FILE}"
+        printf '%b\n' "${BACKUP_JOB_DESCRIPTOR_CONTENT}" > "${BACKUP_TASK_FILE}"
         # launch backup
         virsh backup-begin "${VM_NAME}" --reuse-external --backupxml "${BACKUP_TASK_FILE}" ||
                 die "Failed to start backup for ${VM_NAME}"
