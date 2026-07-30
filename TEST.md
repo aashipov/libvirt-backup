@@ -8,7 +8,7 @@ Create `debian-prototype.qcow2` as per [HEADFUL.md](./HEADFUL.md)
 
 Create a `test VM` (copy `debian-prototype.qcow2`, attach to it as VirtIO disk)
 
-Deploy `debian-prototype.qcow2` to `test VM` via SSH
+Deploy [nocloud image](https://cloud.debian.org/images/cloud/trixie/latest/debian-13-nocloud-amd64.qcow2) to `test VM` via SSH (disk for the future `a` VM)
 
 The rest of the test case is performed with `test VM`. Use `xrdp` (port 3389) or `weston` `xrdp` (port 3390) RDP servers for GUI
 
@@ -32,11 +32,11 @@ Create & configure nested VMs called `a` (running) and `b` (shut off)
 
 Create disks:
 
-- make a `debian-prototype.qcow2` copy `sudo cp ~/debian-prototype.qcow2 /var/lib/libvirt/images/a.qcow2`
+- make a `debian-13-nocloud-amd64.qcow2` copy `sudo cp ~/debian-13-nocloud-amd64.qcow2 /var/lib/libvirt/images/a.qcow2`
 
 - create `b.qcow2` as `qemu-img create -f qcow2 b.qcow2 32G && sudo mv b.qcow2 /var/lib/libvirt/images/b.qcow2`
 
-With `virt-manager` create a VM called `a`, attach `debian-prototype.qcow2` copy (`a.qcow2`) to it, then create a `b` machine, attach `b.qcow2` to it.
+With `virt-manager` create a VM called `a`, attach `a.qcow2` to it, then create a `b` machine, attach `b.qcow2` to it.
 
 Check if `virsh list --all` lists machines a & b
 
