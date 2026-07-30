@@ -31,6 +31,9 @@ closure() {
     fi
     . "${_LIB_SH_FILE}"
 
+    # Cleanup on interrupt
+    trap cleanup_on_exit INT TERM
+
     # Do the job
     environment
     create_backup_dir # at this point log file must be available

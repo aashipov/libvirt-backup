@@ -6,7 +6,7 @@ Refer to [README.md](./README.md) for human-facing project setup & usage.
 
 | Path | Role |
 |---|---|
-| `bc.sh` | Backup coordinator — sequential, blocking live backups via `virsh backup-begin` (for running VMs) an `cp` (for shut off ones|
+| `bc.sh` | Backup coordinator — sequential, blocking live backups via `virsh backup-begin` (for running VMs) an `cp` (for shut off ones)|
 | `bc-kill.sh` | Abort running libvirt backup jobs (`virsh domjobabort`) and remove lock |
 | `rc.sh` | Rsync backups to remote host, clean obsolete local backups |
 | `lint.sh` | Shell syntax lint (`bash -n`, `sh -n`) across all `*.sh` files |

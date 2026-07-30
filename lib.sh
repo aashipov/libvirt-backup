@@ -99,8 +99,8 @@ rm_running() {
 # ------------------------------------------------------------
 get_vm_disk_names_and_absolute_paths() {
     # Extract disk name | absolute path to disk file
-    # ${VM_NAME} must be set in the calling function
-    local DOMBLKLIST="$(virsh domblklist --details "${VM_NAME}" | grep disk)" || die "Could not parse disk list for ${VM_NAME}"
+    local _VM_NAME="${1}"
+    local DOMBLKLIST="$(virsh domblklist --details "${_VM_NAME}" | grep disk)" || die "Could not parse disk list for ${_VM_NAME}"
     local DISK_FILES=$(printf "%s\n" "${DOMBLKLIST}" | awk '{print $3 "|" $4}')
     printf "%s\n" "${DISK_FILES}"
 }
@@ -199,6 +199,15 @@ kill_backup_jobs() {
         fi
     done
     log "Kill backup jobs finish"
+}
+
+# ------------------------------------------------------------
+#  Trap handler — aborts backup jobs and removes lock on SIGINT/SIGTERM
+# ------------------------------------------------------------
+cleanup_on_exit() {
+    kill_backup_jobs
+    rm_running
+    exit 1
 }
 
 # ------------------------------------------------------------
