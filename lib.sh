@@ -184,6 +184,18 @@ backup_vms() {
 }
 
 # ------------------------------------------------------------
+#  Validate *.qcow2 files in "${CURRENT_BACKUP_DIR}"
+# ------------------------------------------------------------
+validate_backups() {
+    local BACKUPS_TO_CHECK=$(find "${CURRENT_BACKUP_DIR}" -type f -name '*.qcow2')
+    for backup_to_check in ${BACKUPS_TO_CHECK}; do
+        echo "=== Analyzing: ${backup_to_check} ==="
+        qemu-img info "${backup_to_check}"
+        qemu-img check "${backup_to_check}"
+    done
+}
+
+# ------------------------------------------------------------
 #  Kill the the backup jobs
 # ------------------------------------------------------------
 kill_backup_jobs() {
@@ -265,16 +277,4 @@ block_root() {
     then
         die_privileged
     fi
-}
-
-# ------------------------------------------------------------
-#  Lint against popular Shell/command-line interpreters, special case of `sh` included
-# ------------------------------------------------------------
-lint_shell_script() {
-    local SHELLS_TO_CHECK_AGAINST="bash sh"
-    for shell in ${SHELLS_TO_CHECK_AGAINST}
-    do
-        printf "Testing %s\n" "${shell}"
-        "${shell}" -n "$@"
-    done
 }

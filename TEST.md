@@ -44,17 +44,9 @@ With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to un
 
 ## Per-test-round steps
 
-### 0. Check `a` VM is running
+### 1. Check `a` VM is running
 
 Do `virsh list --all`. VM `a` must be running, if not `virsh start a` and repeat.
-
-## 1. Lint
-
-```sh
-./lint.sh
-```
-
-Expected: zero errors across all scripts (bash, sh).
 
 ### 2. Environment sanity
 

@@ -9,7 +9,6 @@ Refer to [README.md](./README.md) for human-facing project setup & usage.
 | `bc.sh` | Backup coordinator — sequential, blocking live backups via `virsh backup-begin` (for running VMs) an `cp` (for shut off ones)|
 | `bc-kill.sh` | Abort running libvirt backup jobs (`virsh domjobabort`) and remove lock |
 | `rc.sh` | Rsync backups to remote host, clean obsolete local backups |
-| `lint.sh` | Shell syntax lint (`bash -n`, `sh -n`) across all `*.sh` files |
 | `lib.sh` | Shared library — env loading, lock/marker, backup logic, push, cleanup, security |
 | `weston-runner` | Start a Weston RDP session on port 3390 for headful VM management |
 | `.env.template` | Single source of truth for mandatory env vars (parsed by `check_mandatory_variables_set`) |

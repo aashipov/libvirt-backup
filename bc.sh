@@ -46,6 +46,7 @@ closure() {
 
     create_running
     backup_vms
+    validate_backups
     rm_running
 }
 
