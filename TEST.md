@@ -40,7 +40,7 @@ With `virt-manager` create a VM called `a`, attach `debian-prototype.qcow2` copy
 
 Check if `virsh list --all` lists machines a & b
 
-With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to unprivileged user (`${USER}`): `sudo mkdir -p /backup-vm/ /other_backup/ && sudo setfacl -d -R -m u:${USER}:rwx /backup-vm/ /other_backup/`
+With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to unprivileged user (`${USER}`): ```sudo mkdir -p /backup-vm/ /other_backup/ && sudo setfacl -d -R -m u:${USER}:rwx /backup-vm/ /other_backup/ && sudo chown -R `id -u`:`id -g` /backup-vm/ /other_backup/```
 
 ## Per-test-round steps
 
@@ -88,7 +88,7 @@ Expected: `OK`.
 ```
 
 Expected behaviours:
-- [ ] Directory `$BACKUP_DIR/YYYY-mm-dd/{a,b}` created
+- [ ] Directory `$BACKUP_DIR/YYYY-mm-dd/{a,b}/` created
 - [ ] Per-VM subdirectories with:
   - `disks.psv` – pipe-separated disk list
   - `VM_NAME.xml` – domain XML dump
@@ -143,7 +143,6 @@ mv .env.bak .env
 Start a long-running backup (e.g. a VM with a large disk) and in another terminal:
 
 ```sh
-pkill -f bc.sh
 ./bc-kill.sh
 ```
 
@@ -153,20 +152,7 @@ Expected:
 - [ ] Log lines record each killed job
 - [ ] Exit code 0
 
-### 8. Replicate to remote server (rc.sh)
-
-```sh
-./rc.sh
-```
-
-Expected:
-- [ ] `rsync` pushes `$BACKUP_DIR/` to `$ANOTHER_SERVER_USERNAME@$ANOTHER_SERVER_IP:$ANOTHER_SERVER_ANOTHER_BACKUP_DIR/`
-- [ ] Local backups older than `$DAYS_TO_KEEP_BACKUPS` are removed
-- [ ] Remote backups older than `$DAYS_TO_KEEP_BACKUPS` are removed (if `ANOTHER_SERVER_ANOTHER_BACKUP_DIR` is locally accessible, e.g. NFS mount)
-- [ ] Log lines record push start/finish, clean start/finish
-- [ ] Exit code 0
-
-### 9. Block root / sudo
+### 8. Block root / sudo
 
 ```sh
 sudo ./bc.sh
@@ -176,7 +162,7 @@ Expected:
 - [ ] Script exits immediately: "Error: This script must not be run as root or with sudo"
 - [ ] Same behaviour for `doas ./bc.sh`
 
-### 10. Verify backup integrity
+### 9. Verify backup integrity
 
 ```sh
 # For each backed-up VM and each qcow2 disk:
@@ -188,7 +174,7 @@ Expected:
 - [ ] `qemu-img check` reports "no errors"
 - [ ] Virtual size matches original disk
 
-### 11. Clean up test data
+### 10. Clean up test data
 
 ```sh
 rm -rf "$BACKUP_DIR"
