@@ -165,9 +165,9 @@ Expected:
 ### 9. Verify backup integrity
 
 ```sh
-# For each backed-up VM and each qcow2 disk:
-qemu-img check BACKUP_DIR/YYYY-mm-dd/${a,b}/${a,b}.qcow2
-qemu-img info BACKUP_DIR/YYYY-mm-dd/${a,b}/${a,b}.qcow2
+# For each backed-up VM and each qcow2 disk
+find /backup-vm/ -type f -name '*.qcow2' -exec qemu-img info {} \;
+find /backup-vm/ -type f -name '*.qcow2' -exec qemu-img check {} \;
 ```
 
 Expected:
