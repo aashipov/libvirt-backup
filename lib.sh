@@ -108,6 +108,7 @@ create_backup_dir() {
     # Creates a local backup dir if missing
     mkdir -p "${BACKUP_DIR}" || die "Can not BACKUP_DIR dir ${BACKUP_DIR}"
     mkdir -p "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}" || die "Can not ANOTHER_SERVER_ANOTHER_BACKUP_DIR dir ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
+    touch "${BACKUP_LOG_FILE}"
 }
 
 create_current_backup_dir() {

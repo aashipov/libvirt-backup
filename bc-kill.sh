@@ -22,6 +22,7 @@ closure() {
 
     # Do the job
     environment
+    create_backup_dir
     kill_backup_jobs
     rm_running
 }
