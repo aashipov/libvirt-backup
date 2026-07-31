@@ -41,9 +41,7 @@ EOF
 
 [Official manual](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/8/html/configuring_and_managing_virtualization/backing-up-and-recovering-virtual-machines_configuring-and-managing-virtualization)
 
-[Tools like](https://github.com/abbbi/virtnbdbackup) may not fit an 'air-gapped' / 'airtight' environment / 'secure' linux distros, output disk file is neither raw nor qcow2
-
-GNU Coreutils, sed, grep, environment file and shell script 'glue' might be a simpler alternative to the above
+[Tools like](https://github.com/abbbi/virtnbdbackup) may not fit an 'air-gapped' / 'airtight' environment / 'secure' linux distros, output disk file is neither raw nor qcow2. GNU Coreutils, sed, grep, environment file and shell script 'glue' might be a simpler alternative
 
 Live/online backup may produce inconsistent data across VMs which depend on each other.
 

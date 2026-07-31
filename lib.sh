@@ -107,7 +107,7 @@ get_vm_disk_names_and_absolute_paths() {
 }
 
 # ------------------------------------------------------------
-#  Back the running VM up
+#  Back the VM up
 # ------------------------------------------------------------
 backup_vm() {
     # Exports VM configuration (XML) and copies disks

@@ -46,7 +46,7 @@ deb-src http://deb.debian.org/debian trixie-updates main contrib non-free
 EOF
 ```
 
-Do `apt-get update && apt-get -y upgrade`, then `apt-get install -y acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad`
+Do `apt-get update && apt-get -y upgrade`, then `apt-get install -y git acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad`
 
 Add an unprivileged user `user` to `sudo` and `libvirt` groups: `usermod -aG sudo user && usermod -aG libvirt user`
 

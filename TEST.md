@@ -40,7 +40,7 @@ With `virt-manager` create a VM called `a`, attach `a.qcow2` to it, then create 
 
 Check if `virsh list --all` lists machines a & b
 
-With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to unprivileged user (`${USER}`): ```sudo mkdir -p /backup-vm/ /other_backup/ && sudo setfacl -d -R -m u:${USER}:rwx /backup-vm/ /other_backup/ && sudo chown -R `id -u`:`id -g` /backup-vm/ /other_backup/```
+With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to unprivileged user (`${USER}`): ``sudo mkdir -p /backup-vm/ /other_backup/ && sudo setfacl -d -R -m u:${USER}:rwx /backup-vm/ /other_backup/ && sudo chown -R `id -u`:`id -g` /backup-vm/ /other_backup/``
 
 ## Per-test-round steps
 
@@ -80,6 +80,7 @@ Expected: `OK`.
 ```
 
 Expected behaviours:
+
 - [ ] Directory `$BACKUP_DIR/YYYY-mm-dd/{a,b}/` created
 - [ ] Per-VM subdirectories with:
   - `disks.psv` – pipe-separated disk list
@@ -95,6 +96,7 @@ Expected behaviours:
 Run `./bc.sh` again immediately.
 
 Expected:
+
 - [ ] New `$BACKUP_DIR/YYYY-mm-dd/{a,b}` directory created (same-day re-run)
 - [ ] All VM artifacts re-created under the new date dir
 - [ ] No stale `$BACKUP_DIR/running` marker
@@ -108,6 +110,7 @@ touch "$BACKUP_DIR/running"
 ```
 
 Expected:
+
 - [ ] Script exits with error: "Another copy of this file may be running..."
 - [ ] `$BACKUP_DIR/backup.log` contains the error message
 
@@ -123,6 +126,7 @@ mv .env .env.bak
 ```
 
 Expected:
+
 - [ ] Script exits with error: "No .env file found"
 - [ ] No backup artifacts created
 
@@ -135,10 +139,11 @@ mv .env.bak .env
 Start a long-running backup (e.g. a VM with a large disk) and in another terminal:
 
 ```sh
-./bc-kill.sh
+pkill -f bc.sh ; ./bc-kill.sh
 ```
 
 Expected:
+
 - [ ] `virsh domjobabort` called for each running VM
 - [ ] `$BACKUP_DIR/running` marker removed
 - [ ] Log lines record each killed job
@@ -151,6 +156,7 @@ sudo ./bc.sh
 ```
 
 Expected:
+
 - [ ] Script exits immediately: "Error: This script must not be run as root or with sudo"
 - [ ] Same behaviour for `doas ./bc.sh`
 
@@ -163,28 +169,29 @@ find /backup-vm/ -type f -name '*.qcow2' -exec qemu-img check {} \;
 ```
 
 Expected:
+
 - [ ] `qemu-img check` reports "no errors"
 - [ ] Virtual size matches original disk
+
+Copy/move `a.qcow2` backup to `/var/lib/libvirt/images/` under `a-backup.qcow2` name, create a VM out of it, check if it runs the way `a` VM does
 
 ### 10. Clean up test data
 
 ```sh
-rm -rf "$BACKUP_DIR"
-# On remote if applicable:
-# ssh $ANOTHER_SERVER_USERNAME@$ANOTHER_SERVER_IP rm -rf "$ANOTHER_SERVER_ANOTHER_BACKUP_DIR"
+rm -rf "$BACKUP_DIR/*/"
 ```
 
 ### Test environment
 
 Record the test environment for reproducibility:
 
-| Item | Value |
-|---|---|
-| Date | |
-| Host OS | |
-| libvirt version | `virsh --version` |
-| QEMU version | `qemu-img --version` |
-| Bash version | `bash --version` |
-| VM names tested | |
-| VM disk types | |
-| Remote reachable | |
+| Item             | Value                |
+| ---------------- | -------------------- |
+| Date             |                      |
+| Host OS          |                      |
+| libvirt version  | `virsh --version`    |
+| QEMU version     | `qemu-img --version` |
+| Bash version     | `bash --version`     |
+| VM names tested  |                      |
+| VM disk types    |                      |
+| Remote reachable |                      |
