@@ -44,11 +44,11 @@ With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to un
 
 ## Per-test-round steps
 
-### 1. Check `a` VM is running
+### Check `a` VM is running
 
 Do `virsh list --all`. VM `a` must be running, if not `virsh start a` and repeat.
 
-### 2. Environment sanity
+### Environment sanity
 
 Deploy source code to test VM
 
@@ -73,7 +73,7 @@ bash -c 'set -a; source .env; set +a; echo OK'
 
 Expected: `OK`.
 
-### 3. Backup (happy path)
+### Backup (happy path)
 
 ```sh
 ./bc.sh
@@ -91,7 +91,7 @@ Expected behaviours:
 - [ ] Log lines appended to `$BACKUP_DIR/backup.log`
 - [ ] Exit code 0
 
-### 4. Idempotency – second backup
+### Idempotency – second backup
 
 Run `./bc.sh` again immediately.
 
@@ -102,7 +102,7 @@ Expected:
 - [ ] No stale `$BACKUP_DIR/running` marker
 - [ ] Exit code 0
 
-### 5. Lock/marker collision
+### Lock/marker collision
 
 ```sh
 touch "$BACKUP_DIR/running"
@@ -118,7 +118,7 @@ Expected:
 rm "$BACKUP_DIR/running"
 ```
 
-### 6. Missing `.env`
+### Missing `.env`
 
 ```sh
 mv .env .env.bak
@@ -134,7 +134,7 @@ Expected:
 mv .env.bak .env
 ```
 
-### 7. Kill running backup
+### Kill running backup
 
 Start a long-running backup (e.g. a VM with a large disk) and in another terminal:
 
@@ -149,7 +149,7 @@ Expected:
 - [ ] Log lines record each killed job
 - [ ] Exit code 0
 
-### 8. Block root / sudo
+### Block root / sudo
 
 ```sh
 sudo ./bc.sh
@@ -160,7 +160,7 @@ Expected:
 - [ ] Script exits immediately: "Error: This script must not be run as root or with sudo"
 - [ ] Same behaviour for `doas ./bc.sh`
 
-### 9. Verify backup integrity
+### Verify backup integrity
 
 ```sh
 # For each backed-up VM and each qcow2 disk
@@ -175,7 +175,17 @@ Expected:
 
 Copy/move `a.qcow2` backup to `/var/lib/libvirt/images/` under `a-backup.qcow2` name, create a VM out of it, check if it runs the way `a` VM does
 
-### 10. Clean up test data
+### Backup timeout
+
+Set `BACKUP_TIMEOUT_SECONDS` to `10` in `.env`
+
+Launch `./bc.sh`, wait for 10 seconds
+
+The process terminates itself, check `Backup job for a did not finish within 10s` message
+
+Verify no `running` file present in the current backup directory
+
+### Clean up test data
 
 ```sh
 rm -rf "$BACKUP_DIR/*/"

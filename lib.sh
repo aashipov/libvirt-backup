@@ -160,13 +160,22 @@ backup_vm() {
         virsh backup-begin "${VM_NAME}" --reuse-external --backupxml "${BACKUP_TASK_FILE}" ||
                 die "Failed to start backup for ${VM_NAME}"
 
-        # wait completion
+        # wait completion (bounded by BACKUP_TIMEOUT_SECONDS)
+        local BACKUP_DEADLINE=$(( $(date +%s) + BACKUP_TIMEOUT_SECONDS ))
         while :; do
+            # timeout?
+            if [ "$(date +%s)" -ge "${BACKUP_DEADLINE}" ]
+            then
+                log "Backup job for ${VM_NAME} did not finish within ${BACKUP_TIMEOUT_SECONDS}s"
+                cleanup_on_exit
+            fi
+            # job complete?
             if virsh domjobinfo "${VM_NAME}" | grep -q "None"
             then
                 break
             fi
-            sleep 10s
+            # wait
+            sleep 10
         done
     fi
     log "${VM_NAME} backup finish"
@@ -190,7 +199,7 @@ backup_vms() {
 validate_backups() {
     local BACKUPS_TO_CHECK=$(find "${CURRENT_BACKUP_DIR}" -type f -name '*.qcow2')
     for backup_to_check in ${BACKUPS_TO_CHECK}; do
-        echo "=== Analyzing: ${backup_to_check} ==="
+        printf "=== Analyzing: %s ===\n" ${backup_to_check}
         qemu-img info "${backup_to_check}"
         qemu-img check "${backup_to_check}"
     done
