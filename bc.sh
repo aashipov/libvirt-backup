@@ -34,6 +34,9 @@ closure() {
     # Cleanup on interrupt
     trap cleanup_on_exit INT TERM
 
+    # Release the lock on normal exit
+    trap rm_running EXIT
+
     # Do the job
     environment
     create_backup_dir # at this point log file must be available
@@ -41,13 +44,10 @@ closure() {
     local LAUNCH_DATE=$(date +%Y-%m-%d)
     local CURRENT_BACKUP_DIR="${BACKUP_DIR}/${LAUNCH_DATE}"
 
-    check_running
     create_current_backup_dir
-
+    check_running
     create_running
     backup_vms
-    # Release the lock before validation
-    rm_running
     validate_backups
 }
 

@@ -18,7 +18,13 @@ readonly _LIB_SH_LOADED=1
 # ------------------------------------------------------------
 
 _log() {
-    printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${1}" | tee -a "${BACKUP_LOG_FILE}"
+    if [ -n "${BACKUP_LOG_FILE:-}" ] && [ -f "${BACKUP_LOG_FILE}" ]
+    then
+        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${1}" | tee -a "${BACKUP_LOG_FILE}"
+    else
+        # BACKUP_LOG_FILE not set yet (e.g. missing .env) — stdout only
+        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${1}"
+    fi
 }
 
 log() {
@@ -28,6 +34,31 @@ log() {
 die() {
     _log "${1}"
     exit 1
+}
+
+# ------------------------------------------------------------
+#  Fail if a variable value is blank or unsafe
+#  Rejects:
+#   - blank/unset values
+#   - values made only of '/' characters ('/', '////')
+#   - unexpanded variable expansions ('$HOME', '${VAR}')
+#   - tilde home shorthands ('~/backup')
+#   - '..' path traversal ('../x', '/a/../b')
+# ------------------------------------------------------------
+_check_path() {
+    local VAR_PTR="${1}"
+    local USERS_HOME="${HOME}"
+    eval "local VAR_VALUE=\"\${${VAR_PTR}:-}\""
+
+    case "${VAR_VALUE}" in
+        '')           die "${VAR_PTR} is blank" ;;
+        "${USERS_HOME}"|"${USERS_HOME}/") die "${VAR_PTR} refers user's home directory" ;;
+        *'$'*)        die "${VAR_PTR} contains an unexpanded variable expansion (${VAR_VALUE})" ;;
+        *'~'*)        die "${VAR_PTR} contains a tilde '~' — use an absolute path (${VAR_VALUE})" ;;
+        *'.'*)       die "${VAR_PTR} contains '.' — path traversal is not allowed (${VAR_VALUE})" ;;
+        *[!/]*)       : ;; # contains at least one non-slash character, ok
+        *)            die "${VAR_PTR} contains only slashes (${VAR_VALUE})" ;;
+    esac
 }
 
 # ------------------------------------------------------------
@@ -46,6 +77,15 @@ check_mandatory_variables_set() {
             eval "readonly ${VAR_PTR}"
         fi
     done
+    _check_path "BACKUP_DIR"
+    _check_path "ANOTHER_SERVER_ANOTHER_BACKUP_DIR"
+    # DAYS_TO_KEEP_BACKUPS feeds `find -mtime`: a leading '+' is mandatory for
+    # the 'older than N days' semantic (a bare number would match a 24h window,
+    # e.g. 0 would delete everything modified in the last day)
+    case "${DAYS_TO_KEEP_BACKUPS}" in
+        '+'[0-9]*) : ;;
+        *) die "DAYS_TO_KEEP_BACKUPS must be of the form '+N' (older than N days), got '${DAYS_TO_KEEP_BACKUPS}'" ;;
+    esac
 }
 
 # ------------------------------------------------------------
@@ -66,12 +106,13 @@ environment() {
 
 create_backup_dir() {
     # Creates a local backup dir if missing
-    mkdir -p "${BACKUP_DIR}" "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
+    mkdir -p "${BACKUP_DIR}" || die "Can not BACKUP_DIR dir ${BACKUP_DIR}"
+    mkdir -p "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}" || die "Can not ANOTHER_SERVER_ANOTHER_BACKUP_DIR dir ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
 }
 
 create_current_backup_dir() {
     # Creates a ${BACKUP_DIR}/YYYY-mm-dd for the current run of the script
-    mkdir -p "${CURRENT_BACKUP_DIR}"
+    mkdir -p "${CURRENT_BACKUP_DIR}" || die "Can not CURRENT_BACKUP_DIR dir ${CURRENT_BACKUP_DIR}"
 }
 
 # ------------------------------------------------------------
@@ -259,7 +300,7 @@ clean_obsolete_backups() {
 # ------------------------------------------------------------
 push_backups_to_another_server() {
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} start"
-    rsync -avz -e "ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" "${BACKUP_DIR}/" "${ANOTHER_SERVER_USERNAME}@${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" | tee -a "${BACKUP_LOG_FILE}"
+    rsync -avz -e "ssh -o BatchMode=yes" "${BACKUP_DIR}/" "${ANOTHER_SERVER_USERNAME}@${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" || die "Push failed"
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} finish"
 }
 
