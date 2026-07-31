@@ -44,6 +44,8 @@ die() {
 #   - unexpanded variable expansions ('$HOME', '${VAR}')
 #   - tilde home shorthands ('~/backup')
 #   - '..' path traversal ('../x', '/a/../b')
+#   - multiple slashes in a row ('//', '/a//b')
+#   - shell metacharacters: backticks, parentheses, curly braces, square brackets
 # ------------------------------------------------------------
 _check_path() {
     local VAR_PTR="${1}"
@@ -55,7 +57,12 @@ _check_path() {
         "${USERS_HOME}"|"${USERS_HOME}/") die "${VAR_PTR} refers user's home directory" ;;
         *'$'*)        die "${VAR_PTR} contains an unexpanded variable expansion (${VAR_VALUE})" ;;
         *'~'*)        die "${VAR_PTR} contains a tilde '~' — use an absolute path (${VAR_VALUE})" ;;
-        *'.'*)       die "${VAR_PTR} contains '.' — path traversal is not allowed (${VAR_VALUE})" ;;
+        *'..'*)       die "${VAR_PTR} contains '..' — path traversal is not allowed (${VAR_VALUE})" ;;
+        *'//'*)       die "${VAR_PTR} contains multiple slashes in a row (${VAR_VALUE})" ;;
+        *'`'*)        die "${VAR_PTR} contains a backtick (\`) (${VAR_VALUE})" ;;
+        *'('*|*')'*)  die "${VAR_PTR} contains parentheses (${VAR_VALUE})" ;;
+        *'{'*|*'}'*)  die "${VAR_PTR} contains curly braces (${VAR_VALUE})" ;;
+        *'['*|*']'*)  die "${VAR_PTR} contains square brackets (${VAR_VALUE})" ;;
         *[!/]*)       : ;; # contains at least one non-slash character, ok
         *)            die "${VAR_PTR} contains only slashes (${VAR_VALUE})" ;;
     esac
