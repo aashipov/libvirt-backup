@@ -100,9 +100,14 @@ rm_running() {
 # ------------------------------------------------------------
 get_vm_disk_names_and_absolute_paths() {
     # Extract disk name | absolute path to disk file
+    # Filter on the Device column ('disk') to skip cdrom and avoid false
+    # positives from source paths containing the word 'disk'
     local _VM_NAME="${1}"
-    local DOMBLKLIST="$(virsh domblklist --details "${_VM_NAME}" | grep disk)" || die "Could not parse disk list for ${_VM_NAME}"
-    local DISK_FILES=$(printf "%s\n" "${DOMBLKLIST}" | awk '{print $3 "|" $4}')
+    local DISK_FILES="$(virsh domblklist --details "${_VM_NAME}" | awk '$2 == "disk" && $4 != "-" {print $3 "|" $4}')"
+    if [ -z "${DISK_FILES}" ]
+    then
+        die "Could not parse disk list for ${_VM_NAME}"
+    fi
     printf "%s\n" "${DISK_FILES}"
 }
 
@@ -200,8 +205,8 @@ validate_backups() {
     local BACKUPS_TO_CHECK=$(find "${CURRENT_BACKUP_DIR}" -type f -name '*.qcow2')
     for backup_to_check in ${BACKUPS_TO_CHECK}; do
         printf "=== Analyzing: %s ===\n" ${backup_to_check}
-        qemu-img info "${backup_to_check}"
-        qemu-img check "${backup_to_check}"
+        qemu-img info "${backup_to_check}" || die "qemu-img info failed for ${backup_to_check}"
+        qemu-img check "${backup_to_check}" || die "qemu-img check failed for ${backup_to_check}"
     done
 }
 

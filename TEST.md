@@ -173,6 +173,8 @@ Expected:
 - [ ] `qemu-img check` reports "no errors"
 - [ ] Virtual size matches original disk
 
+Note: `bc.sh` runs this validation automatically. A corrupt image makes `./bc.sh` exit with code 1, appends `Backup validation failed` to `$BACKUP_DIR/backup.log` and leaves no stale `$BACKUP_DIR/running` marker.
+
 Copy/move `a.qcow2` backup to `/var/lib/libvirt/images/` under `a-backup.qcow2` name, create a VM out of it, check if it runs the way `a` VM does
 
 ### Backup timeout

@@ -11,7 +11,7 @@
 
 With VMs present on the host `virsh list --all` returns empty list, check `virsh --connect qemu:///system list --all`
 
-Configure on per-host (uncomment `uri_default=uri_default = "qemu:///system"` in `/etc/libvirt/libvirt.conf`) or per-user basis:
+Configure on per-host (uncomment `uri_default = "qemu:///system"` in `/etc/libvirt/libvirt.conf`) or per-user basis:
 
 ```shell
 mkdir -p ${HOME}/.config/libvirt/

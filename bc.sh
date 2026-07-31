@@ -46,8 +46,9 @@ closure() {
 
     create_running
     backup_vms
-    validate_backups
+    # Release the lock before validation
     rm_running
+    validate_backups
 }
 
 closure
