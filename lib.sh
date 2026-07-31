@@ -179,6 +179,18 @@ backup_vm() {
     # Dump VM config
     virsh dumpxml "${VM_NAME}" > "${VM_BACKUP_DIR}/${VM_NAME}.xml" || die "Failed to dump an XML config for ${VM_NAME}"
 
+    # Capture VM state once and reuse it below: polling `virsh domstate` per-disk
+    # (and again after the loop) could see a state flip mid-run (VM started or
+    # stopped), which would mix offline disk copies and live backup jobs for a
+    # single VM
+    local VM_STATE=$(virsh domstate "${VM_NAME}" || die "Failed to get ${VM_NAME} state")
+    local IS_VM_RUNNING=0
+    if printf '%s\n' "${VM_STATE}" | grep -q "running"
+    then
+        IS_VM_RUNNING=1
+        log "${VM_NAME} is running, will use a live backup job"
+    fi
+
     # Backup job descriptor content (running VMs only)
     local BACKUP_JOB_DESCRIPTOR_CONTENT="<domainbackup>\n    <disks>"
     while IFS= read -r line; do
@@ -188,7 +200,7 @@ backup_vm() {
         DISK_FILE_NAME="$(basename "${DISK_FILE_ABSOLUTE_PATH}")"
         local TARGET_DISK_FILE_ABSOLUTE_PATH="${VM_BACKUP_DIR}/${DISK_FILE_NAME}"
 
-        if virsh domstate "${VM_NAME}" | grep -q "running"
+        if [ "${IS_VM_RUNNING}" -eq "1" ]
         then
             # Workaround target file permissions
             local TARGET_DISK_CAPACITY
@@ -199,13 +211,14 @@ backup_vm() {
         else
             # copy offline VM file
             # qemu-img convert -O qcow2 -c ${DISK_FILE_ABSOLUTE_PATH} ${TARGET_DISK_FILE_ABSOLUTE_PATH} || die "Copy of ${DISK_FILE_ABSOLUTE_PATH} ${TARGET_DISK_FILE_ABSOLUTE_PATH} failed"
-            cp -p "${DISK_FILE_ABSOLUTE_PATH}" "${VM_BACKUP_DIR}/"
+            log "Copying ${DISK_FILE_ABSOLUTE_PATH} to ${VM_BACKUP_DIR}/"
+            cp -p "${DISK_FILE_ABSOLUTE_PATH}" "${VM_BACKUP_DIR}/" || die "Failed to copy ${DISK_FILE_ABSOLUTE_PATH} to ${VM_BACKUP_DIR}/"
         fi
     done < "${VM_DISKS_FILE}"
     BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}    </disks>\n</domainbackup>"
 
     # Running VM only: persist backup task xml to a file
-    if virsh domstate "${VM_NAME}" | grep -q "running"
+    if [ "${IS_VM_RUNNING}" -eq "1" ]
     then
         local BACKUP_TASK_FILE="${VM_BACKUP_DIR}/${VM_NAME}-backup-job-descriptor.xml"
         # printf "%s\n" "${BACKUP_JOB_DESCRIPTOR_CONTENT}" would produce an unparseable XML
