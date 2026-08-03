@@ -31,12 +31,6 @@ closure() {
     fi
     . "${_LIB_SH_FILE}"
 
-    # Cleanup on interrupt
-    trap cleanup_on_exit INT TERM
-
-    # Release the lock on normal exit
-    trap rm_running EXIT
-
     # Do the job
     environment
     create_backup_dir # at this point log file must be available
@@ -46,6 +40,12 @@ closure() {
 
     create_current_backup_dir
     check_running
+    
+    # Cleanup on interrupt
+    trap cleanup_on_exit INT TERM
+    # Release the lock on normal exit
+    trap rm_running EXIT
+
     create_running
     backup_vms
     validate_backups

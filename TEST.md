@@ -141,7 +141,7 @@ mv .env.bak .env
 Start a long-running backup (e.g. a VM with a large disk) and in another terminal:
 
 ```sh
-pkill -f bc.sh ; ./bc-kill.sh
+pkill -x bc.sh ; ./bc-kill.sh
 ```
 
 Expected:

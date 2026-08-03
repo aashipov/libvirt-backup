@@ -24,5 +24,5 @@ Refer to [README.md](./README.md) for human-facing project setup & usage.
 - **Lock file**: `$BACKUP_DIR/$RUNNING_FILE_NAME` prevents concurrent `bc.sh` runs.
 - **`.env.template` is the schema**: `check_mandatory_variables_set` greps variable names from it and ensures each is set and non-blank; matched vars are then marked `readonly`.
 - **Offline VMs**: disks are `cp -p`'d; **running VMs** use libvirt's push-based backup (`virsh backup-begin` + polling `virsh domjobinfo`).
-- **Kill sequence** (manual): `pkill -f bc.sh ; ./bc-kill.sh`
+- **Kill sequence** (manual): `pkill -x bc.sh ; ./bc-kill.sh`
 - **Output & logs**: no need it log levels, prefer `printf` over `echo`
