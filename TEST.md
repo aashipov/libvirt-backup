@@ -191,6 +191,16 @@ Verify no `running` file present in the current backup directory
 
 Launch `./rc.sh`, check `/other_backup` contains `/backup-vm` copy
 
+### Cron-managed backup & sync
+
+Clear up test data
+
+Launch cron editor `crontab -e`
+
+Schedule a job to near future, e.g. `59 0 15 * * ${HOME}/libvirt-backup/bc.sh && ${HOME}/libvirt-backup/rc.sh`
+
+Check `/backup-vm/backup.log`, confirm backup created in `/backup-vm/` and copied to `/other_bacup/`
+
 ### Clean up test data
 
 ```sh
