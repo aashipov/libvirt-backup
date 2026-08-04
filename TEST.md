@@ -32,7 +32,7 @@ Create & configure nested VMs called `a` (running) and `b` (shut off)
 
 Create disks:
 
-- make a `generic_alpine*.qcow2` copy `sudo cp ~/generic_alpine*.qcow2 /var/lib/libvirt/images/a.qcow2`
+- make a `generic_alpine*.qcow2` copy `sudo mv ~/generic_alpine*.qcow2 /var/lib/libvirt/images/a.qcow2`
 
 - create `b.qcow2` as `qemu-img create -f qcow2 b.qcow2 32G && sudo mv b.qcow2 /var/lib/libvirt/images/b.qcow2`
 
