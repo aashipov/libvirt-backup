@@ -8,7 +8,7 @@ Create `debian-prototype.qcow2` as per [HEADFUL.md](./HEADFUL.md)
 
 Create a `test VM` (copy `debian-prototype.qcow2`, attach to it as VirtIO disk)
 
-Deploy [nocloud image](https://alpinelinux.org/cloud/) to `test VM` via SSH (disk for the future `a` VM)
+Deploy [alpine image](https://alpinelinux.org/cloud/) to `test VM` via SSH (disk for the future `a` VM)
 
 The rest of the test case is performed with `test VM`. Use `xrdp` (port 3389) or `weston` `xrdp` (port 3390) RDP servers for GUI
 

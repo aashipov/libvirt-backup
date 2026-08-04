@@ -1,0 +1,4 @@
+#!/bin/sh
+# Launch Desktop Application from a terminal in X Server / Wayland session
+# Example: gui mousepad $HOME/.profile
+setsid "${@}" >> "${HOME}/gui-${1}.log" 2>&1 &
