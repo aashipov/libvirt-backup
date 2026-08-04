@@ -48,11 +48,11 @@ EOF
 
 `apt-get update && apt-get -y upgrade`
 
-`apt-get install -y cronie git rsync acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad`
+`apt-get install -y cron git rsync acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad`
 
 `apt clean && apt autoremove`
 
-`systemctl enable --now cronie`
+`systemctl enable --now cron`
 
 Add an unprivileged user `user` to `sudo` and `libvirt` groups: `usermod -aG sudo user && usermod -aG libvirt user`
 
