@@ -21,7 +21,7 @@ Favor [Debian installer](https://cdimage.debian.org/debian-cd/current/amd64/iso-
 
 Create a disk
 
-```shell 
+```shell
 qemu-img create -f qcow2 debian.qcow2 32G
 ```
 
@@ -46,7 +46,13 @@ deb-src http://deb.debian.org/debian trixie-updates main contrib non-free
 EOF
 ```
 
-Do `apt-get update && apt-get -y upgrade`, then `apt-get install -y git rsync acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad`, then `apt clean && apt autoremove`
+`apt-get update && apt-get -y upgrade`
+
+`apt-get install -y cronie git rsync acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad`
+
+`apt clean && apt autoremove`
+
+`systemctl enable --now cronie`
 
 Add an unprivileged user `user` to `sudo` and `libvirt` groups: `usermod -aG sudo user && usermod -aG libvirt user`
 
@@ -60,6 +66,15 @@ Enable and start `libvirtd` and `xrdp`:
 sudo systemctl enable --now libvirtd
 sudo systemctl enable --now xrdp
 ```
+
+Configure Openbox (open terminal on Win+Enter/Return, quit Openbox on Ctrl+Alt+BackSpace):
+
+Deploy `openbox-rc.xml` to home dir.
+
+`
+mkdir -p ~/.config/openbox
+mv ~/openbox-rc.xml ~/.config/openbox/rc.xml
+`
 
 At this point you should be able to RDP the Openbox in guest vm via `mstsc.exe`, `xfreerdp`/`wlfreerdp`, `Remmina` (Note: modern distros include `xfreerdp3`/`wlfreerdp3`, so craft symlinks in `/usr/bin` by hand):
 
