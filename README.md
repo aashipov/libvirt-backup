@@ -36,6 +36,7 @@ EOF
 - kill backup jobs `pkill -x bc.sh ; ./bc-kill.sh`
 - adjust `ANOTHER_SERVER_IP` & `ANOTHER_SERVER_USERNAME` in `.env` to reflect the IP and rsync-capable username of 'another' host in the cluster
 - replicate backups and clean obsoletes `./rc.sh`
+- `./debug.sh` to check if system is configured correctly
 
 ## Details
 

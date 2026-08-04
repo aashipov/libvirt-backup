@@ -71,7 +71,8 @@ _check_path() {
 # ------------------------------------------------------------
 #  Configure user's uri_default for qemu:///system
 # ------------------------------------------------------------
-_configure_libvirt_for_system() {
+check_libvirt() {
+    virsh version >/dev/null 2>&1 || die "Cannot reach libvirt (is libvirtd running?)"
     if [ ! -f "$HOME/.config/libvirt/libvirt.conf" ] || ! grep -q '^uri_default *= *"qemu:///system"' "$HOME/.config/libvirt/libvirt.conf"
     then
         export LIBVIRT_DEFAULT_URI="qemu:///system"
@@ -119,7 +120,7 @@ environment() {
     # . for bash, zsh, ksh, (d)ash. source for (t)csh
     . "${ENV_FILE}"
     check_mandatory_variables_set
-    _configure_libvirt_for_system
+    check_libvirt
 }
 
 create_backup_dir() {

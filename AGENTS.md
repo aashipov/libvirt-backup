@@ -10,6 +10,7 @@ Refer to [README.md](./README.md) for human-facing project setup & usage.
 | `bc-kill.sh`                                 | Abort running libvirt backup jobs (`virsh domjobabort`) and remove lock                                                       |
 | `rc.sh`                                      | Rsync backups to remote host, clean obsolete local backups                                                                    |
 | `lib.sh`                                     | Shared library — env loading, lock/marker, backup logic, push, cleanup, security                                              |
+| `debug.sh`                                   | to check if system is configured correctly                                                                                    |
 | `weston-runner`                              | Start a Weston RDP session on port 3390 for headful VM management                                                             |
 | `.env.template`                              | Single source of truth for mandatory env vars (parsed by `check_mandatory_variables_set`)                                     |
 | `.env`                                       | Per-host configuration (gitignored)                                                                                           |

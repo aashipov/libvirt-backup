@@ -3,8 +3,7 @@
 # ------------------------------------------------------------
 #  debug.sh – debug scripts, e.g. non-interactive shell like cron
 # ------------------------------------------------------------
-
-# The intended use
+# The intended use:
 # ./debug.sh | tee "$HOME/libvirt-backup-debug.log"
 
 _fail() {
@@ -29,9 +28,7 @@ closure() {
     # Do the job
     environment
 
-    set -x # debug
-
-    virsh version >/dev/null 2>&1 || _fail "Cannot reach libvirt (is libvirtd running?)"
+    #set -x # debug
 
     printf '%s\n' "Environment"
     printf '%s\n' "------------------------------------------------------------"
