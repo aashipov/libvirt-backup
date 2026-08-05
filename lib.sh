@@ -224,7 +224,6 @@ backup_vm() {
             BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}\n        <disk name='${DISK_NAME}' type='file'>\n            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>\n                <driver type='qcow2'/>\n        </disk>\n"
         else
             # copy offline VM file
-
             if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" -eq "1" ]
             then
                 log "Performing qemu-img convert with compression ${DISK_FILE_ABSOLUTE_PATH} -> ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
@@ -264,6 +263,17 @@ backup_vm() {
             # wait
             sleep 10
         done
+        if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" -eq "1" ]
+        then
+            local BACKUPS_TO_SHRINK=$(find "${VM_BACKUP_DIR}" -type f -name '*.qcow2')
+            for backup_to_shrink in ${BACKUPS_TO_SHRINK}
+            do
+                local SHRUNK_BACKUP="${backup_to_shrink}-shrunk"
+                log "Performing qemu-img convert with compression ${backup_to_shrink} -> ${SHRUNK_BACKUP}"
+                qemu-img convert -O qcow2 -c "${backup_to_shrink}" "${SHRUNK_BACKUP}" || die "qemu-img convert with compression failed for ${backup_to_shrink} -> ${SHRUNK_BACKUP}"
+                rm "${backup_to_shrink}"
+            done
+        fi
     fi
     log "${VM_NAME} backup finish"
 }
@@ -285,7 +295,8 @@ backup_vms() {
 # ------------------------------------------------------------
 validate_backups() {
     local BACKUPS_TO_CHECK=$(find "${CURRENT_BACKUP_DIR}" -type f -name '*.qcow2')
-    for backup_to_check in ${BACKUPS_TO_CHECK}; do
+    for backup_to_check in ${BACKUPS_TO_CHECK}
+    do
         printf "=== Analyzing: %s ===\n" ${backup_to_check}
         qemu-img info "${backup_to_check}" || die "qemu-img info failed for ${backup_to_check}"
         qemu-img check "${backup_to_check}" || die "qemu-img check failed for ${backup_to_check}"
