@@ -27,8 +27,8 @@ closure() {
     environment
     create_backup_dir
     check_running
-    push_backups_to_another_server
     clean_obsolete_backups
+    push_backups_to_another_server
 }
 
 closure

@@ -47,6 +47,7 @@ closure() {
     trap rm_running EXIT
 
     create_running
+    clean_obsolete_backups
     backup_vms
     validate_backups
 }
