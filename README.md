@@ -48,6 +48,6 @@ Live/online backup may produce inconsistent data across VMs which depend on each
 
 Logical Volume Manager (LVM) is considered slower than traditional partitions. Virtual disks must be attached to VM as virtio / writeback cache mode
 
-Online backup will produce a 'shrinkable', often twice as large. Become owner (sudo chown -R `id -u`:`id -g` orig.qcow2) then shrink `qemu-img convert -O qcow2 -c orig.qcow2 shrunk.qcow2`
+Online backup will produce a 'shrinkable' (2-6 times as small). Become owner (sudo chown -R `id -u`:`id -g` orig.qcow2) then shrink `qemu-img convert -O qcow2 -c orig.qcow2 shrunk.qcow2`
 
 Crontab entry example: `59 0 15 * * ${HOME}/libvirt-backup/bc.sh && ${HOME}/libvirt-backup/rc.sh`
