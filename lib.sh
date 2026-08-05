@@ -201,6 +201,8 @@ backup_vm() {
     then
         IS_VM_RUNNING=1
         log "${VM_NAME} is running, will use a live backup job"
+    else
+        log "${VM_NAME} is not running, will use an offline backup"
     fi
 
     # Backup job descriptor content (running VMs only)
@@ -222,7 +224,7 @@ backup_vm() {
             BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}\n        <disk name='${DISK_NAME}' type='file'>\n            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>\n                <driver type='qcow2'/>\n        </disk>\n"
         else
             # copy offline VM file
-            # qemu-img convert -O qcow2 -c ${DISK_FILE_ABSOLUTE_PATH} ${TARGET_DISK_FILE_ABSOLUTE_PATH} || die "Copy of ${DISK_FILE_ABSOLUTE_PATH} ${TARGET_DISK_FILE_ABSOLUTE_PATH} failed"
+
             if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" -eq "1" ]
             then
                 log "Performing qemu-img convert with compression ${DISK_FILE_ABSOLUTE_PATH} -> ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
