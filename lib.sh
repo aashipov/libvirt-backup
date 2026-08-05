@@ -294,7 +294,7 @@ backup_vms() {
 #  Validate *.qcow2 files in "${CURRENT_BACKUP_DIR}"
 # ------------------------------------------------------------
 validate_backups() {
-    local BACKUPS_TO_CHECK=$(find "${CURRENT_BACKUP_DIR}" -type f -name '*.qcow2')
+    local BACKUPS_TO_CHECK=$(find "${CURRENT_BACKUP_DIR}" -type f \( -name '*.qcow2' -o -name '*.qcow2-shrunk' \))
     for backup_to_check in ${BACKUPS_TO_CHECK}
     do
         printf "=== Analyzing: %s ===\n" ${backup_to_check}
