@@ -352,7 +352,7 @@ clean_obsolete_backups() {
 # ------------------------------------------------------------
 push_backups_to_another_server() {
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} start"
-    rsync --recursive --delete --rsh="ssh -o BatchMode=yes" "${BACKUP_DIR}/" "${ANOTHER_SERVER_USERNAME}@${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" || die "Push failed"
+    rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" "${BACKUP_DIR}/" "${ANOTHER_SERVER_USERNAME}@${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" || die "Push failed"
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} finish"
 }
 
