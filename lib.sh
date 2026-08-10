@@ -230,6 +230,7 @@ backup_vm() {
             # copy offline VM file
             if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" -eq "1" ]
             then
+                TARGET_DISK_FILE_ABSOLUTE_PATH="${TARGET_DISK_FILE_ABSOLUTE_PATH}-shrunk"
                 log "Performing qemu-img convert with compression ${DISK_FILE_ABSOLUTE_PATH} -> ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
                 qemu-img convert -O qcow2 -c "${DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_FILE_ABSOLUTE_PATH}" || die "qemu-img convert with compression failed for ${DISK_FILE_ABSOLUTE_PATH} -> ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
             else
