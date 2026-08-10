@@ -1,42 +1,17 @@
-# libvirt VMs live backup
-
-## Prerequisites
-
-- libvirt ≥ 7.2.0
-- QEMU ≥ 4.2
-- modern Bash/Dash
-- unprivileged user with `virsh` clearance (as per Distro manual)
+# libvirt VMs backup
 
 ## Setup
 
-With VMs present on the host `virsh list --all` returns empty list, check `virsh --connect qemu:///system list --all`
-
-Configure on per-host (uncomment `uri_default = "qemu:///system"` in `/etc/libvirt/libvirt.conf`) or per-user basis:
-
-```shell
-mkdir -p ${HOME}/.config/libvirt/
-cat << 'EOF' | tee -a ${HOME}/.config/libvirt/libvirt.conf
-uri_default = "qemu:///system"
-EOF
-```
+Check [HEADFUL.md](./HEADFUL.md), [TEST.md](./TEST.md) for configuration 
 
 With unprivileged user at each host:
 
 - pick archive or clone`git clone https://github.com/aashipov/libvirt-backup.git` or pull recent version `git pull -r`
-- make an .env file `cp .env.template .env`, adjust variables (Per-host variables, especially)
-- fill `VM_NAMES_TO_BACK_UP` in `.env` file as per:
-
-```shell
-cat << EOF | tee -a .env
-VM_NAMES_TO_BACK_UP="`virsh list --all | grep running | tr -s ' ' | cut -d ' ' -f 3 | tr '\n' ' '`"
-EOF
-```
-- check if `VM_NAMES_TO_BACK_UP` in `.env` is a complete list of VM to back up
+- make an .env file `cp .env.template .env`, adjust variables (once, per-host variables, especially), fill `VM_NAMES_TO_BACK_UP` in `.env` with VM names to back up
+- call `./debug.sh` to check if system is configured correctly
 - launch backup jobs `./bc.sh` (consecutive, blocking)
 - kill backup jobs `pkill -x bc.sh ; ./bc-kill.sh`
-- adjust `ANOTHER_SERVER_IP` & `ANOTHER_SERVER_USERNAME` in `.env` to reflect the IP and rsync-capable username of 'another' host in the cluster
-- replicate backups and clean obsoletes `./rc.sh`
-- `./debug.sh` to check if system is configured correctly
+- (optional) adjust `ANOTHER_SERVER_IP` & `ANOTHER_SERVER_USERNAME` in `.env` to reflect the IP and rsync-capable username of 'another' host in the cluster. Run replication & obsolete clean up (`./rc.sh`)
 
 ## Details
 
@@ -47,7 +22,3 @@ EOF
 Live/online backup may produce inconsistent data across VMs which depend on each other.
 
 Logical Volume Manager (LVM) is considered slower than traditional partitions. Virtual disks must be attached to VM as virtio / writeback cache mode
-
-Online backup will produce a 'shrinkable' (2-6 times as small). Become owner (sudo chown -R `id -u`:`id -g` orig.qcow2) then shrink `qemu-img convert -O qcow2 -c orig.qcow2 shrunk.qcow2`
-
-Crontab entry example: `59 0 15 * * ${HOME}/libvirt-backup/bc.sh && ${HOME}/libvirt-backup/rc.sh`

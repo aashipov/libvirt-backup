@@ -14,20 +14,6 @@ The rest of the test case is performed with `test VM`. Use `xrdp` (port 3389) or
 
 ### Once, per-test-VM configuration
 
-'Nested' virtualization fails with Debian (host & guest network address spaces `192.168.122.0/24` clash):
-use `sudo virsh net-edit default` to switch `nested` network to `192.168.123.0/24` or alike
-
-Configure networks startup `sudo virsh net-autostart default && sudo virsh net-start default`
-
-Configure userspace libvirt:
-
-```shell
-mkdir -p ${HOME}/.config/libvirt/
-cat << 'EOF' | tee -a ${HOME}/.config/libvirt/libvirt.conf
-uri_default = "qemu:///system"
-EOF
-```
-
 Create & configure nested VMs called `a` (running) and `b` (shut off)
 
 Create disks:
@@ -58,11 +44,6 @@ Deploy source code to test VM
 
 ```sh
 cp .env.template .env
-# edit .env:
-#   VM_NAMES_TO_BACK_UP  – space-separated list of running VM names
-#   ANOTHER_SERVER_IP    – reachable IP
-#   ANOTHER_SERVER_USERNAME – user with rsync+SSH key access
-#   DAYS_TO_KEEP_BACKUPS – e.g. "+1" for testing (removes dirs older than 1 day)
 ```
 
 `${HOME}/libvirt-backup/.env` must be present and reflect test VM configuration

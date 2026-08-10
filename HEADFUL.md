@@ -4,7 +4,7 @@
 
 With RDP & VNC - a graphical desktop-sharing systems - one can control a remote computer from another device (RDP lacks simultaneous access VNC got, but looks more production-ready).
 
-Debian is fast, stable and open-licensed, makes a good Operating System for virtualization host & guests.
+Debian is fast, stable and open-licensed, makes a good Operating System for virtualization host & guests. Ubuntu is slower, but may work as well. Expect the very basic things like kernel upgrade to break the system (Ubuntu adds complexity of its own and inherits Debian testing, which is more error-prone than Debian stable + backports)
 
 ## Host Requirements
 
@@ -17,7 +17,7 @@ Debian is fast, stable and open-licensed, makes a good Operating System for virt
 
 ## Prototype image
 
-Favor [Debian installer](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/), as [Live](https://www.debian.org/CD/live/) images bring a lot of irrelevant packages
+Favor [Debian installer](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/), as [Live](https://www.debian.org/CD/live/) images bring a lot of irrelevant packages.
 
 Create a disk
 
@@ -29,7 +29,7 @@ Create a VM, 4G memory, attach the disk as VirtIO, attach DVD ISO, follow the in
 
 ## Packages
 
-Debian comes with no `sudo`, so use `su -` for first steps.
+Debian comes with no `sudo`, so use `su -` for the first steps.
 
 Enable package manager mirror, if not done before. For Debian 13 (Trixie) it may look like:
 
@@ -71,10 +71,8 @@ Configure Openbox (open terminal on Win+Enter/Return, quit Openbox on Ctrl+Alt+B
 
 Deploy `openbox-rc.xml` to home dir.
 
-`
-mkdir -p ~/.config/openbox
-mv ~/openbox-rc.xml ~/.config/openbox/rc.xml
-`
+`mkdir -p ~/.config/openbox
+mv ~/openbox-rc.xml ~/.config/openbox/rc.xml`
 
 At this point you should be able to RDP the Openbox in guest vm via `mstsc.exe`, `xfreerdp`/`wlfreerdp`, `Remmina` (Note: modern distros include `xfreerdp3`/`wlfreerdp3`, so craft symlinks in `/usr/bin` by hand):
 
@@ -95,6 +93,22 @@ xfreerdp /w:1600 /h:900 +clipboard /u:<user> /p:<password> /v:<IP> /port:3390
 ```
 
 Weston got no menu, so use terminal `setsid virt-manager &` or [gui](./gui) wrapper to launch `virt-manager` and detach it from terminal window
+
+### libvirtd & virsh configuration
+
+'Nested' virtualization fails with Debian (host & guest network address spaces `192.168.122.0/24` clash):
+use `sudo virsh net-edit default` to switch `nested` network to `192.168.123.0/24` or alike
+
+Configure networks startup (must) `sudo virsh net-autostart default && sudo virsh net-start default`
+
+Configure userspace libvirt (should, convenience):
+
+```shell
+mkdir -p ${HOME}/.config/libvirt/
+cat << 'EOF' | tee -a ${HOME}/.config/libvirt/libvirt.conf
+uri_default = "qemu:///system"
+EOF
+```
 
 ## Wrap up
 
