@@ -22,7 +22,9 @@ Create disks:
 
 - create `b.qcow2` as `qemu-img create -f qcow2 b.qcow2 32G && sudo mv b.qcow2 /var/lib/libvirt/images/b.qcow2`
 
-With `virt-manager` create a VM called `a`, attach `a.qcow2` to it, then create a `b` machine, attach `b.qcow2` to it.
+- create `c.qcow2` as `qemu-img create -f qcow2 c.qcow2 32G && sudo mv c.qcow2 /var/lib/libvirt/images/c.qcow2`
+
+With `virt-manager` create a (alpine for the sake of `modest` resource requirements) VM called `a`, attach `a.qcow2` to it, `b` machine, attach `b.qcow2` to it, `c` machine, attach `c.qcow2` to it.
 
 Check if `virsh list --all` lists machines a & b
 
@@ -34,7 +36,9 @@ Generate SSH key for rsync: `ssh-keygen -t rsa -b 4096`, deploy: `ssh-copy-id ${
 
 ### Check `a` VM is running
 
-Do `virsh list --all`. VM `a` must be running, if not `virsh start a` and repeat.
+Do `virsh list --all`. VM `a` must be running, `c` - paused.
+
+If not `virsh start a ; virsh start c ; virsh suspend c` and repeat `virsh list --all`
 
 ### Environment sanity
 
@@ -147,8 +151,8 @@ Expected:
 
 ```sh
 # For each backed-up VM and each qcow2 disk
-find /backup-vm/ -type f -name '*.qcow2' -exec qemu-img info {} \;
-find /backup-vm/ -type f -name '*.qcow2' -exec qemu-img check {} \;
+find /backup-vm/ -type f -name '*.qcow2*' -exec qemu-img info {} \;
+find /backup-vm/ -type f -name '*.qcow2*' -exec qemu-img check {} \;
 ```
 
 Expected:
@@ -156,7 +160,7 @@ Expected:
 - [ ] `qemu-img check` reports "no errors"
 - [ ] Virtual size matches original disk
 
-Copy/move `a.qcow2` backup to `/var/lib/libvirt/images/` under `a-backup.qcow2` name, create a VM out of it, check if it runs the way `a` VM does
+Copy/move `a.qcow2` backup to `/var/lib/libvirt/images/` under `a.qcow2` name, create a VM out of it, check if it runs the way `a` VM does
 
 ### Backup timeout
 
@@ -180,7 +184,7 @@ Launch cron editor `crontab -e`
 
 Schedule a job to near future, e.g. `59 0 15 * * ${HOME}/libvirt-backup/bc.sh && ${HOME}/libvirt-backup/rc.sh`
 
-Check `/backup-vm/backup.log`, confirm backup created in `/backup-vm/` and copied to `/other_bacup/`
+Check `/backup-vm/backup.log`, confirm backup created in `/backup-vm/` and copied to `/other_backup/`
 
 ### Clean up test data
 

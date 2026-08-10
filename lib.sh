@@ -201,6 +201,10 @@ backup_vm() {
     then
         IS_VM_RUNNING=1
         log "${VM_NAME} is running, will use a live backup job"
+    elif printf '%s\n' "${VM_STATE}" | grep -q "paused"
+    then
+        log "${VM_NAME} is paused, skipping"
+        return 0
     else
         log "${VM_NAME} is not running, will use an offline backup"
     fi
@@ -297,9 +301,12 @@ validate_backups() {
     local BACKUPS_TO_CHECK=$(find "${CURRENT_BACKUP_DIR}" -type f \( -name '*.qcow2' -o -name '*.qcow2-shrunk' \))
     for backup_to_check in ${BACKUPS_TO_CHECK}
     do
-        printf "=== Analyzing: %s ===\n" ${backup_to_check}
-        qemu-img info "${backup_to_check}" || die "qemu-img info failed for ${backup_to_check}"
-        qemu-img check "${backup_to_check}" || die "qemu-img check failed for ${backup_to_check}"
+        if [ -f "${backup_to_check}" ]
+        then
+            printf "=== Analyzing: %s ===\n" ${backup_to_check}
+            qemu-img info "${backup_to_check}" || die "qemu-img info failed for ${backup_to_check}"
+            qemu-img check "${backup_to_check}" || die "qemu-img check failed for ${backup_to_check}"
+        fi
     done
 }
 
