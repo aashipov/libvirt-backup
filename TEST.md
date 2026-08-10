@@ -69,24 +69,13 @@ Expected: `OK`.
 Expected behaviours:
 
 - [ ] Directory `$BACKUP_DIR/YYYY-mm-dd/{a,b}/` created
-- [ ] Per-VM subdirectories with:
+- [ ] Per-VM (`a`, `b`) subdirectories with:
   - `disks.psv` – pipe-separated disk list
   - `VM_NAME.xml` – domain XML dump
   - `VM_NAME-backup-job-descriptor.xml` (running VMs only)
   - `*.qcow2` disk image(s)
 - [ ] `$BACKUP_DIR/running` marker file removed after completion
 - [ ] Log lines appended to `$BACKUP_DIR/backup.log`
-- [ ] Exit code 0
-
-### Idempotency – second backup
-
-Run `./bc.sh` again immediately.
-
-Expected:
-
-- [ ] New `$BACKUP_DIR/YYYY-mm-dd/{a,b}` directory created (same-day re-run)
-- [ ] All VM artifacts re-created under the new date dir
-- [ ] No stale `$BACKUP_DIR/running` marker
 - [ ] Exit code 0
 
 ### Lock/marker collision

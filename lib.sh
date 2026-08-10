@@ -132,7 +132,7 @@ create_backup_dir() {
 
 create_current_backup_dir() {
     # Creates a ${BACKUP_DIR}/YYYY-mm-dd for the current run of the script
-    mkdir -p "${CURRENT_BACKUP_DIR}" || die "Can not CURRENT_BACKUP_DIR dir ${CURRENT_BACKUP_DIR}"
+    mkdir -p "${CURRENT_BACKUP_DIR}" || die "Can not create CURRENT_BACKUP_DIR dir ${CURRENT_BACKUP_DIR}"
 }
 
 # ------------------------------------------------------------
