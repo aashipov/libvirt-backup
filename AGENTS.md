@@ -1,6 +1,12 @@
-# libvirt VMs live backup
+# Instructions for libvirt backup
 
-Refer to [README.md](./README.md) for human-facing project setup & usage.
+Refer to [README.md](./README.md), [HEADFUL.md](./HEADFUL.md), [TEST.md](./TEST.md) for the ideas how to benefit from the project.
+
+> [!IMPORTANT]
+>
+> AI-generated code is allowed. What is **not** allowed is submitting code you do not understand. You are 100% responsible for every line, however it was produced.
+>
+> [pi](https://github.com/earendil-works/pi) or [opencode](https://github.com/anomalyco/opencode), backed by [llama.cpp](https://github.com/ggml-org/llama.cpp) local models like [Gemma 4](https://huggingface.co/google/gemma-4-E2B-it-qat-q4_0-gguf) or [QWEN 3](https://huggingface.co/Qwen/Qwen3-4B-GGUF), cloud models like DeepSeek V4, will produce a lot of `belles-lettres` and `good intentions`. Check relevance & [TEST.md](./TEST.md) conformance before commiting those.
 
 ## Project structure
 
