@@ -28,7 +28,7 @@ With `virt-manager` create a (alpine for the sake of `modest` resource requireme
 
 Check if `virsh list --all` lists machines a & b
 
-With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to unprivileged user (`${USER}`): ``sudo mkdir -p /backup-vm/ /other_backup/ && sudo setfacl -d -R -m u:${USER}:rwx /backup-vm/ /other_backup/ && sudo chown -R `id -u`:`id -g` /backup-vm/ /other_backup/``
+With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to unprivileged user (`${USER}`): ```sudo mkdir -p /backup-vm/ /other_backup/ && sudo setfacl -d -R -m u:${USER}:rwx /backup-vm/ /other_backup/ && sudo chown -R `id -u`:`id -g` /backup-vm/ /other_backup/```
 
 Generate SSH key for rsync: `ssh-keygen -t rsa -b 4096`, deploy: `ssh-copy-id ${USER}@127.0.0.2`, verify paswordless login `ssh ${USER}@127.0.0.2`
 
