@@ -80,6 +80,13 @@ check_libvirt() {
 }
 
 # ------------------------------------------------------------
+#  Check if qemu-img is installed
+# ------------------------------------------------------------
+check_qemu_img() {
+    qemu-img --version >/dev/null 2>&1 || die "Cannot reach libvirt (is libvirtd running?)"
+}
+
+# ------------------------------------------------------------
 #  Check if all of the mandatory variables are set in the environment
 # ------------------------------------------------------------
 check_mandatory_variables_set() {
@@ -121,6 +128,7 @@ environment() {
     . "${ENV_FILE}"
     check_mandatory_variables_set
     check_libvirt
+    check_qemu_img
 }
 
 create_backup_dir() {
