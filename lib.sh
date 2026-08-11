@@ -229,7 +229,7 @@ backup_vm() {
         if [ "${IS_VM_RUNNING}" -eq "1" ]
         then
             # Workaround target file permissions
-            local TARGET_DISK_CAPACITY="$(virsh domblkinfo ${VM_NAME} ${DISK_NAME} | grep Capacity | awk '{print $2}')"
+            local TARGET_DISK_CAPACITY="$(virsh domblkinfo ${VM_NAME} ${DISK_NAME} | awk '$1 == "Capacity:" {print $2}')"
             qemu-img create -f qcow2 "${TARGET_DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_CAPACITY}" || die "Failed to create a target file for ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
 
             BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}\n        <disk name='${DISK_NAME}' type='file'>\n            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>\n                <driver type='qcow2'/>\n        </disk>\n"
