@@ -83,7 +83,7 @@ check_libvirt() {
 #  Check if qemu-img is installed
 # ------------------------------------------------------------
 check_qemu_img() {
-    qemu-img --version >/dev/null 2>&1 || die "Cannot reach libvirt (is libvirtd running?)"
+    qemu-img --version >/dev/null 2>&1 || die "Cannot reach qemu-img (is qemu-img installed?)"
 }
 
 # ------------------------------------------------------------
@@ -203,7 +203,7 @@ backup_vm() {
     # (and again after the loop) could see a state flip mid-run (VM started or
     # stopped), which would mix offline disk copies and live backup jobs for a
     # single VM
-    local VM_STATE=$(virsh domstate "${VM_NAME}" || die "Failed to get ${VM_NAME} state")
+    local VM_STATE="$(virsh domstate ${VM_NAME})" || die "Failed to get ${VM_NAME} state"
     local IS_VM_RUNNING=0
     if printf '%s\n' "${VM_STATE}" | grep -q "running"
     then
@@ -229,8 +229,7 @@ backup_vm() {
         if [ "${IS_VM_RUNNING}" -eq "1" ]
         then
             # Workaround target file permissions
-            local TARGET_DISK_CAPACITY
-            TARGET_DISK_CAPACITY="$(virsh domblkinfo "${VM_NAME}" "${DISK_NAME}" | grep Capacity | awk '{print $2}')"
+            local TARGET_DISK_CAPACITY="$(virsh domblkinfo ${VM_NAME} ${DISK_NAME} | grep Capacity | awk '{print $2}')"
             qemu-img create -f qcow2 "${TARGET_DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_CAPACITY}" || die "Failed to create a target file for ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
 
             BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}\n        <disk name='${DISK_NAME}' type='file'>\n            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>\n                <driver type='qcow2'/>\n        </disk>\n"
@@ -243,7 +242,7 @@ backup_vm() {
                 qemu-img convert -O qcow2 -c "${DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_FILE_ABSOLUTE_PATH}" || die "qemu-img convert with compression failed for ${DISK_FILE_ABSOLUTE_PATH} -> ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
             else
                 log "Copying ${DISK_FILE_ABSOLUTE_PATH} to ${VM_BACKUP_DIR}/"
-                cp -p "${DISK_FILE_ABSOLUTE_PATH}" "${VM_BACKUP_DIR}/" || die "Failed to copy ${DISK_FILE_ABSOLUTE_PATH} to ${VM_BACKUP_DIR}/"
+                cp --sparse=always "${DISK_FILE_ABSOLUTE_PATH}" "${VM_BACKUP_DIR}/" || die "Failed to copy ${DISK_FILE_ABSOLUTE_PATH} to ${VM_BACKUP_DIR}/"
             fi
         fi
     done < "${VM_DISKS_FILE}"
