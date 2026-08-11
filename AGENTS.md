@@ -8,6 +8,12 @@ Refer to [README.md](./README.md), [HEADFUL.md](./HEADFUL.md), [TEST.md](./TEST.
 >
 > [pi](https://github.com/earendil-works/pi) or [opencode](https://github.com/anomalyco/opencode), backed by [llama.cpp](https://github.com/ggml-org/llama.cpp) local models like [Gemma 4](https://huggingface.co/google/gemma-4-E2B-it-qat-q4_0-gguf) or [QWEN 3](https://huggingface.co/Qwen/Qwen3-4B-GGUF), cloud models like DeepSeek V4, will produce a lot of `belles-lettres` and `good intentions`. Check relevance & [TEST.md](./TEST.md) conformance before commiting those.
 
+## Core Operational Mantra
+
+
+Prioritize structural safety over quick workarounds, and never introduce blind placeholders or incomplete logic. Do not rewrite or refactor structural boundaries or utility functions unless explicitly instructed. Adapt your changes to fit the existing patterns of the codebase.
+
+
 ## Project structure
 
 | Path                                         | Role                                                                                                                          |
