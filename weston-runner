@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# sudo pacman -S weston xorg-xwayland
+# Launch Weston RDP backend at port 3390
 
 generate_ini() {
     WESTON_INI="${CONFIG_DIR}/weston.ini"
