@@ -197,7 +197,7 @@ backup_vm() {
     get_vm_disk_names_and_absolute_paths "${VM_NAME}" > "${VM_DISKS_FILE}"
 
     # Dump VM config
-    virsh dumpxml "${VM_NAME}" > "${VM_BACKUP_DIR}/${VM_NAME}.xml" || die "Failed to dump an XML config for ${VM_NAME}"
+    virsh dumpxml --migratable "${VM_NAME}" > "${VM_BACKUP_DIR}/${VM_NAME}.xml" || die "Failed to dump an XML config for ${VM_NAME}"
 
     # Capture VM state once and reuse it below: polling `virsh domstate` per-disk
     # (and again after the loop) could see a state flip mid-run (VM started or
