@@ -21,7 +21,7 @@ Favor [Debian installer](https://cdimage.debian.org/debian-cd/current/amd64/iso-
 
 Create a disk
 
-```shell
+```sh
 qemu-img create -f qcow2 debian.qcow2 32G
 ```
 
@@ -33,7 +33,7 @@ Debian comes with no `sudo`, so use `su -` for the first steps.
 
 Enable package manager mirror, if not done before. For Debian 13 (Trixie) it may look like:
 
-```shell
+```sh
 cat << 'EOF' | tee /etc/apt/sources.list
 deb http://deb.debian.org/debian trixie main contrib non-free
 deb-src http://deb.debian.org/debian trixie main contrib non-free
@@ -46,15 +46,18 @@ deb-src http://deb.debian.org/debian trixie-updates main contrib non-free
 EOF
 ```
 
-`apt-get update && apt-get -y upgrade`
+```sh
+apt-get update && apt-get -y upgrade
+apt-get install -y cron git rsync acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad
+apt clean && apt autoremove
+systemctl enable --now cron
+```
 
-`apt-get install -y cron git rsync acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad`
+Add an unprivileged user `user` to `sudo` and `libvirt` groups:
 
-`apt clean && apt autoremove`
-
-`systemctl enable --now cron`
-
-Add an unprivileged user `user` to `sudo` and `libvirt` groups: `usermod -aG sudo user && usermod -aG libvirt user`
+```sh
+usermod -aG sudo user && usermod -aG libvirt user
+```
 
 Exit `su -` and SSH session, re-login.
 
@@ -62,7 +65,7 @@ Exit `su -` and SSH session, re-login.
 
 Enable and start `libvirtd` and `xrdp`:
 
-```shell
+```sh
 sudo systemctl enable --now libvirtd
 sudo systemctl enable --now xrdp
 ```
@@ -71,12 +74,14 @@ Configure Openbox (open terminal on Win+Enter/Return, quit Openbox on Ctrl+Alt+B
 
 Deploy `openbox-rc.xml` to home dir.
 
-`mkdir -p ~/.config/openbox
-mv ~/openbox-rc.xml ~/.config/openbox/rc.xml`
+```sh
+mkdir -p ~/.config/openbox
+mv ~/openbox-rc.xml ~/.config/openbox/rc.xml
+```
 
 At this point you should be able to RDP the Openbox in guest vm via `mstsc.exe`, `xfreerdp`/`wlfreerdp`, `Remmina` (Note: modern distros include `xfreerdp3`/`wlfreerdp3`, so craft symlinks in `/usr/bin` by hand):
 
-```shell
+```sh
 xfreerdp /w:1600 /h:900 +clipboard /u:<user> /p:<password> /v:<IP> /port:3389
 ```
 
@@ -88,7 +93,7 @@ Deploy [weston-runner](./weston-runner) to guest, launch via SSH
 
 Use RDP client to connect to Weston at 3390 port:
 
-```shell
+```sh
 xfreerdp /w:1600 /h:900 +clipboard /u:<user> /p:<password> /v:<IP> /port:3390
 ```
 
@@ -103,7 +108,7 @@ Configure networks startup (must) `sudo virsh net-autostart default && sudo virs
 
 Configure userspace libvirt (should, convenience):
 
-```shell
+```sh
 mkdir -p ${HOME}/.config/libvirt/
 cat << 'EOF' | tee -a ${HOME}/.config/libvirt/libvirt.conf
 uri_default = "qemu:///system"
@@ -114,7 +119,7 @@ EOF
 
 Turn off the VM, navigate to the directory with disk we created `debian.qcow2`, compact the image:
 
-```shell
+```sh
 qemu-img convert -O qcow2 -c debian.qcow2 debian-prototype.qcow2
 ```
 

@@ -18,17 +18,33 @@ Create & configure nested VMs called `a` (running) and `b` (shut off)
 
 Create disks:
 
-- make a `generic_alpine*.qcow2` copy `sudo mv ~/generic_alpine*.qcow2 /var/lib/libvirt/images/a.qcow2`
+- make a `generic_alpine*.qcow2` copy
 
-- create `b.qcow2` as `qemu-img create -f qcow2 b.qcow2 32G && sudo mv b.qcow2 /var/lib/libvirt/images/b.qcow2`
+```sh
+sudo mv ~/generic_alpine*.qcow2 /var/lib/libvirt/images/a.qcow2
+```
 
-- create `c.qcow2` as `qemu-img create -f qcow2 c.qcow2 32G && sudo mv c.qcow2 /var/lib/libvirt/images/c.qcow2`
+- create `b.qcow2` as
+
+```sh
+qemu-img create -f qcow2 b.qcow2 32G && sudo mv b.qcow2 /var/lib/libvirt/images/b.qcow2
+```
+
+- create `c.qcow2` as
+
+```sh
+qemu-img create -f qcow2 c.qcow2 32G && sudo mv c.qcow2 /var/lib/libvirt/images/c.qcow2
+```
 
 With `virt-manager` create a (alpine for the sake of `modest` resource requirements) VM called `a`, attach `a.qcow2` to it, `b` machine, attach `b.qcow2` to it, `c` machine, attach `c.qcow2` to it.
 
 Check if `virsh list --all` lists machines a & b
 
-With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to unprivileged user (`${USER}`): ```sudo mkdir -p /backup-vm/ /other_backup/ && sudo setfacl -d -R -m u:${USER}:rwx /backup-vm/ /other_backup/ && sudo chown -R `id -u`:`id -g` /backup-vm/ /other_backup/```
+With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to unprivileged user (`${USER}`):
+
+```sh
+sudo mkdir -p /backup-vm/ /other_backup/ && sudo setfacl -d -R -m u:${USER}:rwx /backup-vm/ /other_backup/ && sudo chown -R `id -u`:`id -g` /backup-vm/ /other_backup/
+```
 
 Generate SSH key for rsync: `ssh-keygen -t rsa -b 4096`, deploy: `ssh-copy-id ${USER}@127.0.0.2`, verify paswordless login `ssh ${USER}@127.0.0.2`
 
@@ -73,7 +89,7 @@ Expected behaviours:
   - `disks.psv` – pipe-separated disk list
   - `VM_NAME.xml` – domain XML dump
   - `VM_NAME-backup-job-descriptor.xml` (running VMs only)
-  - `*.qcow2` disk image(s)
+  - `*.qcow2` or `*.qcow2-shrunk` disk image(s)
 - [ ] `$BACKUP_DIR/running` marker file removed after completion
 - [ ] Log lines appended to `$BACKUP_DIR/backup.log`
 - [ ] Exit code 0
@@ -178,7 +194,7 @@ Check `/backup-vm/backup.log`, confirm backup created in `/backup-vm/` and copie
 ### Clean up test data
 
 ```sh
-rm -rf "$BACKUP_DIR/*/"
+rm -rf "${BACKUP_DIR}/*/ ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/*/"
 ```
 
 ### Test environment
