@@ -5,7 +5,7 @@
 #
 # Prepare a virtual machine called `unix`, unprivileged user called `user`, as per `HEADFUL.md`
 # Craft a `/etc/hosts` synonym for `unix` IP
-# Enable paswordless login `ssh-copy-id user@unix`, make sure it works (`ssh user@unix`)
+# Enable paswordless login `ssh-copy-id user@unix`, make sure it works (`ssh user@unix`), deploy the key to unix's /home/user/.ssh/
 # ------------------------------------------------------------
 
 execute_via_ssh() {
@@ -24,6 +24,18 @@ update_repo_clone() {
         cd "${APP_NAME}"
         git pull -r
     fi
+}
+
+check_dot_env_file() {
+    if [ ! -f ".env" ]
+    then
+        cp .env.template .env
+    fi
+}
+
+deploy_src() {
+    local APP_NAME="libvirt-backup"
+    rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" . "${USERNAME}@${HOSTNAME}:/home/user/${APP_NAME}"
 }
 
 clean_leftovers() {
@@ -67,7 +79,8 @@ closure() {
     local USERNAME="user" # Unprivileged user at that host
     local APP_NAME="libvirt-backup" # A dir for https://github.com/aashipov/libvirt-backup.git clone
 
-    execute_via_ssh "update_repo_clone"
+    check_dot_env_file
+    deploy_src
     execute_via_ssh "clean_leftovers"
     execute_via_ssh "launch_nested_vms"
     execute_via_ssh "happy_path"
