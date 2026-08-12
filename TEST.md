@@ -6,7 +6,7 @@ The advised setting is `nested virtualization` (a couple of VMs inside a test VM
 
 Create `debian-prototype.qcow2` as per [HEADFUL.md](./HEADFUL.md)
 
-Create a `test VM` (copy `debian-prototype.qcow2`, attach to it as VirtIO disk)
+Create a `test VM` (copy `debian-prototype.qcow2`, attach to it as VirtIO disk). Favor `i440FX` Chipset
 
 Deploy [alpine image](https://alpinelinux.org/cloud/) to `test VM` via SSH (disk for the future `a` VM)
 
