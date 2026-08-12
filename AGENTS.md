@@ -2,12 +2,6 @@
 
 Refer to [README.md](./README.md), [HEADFUL.md](./HEADFUL.md), [TEST.md](./TEST.md) for the ideas how to benefit from the project.
 
-> [!IMPORTANT]
->
-> AI-generated code is allowed. What is **not** allowed is submitting code you do not understand. You are 100% responsible for every line, however it was produced.
->
-> [pi](https://github.com/earendil-works/pi) or [opencode](https://github.com/anomalyco/opencode), backed by [llama.cpp](https://github.com/ggml-org/llama.cpp) local models like [Gemma 4](https://huggingface.co/google/gemma-4-E2B-it-qat-q4_0-gguf) or [QWEN 3](https://huggingface.co/Qwen/Qwen3-4B-GGUF), cloud models like DeepSeek V4, will produce a lot of `belles-lettres` / `fluff` / `good intentions` / `Salon Blödsinn`. Check relevance & [TEST.md](./TEST.md) conformance before commiting those.
-
 ## Core Operational Mantra
 
 Prioritize structural safety over quick workarounds, and never introduce blind placeholders or incomplete logic. Do not rewrite or refactor structural boundaries or utility functions unless explicitly instructed. Adapt your changes to fit the existing patterns of the codebase.
@@ -35,6 +29,7 @@ Prioritize structural safety over quick workarounds, and never introduce blind p
 - **No root** / **No sudo/doas ** : `block_root()` checks `id -u` at startup; `sudo` and `doas` are overridden to abort.
 - **Lock file**: `$BACKUP_DIR/$RUNNING_FILE_NAME` prevents concurrent `bc.sh` runs.
 - **`.env.template` is the schema**: `check_mandatory_variables_set` greps variable names from it and ensures each is set and non-blank; matched vars are then marked `readonly`.
-- **Offline VMs**: disks are `cp`'d; **running VMs** use libvirt's push-based backup (`virsh backup-begin` + polling `virsh domjobinfo`).
+- **Offline VMs**: disks are `cp`'d (`QEMU_IMG_CONVERT_WITH_COMPRESSION=0`) or `qemu-img convert -O qcow2 -c <src> <tgt>` (`QEMU_IMG_CONVERT_WITH_COMPRESSION=1`);
+- **running VMs** use libvirt's push-based backup (`virsh backup-begin` + polling `virsh domjobinfo`), `QEMU_IMG_CONVERT_WITH_COMPRESSION=1` will produce a `*.qcow2-shrunk` images (same `qemu-img convert -O qcow2 -c <src> <tgt>`).
 - **Kill sequence** (manual): `pkill -x bc.sh ; ./bc-kill.sh`
 - **Output & logs**: no need it log levels, prefer `printf` over `echo`

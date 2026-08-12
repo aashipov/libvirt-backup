@@ -2,7 +2,7 @@
 
 ## Setup
 
-Check [HEADFUL.md](./HEADFUL.md), [TEST.md](./TEST.md) for configuration 
+Check [HEADFUL.md](./HEADFUL.md), [TEST.md](./TEST.md) for configuration
 
 With unprivileged user at each host:
 
