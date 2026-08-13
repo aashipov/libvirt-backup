@@ -75,7 +75,7 @@ closure() {
 
     check_dot_env_file
     deploy_src
-    ssh "${USERNAME}@${HOSTNAME}" "${APP_NAME}/debug.sh" || _fail ".env file check via SSH failed"
+    ssh "${USERNAME}@${HOSTNAME}" "${APP_NAME}/debug.sh" || _fail "./debug.sh via SSH failed"
     execute_function_via_ssh "clean_leftovers"
     execute_function_via_ssh "launch_nested_vms"
     execute_function_via_ssh "happy_path"
