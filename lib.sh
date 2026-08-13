@@ -48,29 +48,26 @@ die() {
 #   - shell metacharacters: backticks, parentheses, curly braces, square brackets
 # ------------------------------------------------------------
 _check_path() {
-    local VAR_PTR="${1}"
+    local VAR_NAME="${1}"
+    local VAR_VALUE="${2}"
     local USERS_HOME="${HOME}"
-    eval "local VAR_VALUE=\"\${${VAR_PTR}:-}\""
 
     case "${VAR_VALUE}" in
-        '')           die "${VAR_PTR} is blank" ;;
-        "${USERS_HOME}"|"${USERS_HOME}/") die "${VAR_PTR} refers user's home directory" ;;
-        *'$'*)        die "${VAR_PTR} contains an unexpanded variable expansion (${VAR_VALUE})" ;;
-        *'~'*)        die "${VAR_PTR} contains a tilde '~' — use an absolute path (${VAR_VALUE})" ;;
-        *'..'*)       die "${VAR_PTR} contains '..' — path traversal is not allowed (${VAR_VALUE})" ;;
-        *'//'*)       die "${VAR_PTR} contains multiple slashes in a row (${VAR_VALUE})" ;;
+        '')           die "${VAR_NAME} is blank" ;;
+        "${USERS_HOME}"|"${USERS_HOME}/") die "${VAR_NAME} refers user's home directory" ;;
+        *'$'*)        die "${VAR_NAME} contains an unexpanded variable expansion (${VAR_VALUE})" ;;
+        *'~'*)        die "${VAR_NAME} contains a tilde '~' — use an absolute path (${VAR_VALUE})" ;;
+        *'..'*)       die "${VAR_NAME} contains '..' — path traversal is not allowed (${VAR_VALUE})" ;;
+        *'//'*)       die "${VAR_NAME} contains multiple slashes in a row (${VAR_VALUE})" ;;
     esac
 
-    # Whitelist: only allow alphanumeric, slash, dash, underscore, and dot
-    # Reject anything containing characters outside this safe set
     case "${VAR_VALUE}" in
-        *[!a-zA-Z0-9/_.-]*)  die "${VAR_PTR} contains unsafe characters (${VAR_VALUE}) — only alphanumeric, '/', '_', '.', and '-' are allowed" ;;
+        *[!a-zA-Z0-9/_.-]*)  die "${VAR_NAME} contains unsafe characters (${VAR_VALUE}) — only alphanumeric, '/', '_', '.', and '-' are allowed" ;;
     esac
 
-    # Additional check: ensure path doesn't consist only of slashes
     case "${VAR_VALUE}" in
-        *[!/]*)       : ;; # contains at least one non-slash character, ok
-        *)            die "${VAR_PTR} contains only slashes (${VAR_VALUE})" ;;
+        *[!/]*)       : ;;
+        *)            die "${VAR_NAME} contains only slashes (${VAR_VALUE})" ;;
     esac
 }
 
@@ -108,8 +105,8 @@ check_mandatory_variables_set() {
             eval "readonly ${VAR_PTR}"
         fi
     done
-    _check_path "BACKUP_DIR"
-    _check_path "ANOTHER_SERVER_ANOTHER_BACKUP_DIR"
+    _check_path "BACKUP_DIR" "${BACKUP_DIR}"
+    _check_path "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
     # DAYS_TO_KEEP_BACKUPS feeds `find -mtime`: a leading '+' is mandatory for
     # the 'older than N days' semantic (a bare number would match a 24h window,
     # e.g. 0 would delete everything modified in the last day)

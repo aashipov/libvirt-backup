@@ -31,7 +31,7 @@ deploy_src() {
 }
 
 clean_leftovers() {
-    rm -rf /backupv-vm/* /other_backup/*
+    rm -rf /backup-vm/* /other_backup/*
 }
 
 launch_nested_vms() {
