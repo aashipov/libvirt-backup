@@ -59,10 +59,16 @@ _check_path() {
         *'~'*)        die "${VAR_PTR} contains a tilde '~' — use an absolute path (${VAR_VALUE})" ;;
         *'..'*)       die "${VAR_PTR} contains '..' — path traversal is not allowed (${VAR_VALUE})" ;;
         *'//'*)       die "${VAR_PTR} contains multiple slashes in a row (${VAR_VALUE})" ;;
-        *'`'*)        die "${VAR_PTR} contains a backtick (\`) (${VAR_VALUE})" ;;
-        *'('*|*')'*)  die "${VAR_PTR} contains parentheses (${VAR_VALUE})" ;;
-        *'{'*|*'}'*)  die "${VAR_PTR} contains curly braces (${VAR_VALUE})" ;;
-        *'['*|*']'*)  die "${VAR_PTR} contains square brackets (${VAR_VALUE})" ;;
+    esac
+
+    # Whitelist: only allow alphanumeric, slash, dash, underscore, and dot
+    # Reject anything containing characters outside this safe set
+    case "${VAR_VALUE}" in
+        *[!a-zA-Z0-9/_.-]*)  die "${VAR_PTR} contains unsafe characters (${VAR_VALUE}) — only alphanumeric, '/', '_', '.', and '-' are allowed" ;;
+    esac
+
+    # Additional check: ensure path doesn't consist only of slashes
+    case "${VAR_VALUE}" in
         *[!/]*)       : ;; # contains at least one non-slash character, ok
         *)            die "${VAR_PTR} contains only slashes (${VAR_VALUE})" ;;
     esac
