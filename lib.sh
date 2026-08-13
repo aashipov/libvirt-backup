@@ -206,7 +206,8 @@ backup_vm() {
     # (and again after the loop) could see a state flip mid-run (VM started or
     # stopped), which would mix offline disk copies and live backup jobs for a
     # single VM
-    local VM_STATE="$(virsh domstate ${VM_NAME})" || die "Failed to get ${VM_NAME} state"
+    local VM_STATE
+    VM_STATE="$(virsh domstate "${VM_NAME}")" || die "Failed to get ${VM_NAME} state"
     local IS_VM_RUNNING=0
     if printf '%s\n' "${VM_STATE}" | grep -q "running"
     then
@@ -232,7 +233,12 @@ backup_vm() {
         if [ "${IS_VM_RUNNING}" -eq "1" ]
         then
             # Workaround target file permissions
-            local TARGET_DISK_CAPACITY="$(virsh domblkinfo ${VM_NAME} ${DISK_NAME} | awk '$1 == "Capacity:" {print $2}')"
+            local TARGET_DISK_CAPACITY
+            TARGET_DISK_CAPACITY="$(virsh domblkinfo ${VM_NAME} ${DISK_NAME} | awk '$1 == "Capacity:" {print $2}')"
+            if [ -z "${TARGET_DISK_CAPACITY}" ]
+            then
+                die "Failed to get capacity for ${VM_NAME} ${DISK_NAME}"
+            fi
             qemu-img create -f qcow2 "${TARGET_DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_CAPACITY}" || die "Failed to create a target file for ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
 
             BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}\n        <disk name='${DISK_NAME}' type='file'>\n            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>\n                <driver type='qcow2'/>\n        </disk>\n"
