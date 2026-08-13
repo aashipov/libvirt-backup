@@ -11,11 +11,10 @@ Debian is fast, stable and open-licensed, makes a good Operating System for virt
 - Virtualization-capable CPU
 - 16+ GiB RAM
 - 100+ GiB disk
-- libvirt ≥ 7.2.0
-- QEMU ≥ 4.2
-- virt-manager to harness Virtual Machines
+- Linux host: libvirt ≥ 7.2.0, QEMU ≥ 4.2, virt-manager
+- Windows host: Windows 10/Windows Server 2016 Eval or newer; Hyper-V with nested virtualization enabled (`Set-VMProcessor -VMName <VMName> -ExposeVirtualizationExtensions $true`)
 
-## Prototype image
+## Prototype image (Linux host)
 
 Favor [Debian installer](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/), as [Live](https://www.debian.org/CD/live/) images bring a lot of irrelevant packages.
 
@@ -27,7 +26,13 @@ qemu-img create -f qcow2 debian.qcow2 32G
 
 Create a VM, 4G memory, attach the disk as VirtIO, attach DVD ISO, follow the installer (e.g., pick a package manager network mirror; install SSH server & standard system utilities)
 
-## Packages
+## Prototype image (Windows host)
+
+Generation 1 VM, dynamic memory off, same as above
+
+## Linux guest installation & setup
+
+### Packages
 
 Debian comes with no `sudo`, so use `su -` for the first steps.
 
@@ -61,7 +66,7 @@ usermod -aG sudo user && usermod -aG libvirt user
 
 Exit `su -` and SSH session, re-login.
 
-## Configuration
+### Configuration
 
 Enable and start `libvirtd` and `xrdp`:
 
