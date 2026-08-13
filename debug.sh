@@ -16,14 +16,7 @@ _fail() {
 # ------------------------------------------------------------
 closure() {
     # Load library
-    local _SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$0")")
-    local _LIB_SH_FILE="${_SCRIPT_DIR}/lib.sh"
-    if [ ! -f "${_LIB_SH_FILE}" ]
-    then
-        _fail "${_LIB_SH_FILE} is missing. Exiting"
-        exit 1
-    fi
-    . "${_LIB_SH_FILE}"
+    . "$(dirname -- "$(readlink -f -- "$0")")/lib.sh"
 
     # Do the job
     environment

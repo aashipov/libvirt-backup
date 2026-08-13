@@ -22,14 +22,7 @@ closure() {
     #set -x # debug
 
     # Load library
-    local _SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$0")")
-    local _LIB_SH_FILE="${_SCRIPT_DIR}/lib.sh"
-    if [ ! -f "${_LIB_SH_FILE}" ]
-    then
-        printf '%s is missing. Exiting\n' "${_LIB_SH_FILE}"
-        exit 1
-    fi
-    . "${_LIB_SH_FILE}"
+    . "$(dirname -- "$(readlink -f -- "$0")")/lib.sh"
 
     # Do the job
     environment
@@ -40,7 +33,7 @@ closure() {
 
     create_current_backup_dir
     check_running
-    
+
     # Cleanup on interrupt
     trap cleanup_on_exit INT TERM
     # Release the lock on normal exit

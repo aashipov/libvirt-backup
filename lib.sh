@@ -94,7 +94,7 @@ check_qemu_img() {
 # ------------------------------------------------------------
 check_mandatory_variables_set() {
     # .env.template is a single source of truth about mandatory variables
-    local MANDATORY_VARIABLES_NAMES="$(cat "${_SCRIPT_DIR}/.env.template" | grep -v '^#' | grep -v '^$' | awk -F'=' '{print $1}')"
+    local MANDATORY_VARIABLES_NAMES="$(cat "$(dirname -- "$(readlink -f -- "$0")")/.env.template" | grep -v '^#' | grep -v '^$' | awk -F'=' '{print $1}')"
     for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
     do
         eval "VAR_VALUE=\"\${${VAR_PTR}:-}\""
@@ -122,7 +122,7 @@ check_mandatory_variables_set() {
 environment() {
     block_root
     # Loads environment variables from .env
-    local ENV_FILE="${_SCRIPT_DIR}/.env"
+    local ENV_FILE="$(dirname -- "$(readlink -f -- "$0")")/.env"
     if [ ! -f "${ENV_FILE}" ]
     then
         die "No ${ENV_FILE} file found, craft one from ${ENV_FILE}.template"
