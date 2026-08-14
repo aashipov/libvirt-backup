@@ -52,6 +52,14 @@ deb-src http://deb.debian.org/debian trixie-updates main contrib non-free
 EOF
 ```
 
+Ubuntu only:
+
+```sh
+apt remove snapd
+```
+
+Debian & Ubuntu:
+
 ```sh
 apt-get update && apt-get -y upgrade
 apt-get install -y cron git rsync acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager cockpit cockpit-machines weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad
@@ -76,7 +84,7 @@ sudo systemctl enable --now libvirtd
 sudo systemctl enable --now xrdp
 ```
 
-(Optional) if you prefer `cockpit`:
+(Optional, Debian only) if you prefer `cockpit`:
 
 ```sh
 sudo systemctl enable --now cockpit
