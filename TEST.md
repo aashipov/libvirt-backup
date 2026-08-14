@@ -16,27 +16,25 @@ The rest of the test case is performed with `test VM`. Use `xrdp` (port 3389) or
 
 Create & configure nested VMs called `a` (running) and `b` (shut off)
 
-Create disks:
-
-- make a `generic_alpine*.qcow2` copy
+Create a prototype disk:
 
 ```sh
-sudo mv ~/generic_alpine*.qcow2 /var/lib/libvirt/images/a.qcow2
+qemu-img convert -O qcow2 -c generic_alpine*.qcow2 prototype.qcow2
 ```
 
-- create `b.qcow2` as
+Create future VMs disks out of a prototype:
 
 ```sh
-qemu-img create -f qcow2 b.qcow2 32G && sudo mv b.qcow2 /var/lib/libvirt/images/b.qcow2
+for item in a b c; do sudo cp prototype.qcow2 /var/lib/libvirt/images/"$item".qcow2; done
 ```
 
-- create `c.qcow2` as
+Create VMs:
 
 ```sh
-qemu-img create -f qcow2 c.qcow2 32G && sudo mv c.qcow2 /var/lib/libvirt/images/c.qcow2
+for item in a b c; do virt-install --name "$item"  --ram 768 --vcpus 2 --disk path=/var/lib/libvirt/images/"$item".qcow2,format=qcow2,bus=virtio --os-variant alpinelinux3.20 --network network=default --graphics none --import --noautoconsole --noreboot ; done
 ```
 
-With `virt-manager` create a (alpine for the sake of `modest` resource requirements) VM called `a`, attach `a.qcow2` to it, `b` machine, attach `b.qcow2` to it, `c` machine, attach `c.qcow2` to it.
+With `virt-manager` VM configuration.
 
 Check if `virsh list --all` lists machines a & b
 
