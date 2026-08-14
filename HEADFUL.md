@@ -11,7 +11,7 @@ Debian is fast, stable and open-licensed, makes a good Operating System for virt
 - Virtualization-capable CPU
 - 16+ GiB RAM
 - 100+ GiB disk
-- Linux host: libvirt ≥ 7.2.0, QEMU ≥ 4.2, virt-manager
+- Linux host: libvirt ≥ 7.2.0, QEMU ≥ 4.2, virt-manager or VirtualBox
 - Windows host: Windows 10 (Windows/Hyper-V Server 2016 Evaluation) or newer; Hyper-V with nested virtualization enabled (`Set-VMProcessor -VMName <VMName> -ExposeVirtualizationExtensions $true`)
 - FreeBSD host with bhyve
 
@@ -62,7 +62,7 @@ systemctl enable --now cron
 Add an unprivileged user `user` to `sudo` and `libvirt` groups:
 
 ```sh
-usermod -aG sudo user && usermod -aG libvirt user
+/usr/sbin/usermod -aG sudo user && /usr/sbin/usermod -aG libvirt user
 ```
 
 Exit `su -` and SSH session, re-login.
