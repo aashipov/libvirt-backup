@@ -12,7 +12,8 @@ Debian is fast, stable and open-licensed, makes a good Operating System for virt
 - 16+ GiB RAM
 - 100+ GiB disk
 - Linux host: libvirt ≥ 7.2.0, QEMU ≥ 4.2, virt-manager
-- Windows host: Windows 10/Windows Server 2016 Eval or newer; Hyper-V with nested virtualization enabled (`Set-VMProcessor -VMName <VMName> -ExposeVirtualizationExtensions $true`)
+- Windows host: Windows 10 (Windows/Hyper-V Server 2016 Evaluation) or newer; Hyper-V with nested virtualization enabled (`Set-VMProcessor -VMName <VMName> -ExposeVirtualizationExtensions $true`)
+- FreeBSD host with bhyve
 
 ## Prototype image (Linux host)
 
