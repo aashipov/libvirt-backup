@@ -54,7 +54,7 @@ EOF
 
 ```sh
 apt-get update && apt-get -y upgrade
-apt-get install -y cron git rsync acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad
+apt-get install -y cron git rsync acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager cockpit cockpit-machines weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad
 apt clean && apt autoremove
 systemctl enable --now cron
 ```
@@ -74,6 +74,12 @@ Enable and start `libvirtd` and `xrdp`:
 ```sh
 sudo systemctl enable --now libvirtd
 sudo systemctl enable --now xrdp
+```
+
+(Optional) if you prefer `cockpit`:
+
+```sh
+sudo systemctl enable --now cockpit
 ```
 
 Configure Openbox (open terminal on Win+Enter/Return, quit Openbox on Ctrl+Alt+BackSpace):
@@ -120,6 +126,8 @@ cat << 'EOF' | tee -a ${HOME}/.config/libvirt/libvirt.conf
 uri_default = "qemu:///system"
 EOF
 ```
+
+Cockpit, if enabled via `systemd`, requires no configuration, available at [link](https://unix:9090) from both host and guest
 
 ## Wrap up
 
