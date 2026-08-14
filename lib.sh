@@ -234,7 +234,7 @@ backup_vm() {
         then
             # Workaround target file permissions
             local TARGET_DISK_CAPACITY
-            TARGET_DISK_CAPACITY="$(virsh domblkinfo ${VM_NAME} ${DISK_NAME} | awk '$1 == "Capacity:" {print $2}')"
+            TARGET_DISK_CAPACITY="$(virsh domblkinfo "${VM_NAME}" "${DISK_NAME}" | awk '$1 == "Capacity:" {print $2}')"
             if [ -z "${TARGET_DISK_CAPACITY}" ]
             then
                 die "Failed to get capacity for ${VM_NAME} ${DISK_NAME}"
@@ -287,7 +287,7 @@ backup_vm() {
         if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" -eq "1" ]
         then
             local BACKUPS_TO_SHRINK=$(find "${VM_BACKUP_DIR}" -type f -name '*.qcow2')
-            for backup_to_shrink in ${BACKUPS_TO_SHRINK}
+            for backup_to_shrink in "${BACKUPS_TO_SHRINK}"
             do
                 local SHRUNK_BACKUP="${backup_to_shrink}-shrunk"
                 log "Performing qemu-img convert with compression ${backup_to_shrink} -> ${SHRUNK_BACKUP}"
