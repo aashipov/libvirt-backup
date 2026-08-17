@@ -230,7 +230,7 @@ backup_vm() {
         DISK_FILE_NAME="$(basename "${DISK_FILE_ABSOLUTE_PATH}")"
         local TARGET_DISK_FILE_ABSOLUTE_PATH="${VM_BACKUP_DIR}/${DISK_FILE_NAME}"
 
-        if [ "${IS_VM_RUNNING}" -eq "1" ]
+        if [ "${IS_VM_RUNNING}" = "1" ]
         then
             # Workaround target file permissions
             local TARGET_DISK_CAPACITY
@@ -244,7 +244,7 @@ backup_vm() {
             BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}\n        <disk name='${DISK_NAME}' type='file'>\n            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>\n                <driver type='qcow2'/>\n        </disk>\n"
         else
             # copy offline VM file
-            if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" -eq "1" ]
+            if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" = "1" ]
             then
                 TARGET_DISK_FILE_ABSOLUTE_PATH="${TARGET_DISK_FILE_ABSOLUTE_PATH}-shrunk"
                 log "Performing qemu-img convert with compression ${DISK_FILE_ABSOLUTE_PATH} -> ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
@@ -258,7 +258,7 @@ backup_vm() {
     BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}    </disks>\n</domainbackup>"
 
     # Running VM only: persist backup task xml to a file
-    if [ "${IS_VM_RUNNING}" -eq "1" ]
+    if [ "${IS_VM_RUNNING}" = "1" ]
     then
         local BACKUP_TASK_FILE="${VM_BACKUP_DIR}/${VM_NAME}-backup-job-descriptor.xml"
         # printf "%s\n" "${BACKUP_JOB_DESCRIPTOR_CONTENT}" would produce an unparseable XML
@@ -284,7 +284,7 @@ backup_vm() {
             # wait
             sleep 10
         done
-        if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" -eq "1" ]
+        if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" = "1" ]
         then
             local BACKUPS_TO_SHRINK=$(find "${VM_BACKUP_DIR}" -type f -name '*.qcow2')
             for backup_to_shrink in "${BACKUPS_TO_SHRINK}"
