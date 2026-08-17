@@ -67,11 +67,17 @@ apt clean && apt autoremove
 systemctl enable --now cron
 ```
 
+> [!NOTE]
+> RHEL-descendant dependencies: `sudo dnf install -y cronie git rsync acl sudo qemu-kvm libvirt virt-install virt-manager cockpit cockpit-machines weston xrdp openbox mc chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad`
+
 Add an unprivileged user `user` to `sudo` and `libvirt` groups:
 
 ```sh
 /usr/sbin/usermod -aG sudo user && /usr/sbin/usermod -aG libvirt user
 ```
+
+> [!NOTE]
+> RHEL-descendants: `/usr/sbin/usermod -aG libvirt user`
 
 Exit `su -` and SSH session, re-login.
 

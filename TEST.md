@@ -31,7 +31,7 @@ for item in a b c; do sudo cp prototype.qcow2 /var/lib/libvirt/images/"$item".qc
 Create VMs:
 
 ```sh
-for item in a b c; do virt-install --name "$item"  --ram 768 --vcpus 2 --disk path=/var/lib/libvirt/images/"$item".qcow2,format=qcow2,bus=virtio --os-variant alpinelinux3.20 --network network=default --graphics none --import --noautoconsole --noreboot ; done
+for item in a b c; do virt-install --name "$item"  --ram 768 --vcpus 2 --disk path=/var/lib/libvirt/images/"$item".qcow2,format=qcow2,bus=virtio --os-variant generic --network network=default --graphics none --import --noautoconsole --noreboot ; done
 ```
 
 With `virt-manager` VM configuration.
