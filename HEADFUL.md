@@ -68,7 +68,7 @@ systemctl enable --now cron
 ```
 
 > [!NOTE]
-> RHEL-descendant dependencies: `sudo dnf install -y cronie git rsync acl sudo qemu-kvm libvirt virt-install virt-manager cockpit cockpit-machines weston xrdp openbox mc chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad`
+> RHEL-descendant dependencies: `sudo dnf install -y cronie git rsync acl sudo qemu-kvm libvirt virt-install virt-manager cockpit cockpit-machines weston xrdp openbox mc chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon`
 
 Add an unprivileged user `user` to `sudo` and `libvirt` groups:
 
@@ -104,6 +104,14 @@ Deploy `openbox-rc.xml` to home dir.
 mkdir -p ~/.config/openbox
 mv ~/openbox-rc.xml ~/.config/openbox/rc.xml
 ```
+
+> [!NOTE]
+> RHEL-descendants will require:
+> `cat << 'EOF' | tee "${HOME}/.xinitrc"
+export XDG_CURRENT_DESKTOP=openbox
+exec dbus-run-session -- openbox-session
+EOF
+cd ${HOME} && chmod +x .xinitrc && ln -s .xinitrc .xsession && ln -s .xinitrc .Xclients`
 
 At this point you should be able to RDP the Openbox in guest vm via `mstsc.exe`, `xfreerdp`/`wlfreerdp`, `Remmina` (Note: modern distros include `xfreerdp3`/`wlfreerdp3`, so craft symlinks in `/usr/bin` by hand):
 
