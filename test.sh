@@ -59,10 +59,10 @@ turn_off_vms() {
 
 display_result() {
     printf "/backup-vm/ content\n"
-    ls -R /backup-vm/
+    tree -ha /backup-vm/
 
     printf "\n/other_backup/ content\n"
-    ls -R /other_backup/
+    tree -ha /other_backup/
 }
 
 # Main function

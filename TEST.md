@@ -34,6 +34,24 @@ Create VMs:
 for item in a b c; do virt-install --name "$item"  --ram 768 --vcpus 2 --disk path=/var/lib/libvirt/images/"$item".qcow2,format=qcow2,bus=virtio --os-variant generic --network network=default --graphics none --import --noautoconsole --noreboot ; done
 ```
 
+Create a blank prototype disk:
+
+```sh
+qemu-img create -f qcow2 blank-prototype.qcow2 256M
+```
+
+Create blank prototype disks for VMs a & b:
+
+```sh
+for item in a b; do sudo cp blank-prototype.qcow2 /var/lib/libvirt/images/"$item$item".qcow2; done
+```
+
+Attach the blank disk to VMs a & b:
+
+```sh
+for item in a b; do virsh attach-disk "$item" /var/lib/libvirt/images/"$item$item".qcow2 vdb --driver qemu --subdriver qcow2 --config; done
+```
+
 With `virt-manager` VM configuration.
 
 Check if `virsh list --all` lists machines a & b

@@ -62,13 +62,13 @@ Debian & Ubuntu:
 
 ```sh
 apt-get update && apt-get -y upgrade
-apt-get install -y cron git rsync acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager cockpit cockpit-machines weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad
+apt-get install -y cron git rsync acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager cockpit cockpit-machines weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad tree
 apt clean && apt autoremove
 systemctl enable --now cron
 ```
 
 > [!NOTE]
-> RHEL-descendant dependencies: `sudo dnf install -y cronie git rsync acl sudo qemu-kvm libvirt virt-install virt-manager cockpit cockpit-machines weston xrdp openbox mc chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon`
+> RHEL-descendant dependencies: `sudo dnf install -y cronie git rsync acl sudo qemu-kvm libvirt virt-install virt-manager cockpit cockpit-machines weston xrdp openbox mc chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon tree`
 
 Add an unprivileged user `user` to `sudo` and `libvirt` groups:
 
