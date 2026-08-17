@@ -223,7 +223,8 @@ backup_vm() {
 
     # Backup job descriptor content (running VMs only)
     local BACKUP_JOB_DESCRIPTOR_CONTENT="<domainbackup>\n    <disks>"
-    while IFS= read -r line; do
+    while IFS= read -r line
+    do
         local DISK_NAME=$(printf "%s\n" "${line}" | awk -F'|' '{print $1}')
         local DISK_FILE_ABSOLUTE_PATH=$(printf "%s\n" "${line}" | awk -F'|' '{print $2}')
         local DISK_FILE_NAME
@@ -286,9 +287,9 @@ backup_vm() {
         done
         if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" = "1" ]
         then
-            local BACKUPS_TO_SHRINK=$(find "${VM_BACKUP_DIR}" -type f -name '*.qcow2')
-            for backup_to_shrink in "${BACKUPS_TO_SHRINK}"
+            for backup_to_shrink in "${VM_BACKUP_DIR}"/*.qcow2
             do
+                [ -f "${backup_to_shrink}" ] || continue
                 local SHRUNK_BACKUP="${backup_to_shrink}-shrunk"
                 log "Performing qemu-img convert with compression ${backup_to_shrink} -> ${SHRUNK_BACKUP}"
                 qemu-img convert -O qcow2 -c "${backup_to_shrink}" "${SHRUNK_BACKUP}" || die "qemu-img convert with compression failed for ${backup_to_shrink} -> ${SHRUNK_BACKUP}"
@@ -315,16 +316,15 @@ backup_vms() {
 #  Validate *.qcow2 files in "${CURRENT_BACKUP_DIR}"
 # ------------------------------------------------------------
 validate_backups() {
-    local BACKUPS_TO_CHECK=$(find "${CURRENT_BACKUP_DIR}" -type f \( -name '*.qcow2' -o -name '*.qcow2-shrunk' \))
-    for backup_to_check in ${BACKUPS_TO_CHECK}
+    local BACKUPS_TO_CHECK_FILE="${CURRENT_BACKUP_DIR}/.backups-to-check.txt"
+    find "${CURRENT_BACKUP_DIR}" -type f \( -name '*.qcow2' -o -name '*.qcow2-shrunk' \) > "${BACKUPS_TO_CHECK_FILE}" || die "Failed to list backups in ${CURRENT_BACKUP_DIR}"
+    while IFS= read -r line
     do
-        if [ -f "${backup_to_check}" ]
-        then
-            printf "=== Analyzing: %s ===\n" ${backup_to_check}
-            qemu-img info "${backup_to_check}" || die "qemu-img info failed for ${backup_to_check}"
-            qemu-img check "${backup_to_check}" || die "qemu-img check failed for ${backup_to_check}"
-        fi
-    done
+        printf "=== Analyzing: %s ===\n" "${line}"
+        qemu-img info "${line}" || die "qemu-img info failed for ${line}"
+        qemu-img check "${line}" || die "qemu-img check failed for ${line}"
+    done < "${BACKUPS_TO_CHECK_FILE}"
+    rm -f "${BACKUPS_TO_CHECK_FILE}"
 }
 
 # ------------------------------------------------------------
