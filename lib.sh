@@ -143,6 +143,7 @@ create_backup_dir() {
 
 create_current_backup_dir() {
     # Creates a ${BACKUP_DIR}/YYYY-mm-dd for the current run of the script
+    _check_path "CURRENT_BACKUP_DIR" "${CURRENT_BACKUP_DIR}"
     mkdir -p "${CURRENT_BACKUP_DIR}" || die "Can not create CURRENT_BACKUP_DIR dir ${CURRENT_BACKUP_DIR}"
 }
 
@@ -193,6 +194,7 @@ backup_vm() {
 
     # Per-VM dir in the ${CURRENT_BACKUP_DIR}
     local VM_BACKUP_DIR="${CURRENT_BACKUP_DIR}/${VM_NAME}"
+    _check_path "VM_BACKUP_DIR" "${VM_BACKUP_DIR}"
     mkdir -p "${VM_BACKUP_DIR}"
 
     # Collect VM disk file paths to PSV file
