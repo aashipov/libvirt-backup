@@ -136,7 +136,7 @@ environment() {
 
 create_backup_dir() {
     # Creates a local backup dir if missing
-    mkdir -p "${BACKUP_DIR}" || die "Can not BACKUP_DIR dir ${BACKUP_DIR}"
+    mkdir -p "${BACKUP_DIR}" || die "Can not create ${BACKUP_DIR}"
     local ACTUAL_DISK_FREE_SPACE
     ACTUAL_DISK_FREE_SPACE=$(df -Pk "${BACKUP_DIR}" | awk -v target="Available" 'NR==1 { for(i=1;i<=NF;i++) if($i==target) col=i } NR==2 { print $col }') || die "Failed to calculate free disk space in ${BACKUP_DIR}"
     if [ "${ACTUAL_DISK_FREE_SPACE}" -lt "${MINIMUM_FREE_DISK_SPACE_REQUIRED}" ]

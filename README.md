@@ -24,3 +24,5 @@ With unprivileged user at each host:
 'Live' / 'online' backup may produce inconsistent data across VMs which depend on each other. For consistency, turn VMs off, go for 'offline' backup (with/without compression). `Simultaneous` backup of multiple disks will overload system.
 
 Logical Volume Manager (LVM) is considered slower than traditional partitions. Virtual disks must be attached to VM as virtio / writeback cache mode
+
+Limitations: whitespace is NOT allowed in directory/file name, VM disks must have unique file names, every copy is a qcow2 (space-efficient)
