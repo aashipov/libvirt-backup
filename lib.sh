@@ -143,7 +143,7 @@ create_backup_dir() {
     then
         die "Insufficient disk space in ${BACKUP_DIR}"
     fi
-    mkdir -p "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}" || die "Can not ANOTHER_SERVER_ANOTHER_BACKUP_DIR dir ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
+    mkdir -p "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}" || die "Can not create ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
     touch "${BACKUP_LOG_FILE}"
 }
 

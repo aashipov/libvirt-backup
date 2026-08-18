@@ -25,4 +25,10 @@ With unprivileged user at each host:
 
 Logical Volume Manager (LVM) is considered slower than traditional partitions. Virtual disks must be attached to VM as virtio / writeback cache mode
 
-Limitations: whitespace is NOT allowed in directory/file name, VM disks must have unique file names, every copy is a qcow2 (space-efficient)
+## Limitations
+
+- whitespace is NOT allowed in directory/file names or VM names
+- VM disks must have unique file names
+- every copy is a qcow2 (space-efficient)
+- only `file`-backed disks are supported — the source must be a local file
+- paused/suspended VMs are skipped; any other non-running state (e.g. `crashed`, `in shutdown`) is treated as an offline backup and its disks are copied as-is, so the image may be inconsistent
