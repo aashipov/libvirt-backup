@@ -22,7 +22,7 @@ Favor [Debian installer](https://cdimage.debian.org/debian-cd/current/amd64/iso-
 Create a disk
 
 ```sh
-qemu-img create -f qcow2 debian.qcow2 32G
+qemu-img create -f qcow2 debian.qcow2 1T
 ```
 
 Create a VM, 4G memory, attach the disk as VirtIO, attach DVD ISO, follow the installer (e.g., pick a package manager network mirror; install SSH server & standard system utilities)
@@ -135,8 +135,9 @@ Weston got no menu, so use terminal `setsid virt-manager &` or [gui](./gui) wrap
 
 ### libvirtd & virsh configuration
 
-'Nested' virtualization fails with Debian (host & guest network address spaces `192.168.122.0/24` clash):
-use `sudo virsh net-edit default` to switch `nested` network to `192.168.123.0/24` or alike
+> [!NOTE]
+> 'Nested' virtualization fails with `Debian` (host & guest network address spaces `192.168.122.0/24` clash):
+> use `sudo virsh net-edit default` to switch `nested` network to `192.168.123.0/24` or alike
 
 Configure networks startup (must) `sudo virsh net-autostart default && sudo virsh net-start default`
 
@@ -149,9 +150,9 @@ uri_default = "qemu:///system"
 EOF
 ```
 
-Cockpit, if enabled via `systemd`, requires no configuration, available at [link](https://unix:9090) from both host and guest
-
 ## Wrap up
+
+Cockpit, if enabled via `systemd`, requires no configuration, available at [link](https://unix:9090) from both host and guest
 
 Turn off the VM, navigate to the directory with disk we created `debian.qcow2`, compact the image:
 
