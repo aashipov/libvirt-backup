@@ -26,6 +26,12 @@ closure() {
 
     # Do the job
     environment
+
+    # Cleanup on interrupt
+    trap cleanup_on_exit INT TERM
+    # Release the lock on normal exit
+    trap rm_running EXIT
+
     create_backup_dir # at this point log file must be available
 
     local LAUNCH_DATE=$(date +%Y-%m-%d)
@@ -33,11 +39,6 @@ closure() {
 
     create_current_backup_dir
     check_running
-
-    # Cleanup on interrupt
-    trap cleanup_on_exit INT TERM
-    # Release the lock on normal exit
-    trap rm_running EXIT
 
     create_running
     clean_obsolete_backups
