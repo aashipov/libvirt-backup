@@ -93,8 +93,8 @@ check_qemu_img() {
 #  Check if all of the mandatory variables are set in the environment
 # ------------------------------------------------------------
 check_mandatory_variables_set() {
-    # .env.template is a single source of truth about mandatory variables
-    local MANDATORY_VARIABLES_NAMES="$(cat "$(dirname -- "$(readlink -f -- "$0")")/.env.template" | grep -v '^#' | grep -v '^$' | awk -F'=' '{print $1}')"
+    # .env.template is a single source of truth for mandatory variables
+    local MANDATORY_VARIABLES_NAMES="$(awk -F= '!/^#/ && !/^$/ {print $1}' "$(dirname "$(readlink -f "${0}")")"/.env.template)"
     for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
     do
         eval "VAR_VALUE=\"\${${VAR_PTR}:-}\""

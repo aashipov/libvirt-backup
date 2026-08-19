@@ -55,7 +55,9 @@ EOF
 Ubuntu only:
 
 ```sh
-apt remove snapd
+snap remove lxd
+apt remove snapd cloud-init modemmanager
+systemctl disable dbus
 ```
 
 Debian & Ubuntu:
