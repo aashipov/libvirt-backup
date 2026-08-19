@@ -239,10 +239,10 @@ backup_vm() {
 
     # Backup job descriptor content (running VMs only)
     local BACKUP_JOB_DESCRIPTOR_CONTENT="<domainbackup>\n    <disks>"
-    while IFS= read -r line
+    local DISK_NAME
+    local DISK_FILE_ABSOLUTE_PATH
+    while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
     do
-        local DISK_NAME=$(printf "%s\n" "${line}" | awk -F'|' '{print $1}')
-        local DISK_FILE_ABSOLUTE_PATH=$(printf "%s\n" "${line}" | awk -F'|' '{print $2}')
         local DISK_FILE_NAME
         DISK_FILE_NAME="$(basename "${DISK_FILE_ABSOLUTE_PATH}")"
         local TARGET_DISK_FILE_ABSOLUTE_PATH="${VM_BACKUP_DIR}/${DISK_FILE_NAME}"

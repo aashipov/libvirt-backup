@@ -6,6 +6,12 @@
 # Prepare a virtual machine called `unix`, unprivileged user called `user`, as per `HEADFUL.md`
 # Craft a `/etc/hosts` synonym for `unix` IP
 # Enable paswordless login `ssh-copy-id user@unix`, make sure it works (`ssh user@unix`), deploy the key to unix's /home/user/.ssh/
+#
+# The test target is configurable via the environment (defaults match the TEST.md test VM):
+#   TEST_HOSTNAME  – remote host (e.g. an /etc/hosts synonym), default 'unix'
+#   TEST_USERNAME  – unprivileged user at that host, default 'user'
+#   TEST_APP_NAME  – remote directory for the project, default 'libvirt-backup'
+#   TEST_REMOTE_HOME – remote home directory, default '/home/${TEST_USERNAME}'
 # ------------------------------------------------------------
 
 _fail() {
@@ -15,7 +21,7 @@ _fail() {
 
 execute_function_via_ssh() {
     local FUNCTION_NAME="${1}"
-    ssh "${USERNAME}@${HOSTNAME}" "$(typeset -f); ${FUNCTION_NAME}" || _fail "Failed to call ${FUNCTION_NAME} via SSH"
+    ssh "${TEST_USERNAME}@${TEST_HOSTNAME}" "$(typeset -f); TEST_APP_NAME='${TEST_APP_NAME}'; ${FUNCTION_NAME}" || _fail "Failed to call ${FUNCTION_NAME} via SSH"
 }
 
 check_dot_env_file() {
@@ -26,8 +32,7 @@ check_dot_env_file() {
 }
 
 deploy_src() {
-    local APP_NAME="libvirt-backup"
-    rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" . "${USERNAME}@${HOSTNAME}:/home/user/${APP_NAME}" || _fail "Failed to deploy source code"
+    rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" . "${TEST_USERNAME}@${TEST_HOSTNAME}:${TEST_REMOTE_HOME}/${TEST_APP_NAME}" || _fail "Failed to deploy source code"
 }
 
 clean_leftovers() {
@@ -43,8 +48,7 @@ launch_nested_vms() {
 }
 
 happy_path() {
-    local APP_NAME="libvirt-backup"
-    cd "${APP_NAME}"
+    cd "${TEST_APP_NAME}"
     ./bc.sh
     ./rc.sh
 }
@@ -69,13 +73,14 @@ display_result() {
 closure() {
     set -e
     #set -x # Debug
-    local HOSTNAME="unix" # Host to perform tests with
-    local USERNAME="user" # Unprivileged user at that host
-    local APP_NAME="libvirt-backup" # A dir for https://github.com/aashipov/libvirt-backup.git clone
+    local TEST_HOSTNAME="${TEST_HOSTNAME:-unix}"         # Host to perform tests with
+    local TEST_USERNAME="${TEST_USERNAME:-user}"         # Unprivileged user at that host
+    local TEST_APP_NAME="${TEST_APP_NAME:-libvirt-backup}" # Remote dir for the project clone
+    local TEST_REMOTE_HOME="${TEST_REMOTE_HOME:-/home/${TEST_USERNAME}}" # Remote home directory
 
     check_dot_env_file
     deploy_src
-    ssh "${USERNAME}@${HOSTNAME}" "${APP_NAME}/debug.sh" || _fail "./debug.sh via SSH failed"
+    ssh "${TEST_USERNAME}@${TEST_HOSTNAME}" "${TEST_APP_NAME}/debug.sh" || _fail "./debug.sh via SSH failed"
     execute_function_via_ssh "clean_leftovers"
     execute_function_via_ssh "launch_nested_vms"
     execute_function_via_ssh "happy_path"
