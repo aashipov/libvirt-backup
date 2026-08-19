@@ -41,6 +41,7 @@ die() {
 #  Rejects:
 #   - blank/unset values
 #   - values made only of '/' characters ('/', '////')
+#   - relative paths ('backup', 'foo/bar')
 #   - unexpanded variable expansions ('$HOME', '${VAR}')
 #   - tilde home shorthands ('~/backup')
 #   - '..' path traversal ('../x', '/a/../b')
@@ -59,6 +60,8 @@ _check_path() {
         *'~'*)        die "${VAR_NAME} contains a tilde '~' — use an absolute path (${VAR_VALUE})" ;;
         *'..'*)       die "${VAR_NAME} contains '..' — path traversal is not allowed (${VAR_VALUE})" ;;
         *'//'*)       die "${VAR_NAME} contains multiple slashes in a row (${VAR_VALUE})" ;;
+        /*)           : ;;
+        *)            die "${VAR_NAME} is not an absolute path (${VAR_VALUE})" ;;
     esac
 
     case "${VAR_VALUE}" in
