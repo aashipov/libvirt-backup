@@ -8,7 +8,7 @@ Check [HEADFUL.md](./HEADFUL.md), [TEST.md](./TEST.md) for configuration
 
 With unprivileged user at each host:
 
-- pick archive or clone `git clone https://github.com/aashipov/libvirt-backup.git` or pull recent version `git pull -r`
+- clone project `git clone https://github.com/aashipov/libvirt-backup.git`, pull recent version `git pull -r` OR pick top [Release libvirt-backup-*.tar.gz](https://github.com/aashipov/libvirt-backup/releases) and extract `mkdir -p ${HOME}/libvirt-backup/ && tar --strip-components=1 -xzf libvirt-backup*.tar.gz -C ${HOME}/libvirt-backup/`
 - make an .env file `cp .env.template .env`, adjust variables (once, per-host variables, especially), fill `VM_NAMES_TO_BACK_UP` in `.env` with VM names to back up
 - call `./debug.sh` to check if system is configured correctly
 - launch backup jobs `./bc.sh`, wait for completion
