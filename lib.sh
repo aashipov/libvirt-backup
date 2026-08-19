@@ -95,8 +95,15 @@ check_qemu_img() {
 check_mandatory_variables_set() {
     # .env.template is a single source of truth for mandatory variables
     local MANDATORY_VARIABLES_NAMES="$(awk -F= '!/^#/ && !/^$/ {print $1}' "$(dirname "$(readlink -f "${0}")")"/.env.template)"
+    # set -f prevents pathname expansion of names read from .env.template
+    set -f
     for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
     do
+        # Names from .env.template are interpolated via eval below, so they
+        # must be valid shell identifiers before being used
+        case "${VAR_PTR}" in
+            ''|[!A-Za-z_]*|*[!A-Za-z0-9_]*) die "Invalid variable name in .env.template: ${VAR_PTR}" ;;
+        esac
         eval "VAR_VALUE=\"\${${VAR_PTR}:-}\""
         if [ -z "${VAR_VALUE}" ]
         then
@@ -105,6 +112,7 @@ check_mandatory_variables_set() {
             eval "readonly ${VAR_PTR}"
         fi
     done
+    set +f
     _check_path "BACKUP_DIR" "${BACKUP_DIR}"
     _check_path "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
     # DAYS_TO_KEEP_BACKUPS feeds `find -mtime`: a leading '+' is mandatory for
