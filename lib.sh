@@ -328,7 +328,7 @@ validate_backups() {
     find "${CURRENT_BACKUP_DIR}" -type f \( -name '*.qcow2' -o -name '*.qcow2-shrunk' \) > "${BACKUPS_TO_CHECK_FILE}" || die "Failed to list backups in ${CURRENT_BACKUP_DIR}"
     while IFS= read -r line
     do
-        printf "=== Analyzing: %s ===\n" "${line}"
+        log "=== Analyzing: ${line} ==="
         qemu-img info "${line}" || die "qemu-img info failed for ${line}"
         qemu-img check "${line}" || die "qemu-img check failed for ${line}"
     done < "${BACKUPS_TO_CHECK_FILE}"
