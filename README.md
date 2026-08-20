@@ -19,9 +19,13 @@ With unprivileged user at each host:
 
 [Official manual](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/8/html/configuring_and_managing_virtualization/backing-up-and-recovering-virtual-machines_configuring-and-managing-virtualization)
 
-[Tools like](https://github.com/abbbi/virtnbdbackup) may not fit an 'air-gapped' / 'airtight' environment / 'secure' linux distros, output disk file is neither raw nor qcow2, hence restore procedure will require a lot more than a file copy. GNU Coreutils, sed, grep, environment file and shell script 'glue' might be a simpler alternative
+[Tools like](https://github.com/abbbi/virtnbdbackup) may not fit an 'air-gapped' / 'airtight' environment / 'secure' linux distros, output disk file is neither raw nor qcow2, hence restore procedure will require a lot more than a file copy
 
 Enterprise tools like [Proxmox Backup Server](git://git.proxmox.com/git/proxmox-backup.git) or its clones are convoluted
+
+[Bindings](https://gitlab.com/libvirt) for popular programming languages do exist
+
+GNU Coreutils, sed, grep, environment file and shell script 'glue' is a less consuming alternative to the above for a prototype
 
 ## Limitations
 
