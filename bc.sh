@@ -37,10 +37,10 @@ closure() {
     local LAUNCH_DATE=$(date +%Y-%m-%d)
     local CURRENT_BACKUP_DIR="${BACKUP_DIR}/${LAUNCH_DATE}"
 
-    create_current_backup_dir
     check_running
-
     create_running
+    
+    create_current_backup_dir
     clean_obsolete_backups
     backup_vms
     validate_backups
