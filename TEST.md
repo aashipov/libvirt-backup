@@ -62,7 +62,29 @@ With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to un
 sudo mkdir -p /backup-vm/ /other_backup/ && sudo setfacl -d -R -m u:${USER}:rwx /backup-vm/ /other_backup/ && sudo chown -R `id -u`:`id -g` /backup-vm/ /other_backup/
 ```
 
-Generate SSH key for rsync: `ssh-keygen -t rsa -b 4096`, deploy: `ssh-copy-id ${USER}@127.0.0.2`, verify paswordless login `ssh ${USER}@127.0.0.2`
+Host: create alias `unix` for VM gray IP in `/etc/hosts`
+
+Host: generate SSH key for rsync & access: `mkdir -p ${HOME}/.ssh/unix/ && ssh-keygen -t rsa -b 4096 -C "dummy@dummy.org" -f ${HOME}/.ssh/unix/id_rsa`. Deploy the pair to guest's `${HOME}/.ssh/`.
+
+Host:
+
+```sh
+cat << 'EOF' | tee -a ${HOME}/.ssh/config
+Host unix
+    HostName unix
+    User user
+    IdentityFile ~/.ssh/unix/id_rsa
+    IdentitiesOnly yes
+EOF
+```
+
+Host:
+
+```sh
+ssh-copy-id -i ~/.ssh/unix/id_rsa unix
+```
+
+Guest: `ssh-copy-id 127.0.0.2`, verify paswordless login `ssh 127.0.0.2`
 
 ## Per-test-round steps
 
