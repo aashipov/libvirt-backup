@@ -67,13 +67,13 @@ Debian & Ubuntu:
 
 ```sh
 apt-get update && apt-get -y upgrade
-apt-get install -y cron git rsync acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager cockpit cockpit-machines weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad tree
+apt-get install -y cron git rsync acl sudo qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager cockpit cockpit-machines weston winpr3-utils xrdp xorgxrdp openbox mc chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad tree curl
 apt clean && apt autoremove
 systemctl enable --now cron
 ```
 
 > [!NOTE]
-> RHEL-descendant dependencies: `sudo dnf install -y cronie git rsync acl sudo qemu-kvm libvirt virt-install virt-manager cockpit cockpit-machines weston xrdp openbox mc chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon tree`
+> RHEL-descendant dependencies: `sudo dnf install -y cronie git rsync acl sudo qemu-kvm libvirt virt-install virt-manager cockpit cockpit-machines weston xrdp openbox mc chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon tree curl`
 
 Add an unprivileged user `user` to `sudo` and `libvirt` groups:
 
@@ -99,15 +99,6 @@ sudo systemctl enable --now xrdp
 
 ```sh
 sudo systemctl enable --now cockpit
-```
-
-Configure Openbox (open terminal on Win+Enter/Return, quit Openbox on Ctrl+Alt+BackSpace):
-
-Deploy `openbox-rc.xml` to home dir.
-
-```sh
-mkdir -p ~/.config/openbox
-mv ~/openbox-rc.xml ~/.config/openbox/rc.xml
 ```
 
 > [!NOTE]
@@ -155,6 +146,100 @@ uri_default = "qemu:///system"
 EOF
 ```
 
+### SSH connectivity
+
+Host: create alias `unix` for VM gray IP in `/etc/hosts` or in ssh config
+
+Host: generate SSH key for rsync & access: `mkdir -p ${HOME}/.ssh/unix/ && ssh-keygen -t rsa -b 4096 -C "dummy@dummy.org" -f ${HOME}/.ssh/unix/id_rsa`. Deploy the pair to guest's `${HOME}/.ssh/`.
+
+Host:
+
+```sh
+cat << 'EOF' | tee -a ${HOME}/.ssh/config
+Host unix
+    HostName unix
+    User user
+    IdentityFile ~/.ssh/unix/id_rsa
+    IdentitiesOnly yes
+EOF
+```
+
+Host:
+
+```sh
+ssh-copy-id -i ~/.ssh/unix/id_rsa unix
+```
+
+Guest: `ssh-copy-id 127.0.0.2`, verify paswordless login `ssh 127.0.0.2`
+
+### Configuration for tests (optional)
+
+A [Semi-automated integration test](test.sh) involves three VMs: `a` (running), `b` (shut off), `c` (suspended). [alpine image](https://alpinelinux.org/cloud/) drives those.
+
+Guest: create a prototype disk
+
+```sh
+curl -LO https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2
+qemu-img convert -O qcow2 -c generic_alpine*.qcow2 prototype.qcow2
+```
+
+Create future VMs disks out of a prototype:
+
+```sh
+for item in a b c; do sudo cp prototype.qcow2 /var/lib/libvirt/images/"$item".qcow2; done
+```
+
+Create VMs:
+
+```sh
+for item in a b c; do virt-install --name "$item"  --ram 768 --vcpus 2 --disk path=/var/lib/libvirt/images/"$item".qcow2,format=qcow2,bus=virtio --os-variant generic --network network=default --graphics none --import --noautoconsole --noreboot ; done
+```
+
+Create a blank prototype disk:
+
+```sh
+qemu-img create -f qcow2 blank-prototype.qcow2 256M
+```
+
+Create blank prototype disks for VMs a & b:
+
+```sh
+for item in a b; do sudo cp blank-prototype.qcow2 /var/lib/libvirt/images/"$item$item".qcow2; done
+```
+
+Attach the blank disk to VMs a & b:
+
+```sh
+for item in a b; do virsh attach-disk "$item" /var/lib/libvirt/images/"$item$item".qcow2 vdb --driver qemu --subdriver qcow2 --config; done
+```
+
+Tidy up:
+
+```sh
+cd ${HOME} && rm *.qcow2
+```
+
+With `virt-manager` VM configuration.
+
+Check if `virsh list --all` lists machines a & b
+
+With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to unprivileged user (`${USER}`):
+
+```sh
+sudo mkdir -p /backup-vm/ /other_backup/ && sudo setfacl -d -R -m u:${USER}:rwx /backup-vm/ /other_backup/ && sudo chown -R `id -u`:`id -g` /backup-vm/ /other_backup/
+```
+
+Host: launch a [Semi-automated integration test](test.sh), verify it pass
+
+As source tree is now deployed onto the VM, configure Openbox (open terminal on Win+Enter/Return, quit Openbox on Ctrl+Alt+BackSpace):
+
+Deploy `openbox-rc.xml` to home dir.
+
+```sh
+mkdir -p ~/.config/openbox
+cp ~/libvirt-backup/openbox-rc.xml ~/.config/openbox/rc.xml
+```
+
 ## Wrap up
 
 Cockpit, if enabled via `systemd`, requires no configuration, available at [link](https://unix:9090) from both host and guest
@@ -164,5 +249,3 @@ Turn off the VM, navigate to the directory with disk we created `debian.qcow2`, 
 ```sh
 qemu-img convert -O qcow2 -c debian.qcow2 debian-prototype.qcow2
 ```
-
-Use `debian-prototype.qcow2` copies for integration tests VM and its guests

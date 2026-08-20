@@ -8,85 +8,9 @@ Create `debian-prototype.qcow2` as per [HEADFUL.md](./HEADFUL.md)
 
 Create a `test VM` (copy `debian-prototype.qcow2`, attach to it as VirtIO disk). Favor `i440FX` Chipset
 
-Deploy [alpine image](https://alpinelinux.org/cloud/) to `test VM` via SSH (disk for the future `a` VM)
-
 The rest of the test case is performed with `test VM`. Use `xrdp` (port 3389) or `weston` `xrdp` (port 3390) RDP servers for GUI
 
-### Once, per-test-VM configuration
-
-Create & configure nested VMs called `a` (running) and `b` (shut off)
-
-Create a prototype disk:
-
-```sh
-qemu-img convert -O qcow2 -c generic_alpine*.qcow2 prototype.qcow2
-```
-
-Create future VMs disks out of a prototype:
-
-```sh
-for item in a b c; do sudo cp prototype.qcow2 /var/lib/libvirt/images/"$item".qcow2; done
-```
-
-Create VMs:
-
-```sh
-for item in a b c; do virt-install --name "$item"  --ram 768 --vcpus 2 --disk path=/var/lib/libvirt/images/"$item".qcow2,format=qcow2,bus=virtio --os-variant generic --network network=default --graphics none --import --noautoconsole --noreboot ; done
-```
-
-Create a blank prototype disk:
-
-```sh
-qemu-img create -f qcow2 blank-prototype.qcow2 256M
-```
-
-Create blank prototype disks for VMs a & b:
-
-```sh
-for item in a b; do sudo cp blank-prototype.qcow2 /var/lib/libvirt/images/"$item$item".qcow2; done
-```
-
-Attach the blank disk to VMs a & b:
-
-```sh
-for item in a b; do virsh attach-disk "$item" /var/lib/libvirt/images/"$item$item".qcow2 vdb --driver qemu --subdriver qcow2 --config; done
-```
-
-With `virt-manager` VM configuration.
-
-Check if `virsh list --all` lists machines a & b
-
-With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to unprivileged user (`${USER}`):
-
-```sh
-sudo mkdir -p /backup-vm/ /other_backup/ && sudo setfacl -d -R -m u:${USER}:rwx /backup-vm/ /other_backup/ && sudo chown -R `id -u`:`id -g` /backup-vm/ /other_backup/
-```
-
-Host: create alias `unix` for VM gray IP in `/etc/hosts` or via ssh config
-
-Host: generate SSH key for rsync & access: `mkdir -p ${HOME}/.ssh/unix/ && ssh-keygen -t rsa -b 4096 -C "dummy@dummy.org" -f ${HOME}/.ssh/unix/id_rsa`. Deploy the pair to guest's `${HOME}/.ssh/`.
-
-Host:
-
-```sh
-cat << 'EOF' | tee -a ${HOME}/.ssh/config
-Host unix
-    HostName unix
-    User user
-    IdentityFile ~/.ssh/unix/id_rsa
-    IdentitiesOnly yes
-EOF
-```
-
-Host:
-
-```sh
-ssh-copy-id -i ~/.ssh/unix/id_rsa unix
-```
-
-Guest: `ssh-copy-id 127.0.0.2`, verify paswordless login `ssh 127.0.0.2`
-
-## Per-test-round steps
+## Per-test-round manual steps
 
 ### Check `a` VM is running
 
