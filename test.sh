@@ -73,12 +73,13 @@ display_result() {
 closure() {
     set -e
     #set -x # Debug
-    local TEST_HOSTNAME="${TEST_HOSTNAME:-unix}"         # Host to perform tests with
-    local TEST_USERNAME="${TEST_USERNAME:-user}"         # Unprivileged user at that host
-    local TEST_APP_NAME="${TEST_APP_NAME:-libvirt-backup}" # Remote dir for the project clone
-    local TEST_REMOTE_HOME="${TEST_REMOTE_HOME:-/home/${TEST_USERNAME}}" # Remote home directory
 
+    # Load library
+    . "$(dirname -- "$(readlink -f -- "$0")")/lib.sh"
+
+    # Do the job
     check_dot_env_file
+    environment
     deploy_src
     ssh "${TEST_USERNAME}@${TEST_HOSTNAME}" "${TEST_APP_NAME}/debug.sh" || _fail "./debug.sh via SSH failed"
     execute_function_via_ssh "clean_leftovers"
