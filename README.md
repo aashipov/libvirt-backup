@@ -21,9 +21,7 @@ With unprivileged user at each host:
 
 [Tools like](https://github.com/abbbi/virtnbdbackup) may not fit an 'air-gapped' / 'airtight' environment / 'secure' linux distros, output disk file is neither raw nor qcow2, hence restore procedure will require a lot more than a file copy. GNU Coreutils, sed, grep, environment file and shell script 'glue' might be a simpler alternative
 
-'Live' / 'online' backup may produce inconsistent data across VMs which depend on each other. For consistency, turn VMs off, go for 'offline' backup (with/without compression). `Simultaneous` backup of multiple disks will overload system.
-
-Logical Volume Manager (LVM) is considered slower than traditional partitions. Virtual disks must be attached to VM as virtio / writeback cache mode
+Enterprise tools like [Proxmox Backup Server](git://git.proxmox.com/git/proxmox-backup.git) or its clones are convoluted
 
 ## Limitations
 
@@ -32,3 +30,5 @@ Logical Volume Manager (LVM) is considered slower than traditional partitions. V
 - every copy is a qcow2 (space-efficient)
 - only `file`-backed disks are supported — the source must be a local file
 - paused/suspended VMs are skipped; any other non-running state (e.g. `crashed`, `in shutdown`) is treated as an offline backup and its disks are copied as-is, so the image may be inconsistent
+- 'Live' / 'online' backup may produce inconsistent data across VMs which depend on each other. For consistency, turn VMs off, go for 'offline' backup (with/without compression). `Simultaneous` backup of multiple disks will overload system
+- Logical Volume Manager (LVM) is considered slower than traditional partitions. Virtual disks must be attached to VM as virtio / writeback cache mode
