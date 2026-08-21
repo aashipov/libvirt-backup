@@ -143,6 +143,9 @@ environment() {
     check_mandatory_variables_set
     check_libvirt
     check_qemu_img
+    export LANGUAGE=en_US:en LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+    # Uncomment following line to observe locale issues
+    #export LANGUAGE=ru_RU:ru LANG=ru_RU.UTF-8 LC_ALL=ru_RU.UTF-8
 }
 
 create_backup_dir() {

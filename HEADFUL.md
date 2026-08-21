@@ -240,6 +240,18 @@ mkdir -p ~/.config/openbox
 cp ~/libvirt-backup/openbox-rc.xml ~/.config/openbox/rc.xml
 ```
 
+### Locale (optional)
+
+Scripts parse `virsh` output, which is locale-dependant
+
+Install, e.g. a `ru_RU.UTF-8` locale
+
+```sh
+sudo apt install locales
+sudo dpkg-reconfigure locales
+locale -a
+```
+
 ## Wrap up
 
 Cockpit, if enabled via `systemd`, requires no configuration, available at [link](https://unix:9090) from both host and guest
