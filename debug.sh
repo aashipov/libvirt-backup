@@ -14,6 +14,7 @@ closure() {
     . "$(dirname -- "$(readlink -f -- "$0")")/lib.sh"
 
     # Do the job
+    check_dot_env_file
     environment
 
     #set -x # debug

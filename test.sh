@@ -14,18 +14,9 @@
 #   TEST_REMOTE_HOME – remote home directory, default '/home/${TEST_USERNAME}'
 # ------------------------------------------------------------
 
-check_dot_env_file() {
-    cd "$(dirname -- "$(readlink -f -- "$0")")"
-    pwd
-    if [ ! -f ".env" ]
-    then
-        cp .env.template .env
-    fi
-}
-
 clean_leftovers() {
-    rm -rf "${BACKUP_DIR}/*"
-    rm -rf "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/*"
+    rm -rf "${BACKUP_DIR}/"*
+    rm -rf "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/"*
 }
 
 launch_vms() {
