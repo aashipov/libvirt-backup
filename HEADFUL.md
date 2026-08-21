@@ -174,7 +174,7 @@ Guest: `ssh-copy-id 127.0.0.2`, verify paswordless login `ssh 127.0.0.2`
 
 ### Configuration for tests (optional)
 
-A [Semi-automated integration test](test.sh) involves three VMs: `a` (running), `b` (shut off), `c` (suspended). [alpine image](https://alpinelinux.org/cloud/) drives those.
+A [Semi-automated integration test](./test-runner.sh) involves three VMs: `a` (running), `b` (shut off), `c` (suspended). [alpine image](https://alpinelinux.org/cloud/) drives those.
 
 Guest: create a prototype disk
 
@@ -229,7 +229,7 @@ With test VM create `/backup-vm/` & `/other_backup/`, assign access rights to un
 sudo mkdir -p /backup-vm/ /other_backup/ && sudo setfacl -d -R -m u:${USER}:rwx /backup-vm/ /other_backup/ && sudo chown -R `id -u`:`id -g` /backup-vm/ /other_backup/
 ```
 
-Host: launch a [Semi-automated integration test](test.sh), verify it pass
+Host: launch a [Semi-automated integration test](./test-runner.sh), verify it pass
 
 As source tree is now deployed onto the VM, configure Openbox (open terminal on Win+Enter/Return, quit Openbox on Ctrl+Alt+BackSpace):
 

@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # ------------------------------------------------------------
-#  test.sh – Semi-automated integration test
+#  test-runner.sh – Semi-automated integration test runner
+#  Deploys source tree to VM /home/user/${TEST_USERNAME}/, lauches `test.sh` via SSH
 #
 # Prepare a virtual machine called `unix`, unprivileged user called `user`, as per `HEADFUL.md`
 # Craft a `/etc/hosts` synonym for `unix` IP
@@ -14,47 +15,8 @@
 #   TEST_REMOTE_HOME – remote home directory, default '/home/${TEST_USERNAME}'
 # ------------------------------------------------------------
 
-check_dot_env_file() {
-    cd "$(dirname -- "$(readlink -f -- "$0")")"
-    pwd
-    if [ ! -f ".env" ]
-    then
-        cp .env.template .env
-    fi
-}
-
-clean_leftovers() {
-    rm -rf /backup-vm/*
-    rm -rf /other_backup/*
-}
-
-launch_vms() {
-    virsh start a
-    virsh start c
-    virsh suspend c
-    sleep 10
-    virsh list --all
-}
-
-happy_path() {
-    ./bc.sh
-    ./rc.sh
-}
-
-turn_off_vms() {
-    virsh resume c
-    virsh destroy c
-    virsh shutdown a
-    sleep 10
-    virsh list --all
-}
-
-display_result() {
-    printf "/backup-vm/ content\n"
-    tree -ha /backup-vm/
-
-    printf "\n/other_backup/ content\n"
-    tree -ha /other_backup/
+deploy_src() {
+    rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" . "${TEST_USERNAME}@${TEST_HOSTNAME}:${TEST_REMOTE_HOME}/${TEST_APP_NAME}" || _fail "Failed to deploy source code"
 }
 
 # Main function
@@ -66,13 +28,10 @@ closure() {
     . "$(dirname -- "$(readlink -f -- "$0")")/lib.sh"
 
     # Do the job
-    check_dot_env_file
     environment
-    clean_leftovers
-    launch_vms
-    happy_path
-    turn_off_vms
-    display_result
+    deploy_src
+    ssh "${TEST_USERNAME}@${TEST_HOSTNAME}" "${TEST_APP_NAME}/debug.sh" || _fail "./debug.sh via SSH failed"
+    ssh "${TEST_USERNAME}@${TEST_HOSTNAME}" "${TEST_APP_NAME}/test.sh" || _fail "./test.sh via SSH failed"
 }
 
 closure

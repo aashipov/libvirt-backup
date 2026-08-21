@@ -36,6 +36,11 @@ die() {
     exit 1
 }
 
+_fail() {
+    printf '%s\n' "${@}"
+    exit 1
+}
+
 # ------------------------------------------------------------
 #  Fail if a variable value is blank or unsafe
 #  Rejects:

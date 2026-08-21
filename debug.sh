@@ -6,11 +6,6 @@
 # The intended use:
 # ./debug.sh | tee "$HOME/libvirt-backup-debug.log"
 
-_fail() {
-    printf '%s\n' "${@}"
-    exit 1
-}
-
 # ------------------------------------------------------------
 #  Main function to prevent occasional environment pollution
 # ------------------------------------------------------------

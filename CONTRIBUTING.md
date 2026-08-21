@@ -19,4 +19,4 @@
 
 - (Optional) ask coding agent for opinion, e.g. `Read the project in the current working directory and suggest improvements without altering any files`
 - Test your changes:
-  - [test.sh](./test.sh) must pass
+  - [test-runner.sh](./test-runner.sh) must pass
