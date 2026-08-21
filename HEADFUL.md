@@ -261,3 +261,11 @@ Turn off the VM, navigate to the directory with disk we created `debian.qcow2`, 
 ```sh
 qemu-img convert -O qcow2 -c debian.qcow2 debian-prototype.qcow2
 ```
+
+Split/restore:
+
+```sh
+split -b 1792M debian-prototype.qcow2 debian-prototype.part_
+rm debian.qcow2
+cat debian-prototype.part_* > debian.qcow2
+```
