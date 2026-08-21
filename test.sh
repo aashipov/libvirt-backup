@@ -24,8 +24,8 @@ check_dot_env_file() {
 }
 
 clean_leftovers() {
-    rm -rf /backup-vm/*
-    rm -rf /other_backup/*
+    rm -rf "${BACKUP_DIR}/*"
+    rm -rf "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/*"
 }
 
 launch_vms() {

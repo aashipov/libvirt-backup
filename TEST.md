@@ -14,7 +14,7 @@ The rest of the test case is performed with `test VM`. Use `xrdp` (port 3389) or
 
 ### Check `a` VM is running
 
-Do `virsh list --all`. VM `a` must be running, `c` - paused.
+Do `virsh list --all`. VM `a` must be running, `b` - shut off, `c` - paused.
 
 If not `virsh start a ; virsh start c ; virsh suspend c` and repeat `virsh list --all`
 
@@ -46,12 +46,12 @@ Expected: `OK`.
 
 Expected behaviours:
 
-- [ ] Directory `$BACKUP_DIR/YYYY-mm-dd/{a,b}/` created
-- [ ] Per-VM (`a`, `b`) subdirectories with:
+- [ ] Directory `$BACKUP_DIR/YYYY-mm-dd/{a,b,c}/` created
+- [ ] Per-VM (`a`, `b`, `c`) subdirectories with:
   - `disks.psv` – pipe-separated disk list
   - `VM_NAME.xml` – domain XML dump
   - `VM_NAME-backup-job-descriptor.xml` (running VMs only)
-  - `*.qcow2` or `*.qcow2-shrunk` disk image(s)
+  - `*.qcow2` or `*.qcow2-shrunk` disk image(s) for `a` and `b`
 - [ ] `$BACKUP_DIR/running` marker file removed after completion
 - [ ] Log lines appended to `$BACKUP_DIR/backup.log`
 - [ ] Exit code 0

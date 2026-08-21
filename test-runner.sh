@@ -2,7 +2,7 @@
 
 # ------------------------------------------------------------
 #  test-runner.sh – Semi-automated integration test runner
-#  Deploys source tree to VM /home/user/${TEST_USERNAME}/, lauches `test.sh` via SSH
+#  Deploys source tree to VM /home/${TEST_USERNAME}/, launches `test.sh` via SSH
 #
 # Prepare a virtual machine called `unix`, unprivileged user called `user`, as per `HEADFUL.md`
 # Craft a `/etc/hosts` synonym for `unix` IP
