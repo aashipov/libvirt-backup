@@ -34,3 +34,4 @@ Prioritize structural safety over quick workarounds, and never introduce blind p
 - for now we skip **paused/suspended** VMs
 - **Kill sequence** (manual): `pkill -x bc.sh ; ./bc-kill.sh`
 - **Output & logs**: no need it log levels, prefer `printf` over `echo`
+- Do not suggest **CI improvements** (GitHub Actions do not play well with QEMU/KVM, dedicated public testbed will add running cost)
