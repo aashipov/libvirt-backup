@@ -41,15 +41,6 @@ _fail() {
     exit 1
 }
 
-check_dot_env_file() {
-    cd "$(dirname -- "$(readlink -f -- "$0")")"
-    pwd
-    if [ ! -f ".env" ]
-    then
-        cp .env.template .env
-    fi
-}
-
 # ------------------------------------------------------------
 #  Fail if a variable value is blank or unsafe
 #  Rejects:

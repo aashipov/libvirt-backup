@@ -156,7 +156,7 @@ Check `/backup-vm/backup.log`, confirm backup created in `/backup-vm/` and copie
 ### Clean up test data
 
 ```sh
-rm -rf "${BACKUP_DIR}/*/ ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/*/"
+rm -rf "${BACKUP_DIR}/"*/ "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/"*/
 ```
 
 ### Test environment

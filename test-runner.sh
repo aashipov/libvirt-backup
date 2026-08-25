@@ -15,6 +15,18 @@
 #   TEST_REMOTE_HOME – remote home directory, default '/home/${TEST_USERNAME}'
 # ------------------------------------------------------------
 
+check_dot_env_file() {
+    if [ ! -f ".env" ]
+    then
+        cp .env.template .env
+    fi
+    if ! grep -q 'TEST_' ".env"
+    then
+        printf "\n" >> .env
+        cat .test.env.template >> .env
+    fi
+}
+
 deploy_src() {
     rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" --exclude='.env' --exclude='.git/' . "${TEST_USERNAME}@${TEST_HOSTNAME}:${TEST_REMOTE_HOME}/${TEST_APP_NAME}" || _fail "Failed to deploy source code"
 }
@@ -28,6 +40,8 @@ closure() {
     . "$(dirname -- "$(readlink -f -- "$0")")/lib.sh"
 
     # Do the job
+    cd "$(dirname -- "$(readlink -f -- "$0")")"
+    check_dot_env_file
     environment
     deploy_src
     ssh "${TEST_USERNAME}@${TEST_HOSTNAME}" "${TEST_APP_NAME}/debug.sh" || _fail "./debug.sh via SSH failed"
