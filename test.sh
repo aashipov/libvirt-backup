@@ -41,11 +41,11 @@ turn_off_vms() {
 }
 
 display_result() {
-    printf "/backup-vm/ content\n"
-    tree -ha /backup-vm/
+    printf "${BACKUP_DIR}/ content\n"
+    tree -ha ${BACKUP_DIR}/
 
-    printf "\n/other_backup/ content\n"
-    tree -ha /other_backup/
+    printf "\n${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/ content\n"
+    tree -ha ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/
 }
 
 # Main function

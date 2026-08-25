@@ -28,11 +28,13 @@ closure() {
     groups
     printf "\n"
 
-    local RUNNING_VMS=$(virsh list --name --state-running) || _fail "Failed to list running VMs"
+    local RUNNING_VMS
+    RUNNING_VMS=$(virsh list --name --state-running) || _fail "Failed to list running VMs"
     for RUNNING_VM in ${RUNNING_VMS}
     do
         printf 'VM: %s\n' "${RUNNING_VM}"
-        local DISKS=$(get_vm_disk_names_and_absolute_paths "${RUNNING_VM}") || _fail "Could not get disk list for ${RUNNING_VM}"
+        local DISKS
+        DISKS=$(get_vm_disk_names_and_absolute_paths "${RUNNING_VM}") || _fail "Could not get disk list for ${RUNNING_VM}"
         for DISK in ${DISKS}
         do
             printf "\t%s\n" "${DISK}"
