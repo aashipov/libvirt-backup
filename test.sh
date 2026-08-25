@@ -15,8 +15,8 @@
 # ------------------------------------------------------------
 
 clean_leftovers() {
-    rm -rf "${BACKUP_DIR}/"*
-    rm -rf "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/"*
+    rm -rf "${BACKUP_DIR:?}/"*
+    rm -rf "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR:?}/"*
 }
 
 launch_vms() {
@@ -41,11 +41,11 @@ turn_off_vms() {
 }
 
 display_result() {
-    printf "${BACKUP_DIR}/ content\n"
-    tree -ha ${BACKUP_DIR}/
+    printf '%s\n' "${BACKUP_DIR:?}/ content"
+    tree -ha "${BACKUP_DIR:?}/"
 
-    printf "\n${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/ content\n"
-    tree -ha ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/
+    printf '\n%s\n' "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR:?}/ content"
+    tree -ha "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR:?}/"
 }
 
 # Main function
