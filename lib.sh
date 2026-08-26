@@ -14,6 +14,11 @@ fi
 readonly _LIB_SH_LOADED=1
 
 # ------------------------------------------------------------
+#  lib.sh – Global variables
+# ------------------------------------------------------------
+CURRENT_BACKUP_DIR="/tmp"
+
+# ------------------------------------------------------------
 #  Utility helpers
 # ------------------------------------------------------------
 
@@ -149,6 +154,7 @@ environment() {
     check_libvirt
     check_qemu_img
     export LC_ALL=C
+    CURRENT_BACKUP_DIR="${BACKUP_DIR}/$(date +%Y-%m-%d)"
     # Uncomment following line to observe locale issues
     #export LANGUAGE=ru_RU:ru LANG=ru_RU.UTF-8 LC_ALL=ru_RU.UTF-8
 }

@@ -34,9 +34,6 @@ closure() {
 
     create_backup_dir # at this point log file must be available
 
-    local LAUNCH_DATE=$(date +%Y-%m-%d)
-    local CURRENT_BACKUP_DIR="${BACKUP_DIR}/${LAUNCH_DATE}"
-
     check_running
     create_running
     
