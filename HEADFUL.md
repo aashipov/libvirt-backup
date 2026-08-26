@@ -17,6 +17,7 @@ Debian is fast, stable and open-licensed, makes a good Operating System for virt
 
 > [!NOTE]
 > RedHat, Inc recommend [XFS-backed storage](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/managing_file_systems/overview-of-available-file-systems), which is faster and can only grow. `ext4` can also shrink.
+> For `docker` compatibility `xfs` must be formatted as per `sudo mkfs.xfs -n ftype=1 /dev/sdX`
 
 ## Prototype image (Linux host)
 
