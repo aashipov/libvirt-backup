@@ -30,7 +30,7 @@ The larger the VM's disk, the more data is on it, the longer backup will take. F
 
 Preflight configuration check `./debug.sh` (once per configuration round)
 
-Main script `bc.sh` - backup coordinator — sequential, blocking live backups via `virsh backup-begin` (for running VMs) an `cp` (for shut off ones)
+Main script `bc.sh` - backup coordinator — sequential, blocking live backups via `virsh backup-begin` (for running VMs) or `cp` (for shut off ones)
 
 Kill sequence for a running backup job `pkill -x bc.sh ; ./bc-kill.sh`
 

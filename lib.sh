@@ -326,7 +326,7 @@ backup_vm() {
                 local SHRUNK_BACKUP="${backup_to_shrink}-shrunk"
                 log "Performing qemu-img convert with compression ${backup_to_shrink} -> ${SHRUNK_BACKUP}"
                 qemu-img convert -O qcow2 -c "${backup_to_shrink}" "${SHRUNK_BACKUP}" || die "qemu-img convert with compression failed for ${backup_to_shrink} -> ${SHRUNK_BACKUP}"
-                rm "${backup_to_shrink}" || die "Failed to remove remove ${backup_to_shrink}"
+                rm "${backup_to_shrink}" || die "Failed to remove ${backup_to_shrink}"
             done
         fi
     fi

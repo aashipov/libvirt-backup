@@ -35,3 +35,6 @@ Prioritize structural safety over quick workarounds, and never introduce blind p
 - **Kill sequence** (manual): `pkill -x bc.sh ; ./bc-kill.sh`
 - **Output & logs**: no need it log levels, prefer `printf` over `echo`
 - Do not suggest **CI improvements** (GitHub Actions do not play well with QEMU/KVM, dedicated public testbed will add running cost)
+- `TOCTOU race on lock file` is not an issue
+- `debug.sh leaks the full environment` is not an issue (no secrets to store)
+- 
