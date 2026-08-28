@@ -226,7 +226,7 @@ backup_vm() {
     # Per-VM dir in the ${CURRENT_BACKUP_DIR}
     local VM_BACKUP_DIR="${CURRENT_BACKUP_DIR}/${VM_NAME}"
     _check_path "VM_BACKUP_DIR" "${VM_BACKUP_DIR}"
-    mkdir -p "${VM_BACKUP_DIR}"
+    mkdir -p "${VM_BACKUP_DIR}" || die "Failed to create ${VM_BACKUP_DIR}"
 
     # Collect VM disk file paths to PSV file
     local VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
