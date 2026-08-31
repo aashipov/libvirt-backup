@@ -219,7 +219,7 @@ get_vm_disk_names_and_absolute_paths() {
 #  Shrink disks
 # ------------------------------------------------------------
 shrink_disks() {
-    # VM_BACKUP_DIR set up the call stack
+    # VM_BACKUP_DIR is set up the call stack
     if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" = "1" ]
     then
         for backup_to_shrink in "${VM_BACKUP_DIR}"/*.qcow2
@@ -236,6 +236,89 @@ shrink_disks() {
 }
 
 # ------------------------------------------------------------
+#  Online (live, running VM) backup
+# ------------------------------------------------------------
+online_backup() {
+    # VM_BACKUP_DIR is set up the call stack
+    # Collect VM disk file paths to PSV file
+    local VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
+    get_vm_disk_names_and_absolute_paths "${VM_NAME}" > "${VM_DISKS_FILE}"
+
+    # Backup job descriptor content
+    local BACKUP_JOB_DESCRIPTOR_CONTENT="<domainbackup>\n    <disks>"
+    local DISK_NAME
+    local DISK_FILE_ABSOLUTE_PATH
+    while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
+    do
+        local DISK_FILE_NAME
+        DISK_FILE_NAME="$(basename "${DISK_FILE_ABSOLUTE_PATH}")"
+        local TARGET_DISK_FILE_ABSOLUTE_PATH="${VM_BACKUP_DIR}/${DISK_FILE_NAME}"
+
+        # Workaround target file permissions
+        local TARGET_DISK_CAPACITY
+        TARGET_DISK_CAPACITY="$(virsh domblkinfo "${VM_NAME}" "${DISK_NAME}" | awk '$1 == "Capacity:" {print $2}')"
+        if [ -z "${TARGET_DISK_CAPACITY}" ]
+        then
+            die "Failed to get capacity for ${VM_NAME} ${DISK_NAME}"
+        fi
+        qemu-img create -f qcow2 "${TARGET_DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_CAPACITY}" || die "Failed to create a target file for ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
+
+        BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}\n        <disk name='${DISK_NAME}' type='file'>\n            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>\n                <driver type='qcow2'/>\n        </disk>\n"
+    done < "${VM_DISKS_FILE}"
+    BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}    </disks>\n</domainbackup>"
+    
+    local BACKUP_TASK_FILE="${VM_BACKUP_DIR}/${VM_NAME}-backup-job-descriptor.xml"
+    # printf "%s\n" "${BACKUP_JOB_DESCRIPTOR_CONTENT}" would produce an unparseable XML
+    printf '%b\n' "${BACKUP_JOB_DESCRIPTOR_CONTENT}" > "${BACKUP_TASK_FILE}"
+
+    # launch backup
+    virsh backup-begin "${VM_NAME}" --reuse-external --backupxml "${BACKUP_TASK_FILE}" || die "Failed to start backup for ${VM_NAME}"
+
+    # wait completion (bounded by BACKUP_TIMEOUT_SECONDS)
+    local BACKUP_DEADLINE=$(( $(date +%s) + BACKUP_TIMEOUT_SECONDS ))
+    while :; do
+        # timeout?
+        if [ "$(date +%s)" -ge "${BACKUP_DEADLINE}" ]
+        then
+            log "Backup job for ${VM_NAME} did not finish within ${BACKUP_TIMEOUT_SECONDS}s"
+            cleanup_on_exit
+        fi
+        # job complete?
+        if virsh domjobinfo "${VM_NAME}" | grep -q "None"
+        then
+            break
+        fi
+        # wait
+        sleep 10
+    done
+
+    shrink_disks "${VM_BACKUP_DIR}"
+}
+
+# ------------------------------------------------------------
+#  Offline (shut down VM) backup
+# ------------------------------------------------------------
+offline_backup() {
+    # VM_BACKUP_DIR is set up the call stack
+    # Collect VM disk file paths to PSV file
+    local VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
+    get_vm_disk_names_and_absolute_paths "${VM_NAME}" > "${VM_DISKS_FILE}"
+
+    local DISK_NAME
+    local DISK_FILE_ABSOLUTE_PATH
+    while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
+    do
+        local DISK_FILE_NAME
+        DISK_FILE_NAME="$(basename "${DISK_FILE_ABSOLUTE_PATH}")"
+        # copy offline VM file
+        log "Copying ${DISK_FILE_ABSOLUTE_PATH} to ${VM_BACKUP_DIR}/"
+        cp --sparse=always "${DISK_FILE_ABSOLUTE_PATH}" "${VM_BACKUP_DIR}/" || die "Failed to copy ${DISK_FILE_ABSOLUTE_PATH} to ${VM_BACKUP_DIR}/"
+    done < "${VM_DISKS_FILE}"
+
+    shrink_disks "${VM_BACKUP_DIR}"
+}
+
+# ------------------------------------------------------------
 #  Back the VM up
 # ------------------------------------------------------------
 backup_vm() {
@@ -248,13 +331,6 @@ backup_vm() {
     _check_path "VM_BACKUP_DIR" "${VM_BACKUP_DIR}"
     mkdir -p "${VM_BACKUP_DIR}" || die "Failed to create ${VM_BACKUP_DIR}"
 
-    # Collect VM disk file paths to PSV file
-    local VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
-    get_vm_disk_names_and_absolute_paths "${VM_NAME}" > "${VM_DISKS_FILE}"
-
-    # Dump VM config
-    virsh dumpxml --migratable "${VM_NAME}" > "${VM_BACKUP_DIR}/${VM_NAME}.xml" || die "Failed to dump an XML config for ${VM_NAME}"
-
     # Capture VM state once and reuse it below: polling `virsh domstate` per-disk
     # (and again after the loop) could see a state flip mid-run (VM started or
     # stopped), which would mix offline disk copies and live backup jobs for a
@@ -266,75 +342,15 @@ backup_vm() {
     then
         IS_VM_RUNNING=1
         log "${VM_NAME} is running, will use a live backup job"
+        online_backup "${VM_BACKUP_DIR}"
     elif printf '%s\n' "${VM_STATE}" | grep -q "paused"
     then
         log "${VM_NAME} is paused, skipping"
         return 0
     else
         log "${VM_NAME} is not running, will use an offline backup"
+        offline_backup "${VM_BACKUP_DIR}"
     fi
-
-    # Backup job descriptor content (running VMs only)
-    local BACKUP_JOB_DESCRIPTOR_CONTENT="<domainbackup>\n    <disks>"
-    local DISK_NAME
-    local DISK_FILE_ABSOLUTE_PATH
-    while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
-    do
-        local DISK_FILE_NAME
-        DISK_FILE_NAME="$(basename "${DISK_FILE_ABSOLUTE_PATH}")"
-        local TARGET_DISK_FILE_ABSOLUTE_PATH="${VM_BACKUP_DIR}/${DISK_FILE_NAME}"
-
-        if [ "${IS_VM_RUNNING}" = "1" ]
-        then
-            # Workaround target file permissions
-            local TARGET_DISK_CAPACITY
-            TARGET_DISK_CAPACITY="$(virsh domblkinfo "${VM_NAME}" "${DISK_NAME}" | awk '$1 == "Capacity:" {print $2}')"
-            if [ -z "${TARGET_DISK_CAPACITY}" ]
-            then
-                die "Failed to get capacity for ${VM_NAME} ${DISK_NAME}"
-            fi
-            qemu-img create -f qcow2 "${TARGET_DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_CAPACITY}" || die "Failed to create a target file for ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
-
-            BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}\n        <disk name='${DISK_NAME}' type='file'>\n            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>\n                <driver type='qcow2'/>\n        </disk>\n"
-        else
-            # copy offline VM file
-            log "Copying ${DISK_FILE_ABSOLUTE_PATH} to ${VM_BACKUP_DIR}/"
-            cp --sparse=always "${DISK_FILE_ABSOLUTE_PATH}" "${VM_BACKUP_DIR}/" || die "Failed to copy ${DISK_FILE_ABSOLUTE_PATH} to ${VM_BACKUP_DIR}/"
-            shrink_disks "${VM_BACKUP_DIR}"
-        fi
-    done < "${VM_DISKS_FILE}"
-    BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}    </disks>\n</domainbackup>"
-
-    # Running VM only: persist backup task xml to a file
-    if [ "${IS_VM_RUNNING}" = "1" ]
-    then
-        local BACKUP_TASK_FILE="${VM_BACKUP_DIR}/${VM_NAME}-backup-job-descriptor.xml"
-        # printf "%s\n" "${BACKUP_JOB_DESCRIPTOR_CONTENT}" would produce an unparseable XML
-        printf '%b\n' "${BACKUP_JOB_DESCRIPTOR_CONTENT}" > "${BACKUP_TASK_FILE}"
-        # launch backup
-        virsh backup-begin "${VM_NAME}" --reuse-external --backupxml "${BACKUP_TASK_FILE}" ||
-                die "Failed to start backup for ${VM_NAME}"
-
-        # wait completion (bounded by BACKUP_TIMEOUT_SECONDS)
-        local BACKUP_DEADLINE=$(( $(date +%s) + BACKUP_TIMEOUT_SECONDS ))
-        while :; do
-            # timeout?
-            if [ "$(date +%s)" -ge "${BACKUP_DEADLINE}" ]
-            then
-                log "Backup job for ${VM_NAME} did not finish within ${BACKUP_TIMEOUT_SECONDS}s"
-                cleanup_on_exit
-            fi
-            # job complete?
-            if virsh domjobinfo "${VM_NAME}" | grep -q "None"
-            then
-                break
-            fi
-            # wait
-            sleep 10
-        done
-        shrink_disks "${VM_BACKUP_DIR}"
-    fi
-    log "${VM_NAME} backup finish"
 }
 
 # ------------------------------------------------------------
