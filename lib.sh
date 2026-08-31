@@ -230,8 +230,6 @@ shrink_disks() {
             qemu-img convert -O qcow2 -c "${backup_to_shrink}" "${SHRUNK_BACKUP}" || die "qemu-img convert with compression failed for ${backup_to_shrink} -> ${SHRUNK_BACKUP}"
             rm "${backup_to_shrink}" || die "Failed to remove ${backup_to_shrink}"
         done
-    else
-        return 0
     fi
 }
 
@@ -292,7 +290,7 @@ online_backup() {
         sleep 10
     done
 
-    shrink_disks "${VM_BACKUP_DIR}"
+    shrink_disks
 }
 
 # ------------------------------------------------------------
@@ -315,7 +313,7 @@ offline_backup() {
         cp --sparse=always "${DISK_FILE_ABSOLUTE_PATH}" "${VM_BACKUP_DIR}/" || die "Failed to copy ${DISK_FILE_ABSOLUTE_PATH} to ${VM_BACKUP_DIR}/"
     done < "${VM_DISKS_FILE}"
 
-    shrink_disks "${VM_BACKUP_DIR}"
+    shrink_disks
 }
 
 # ------------------------------------------------------------
@@ -331,6 +329,9 @@ backup_vm() {
     _check_path "VM_BACKUP_DIR" "${VM_BACKUP_DIR}"
     mkdir -p "${VM_BACKUP_DIR}" || die "Failed to create ${VM_BACKUP_DIR}"
 
+    # Dump VM config
+    virsh dumpxml --migratable "${VM_NAME}" > "${VM_BACKUP_DIR}/${VM_NAME}.xml" || die "Failed to dump an XML config for ${VM_NAME}"
+
     # Capture VM state once and reuse it below: polling `virsh domstate` per-disk
     # (and again after the loop) could see a state flip mid-run (VM started or
     # stopped), which would mix offline disk copies and live backup jobs for a
@@ -342,14 +343,14 @@ backup_vm() {
     then
         IS_VM_RUNNING=1
         log "${VM_NAME} is running, will use a live backup job"
-        online_backup "${VM_BACKUP_DIR}"
+        online_backup
     elif printf '%s\n' "${VM_STATE}" | grep -q "paused"
     then
         log "${VM_NAME} is paused, skipping"
         return 0
     else
         log "${VM_NAME} is not running, will use an offline backup"
-        offline_backup "${VM_BACKUP_DIR}"
+        offline_backup
     fi
 }
 

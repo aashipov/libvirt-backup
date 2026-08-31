@@ -10,7 +10,7 @@ Prioritize structural safety over quick workarounds, and never introduce blind p
 
 | Path                                         | Role                                                                                                                          |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `bc.sh`                                      | Backup coordinator — sequential, blocking live backups via `virsh backup-begin` (for running VMs) an `cp` (for shut off ones) |
+| `bc.sh`                                      | Backup coordinator — sequential, blocking live backups via `virsh backup-begin` (for running VMs) or `cp` (for shut off ones) |
 | `bc-kill.sh`                                 | Abort running libvirt backup jobs (`virsh domjobabort`) and remove lock                                                       |
 | `rc.sh`                                      | Rsync backups to remote host, clean obsolete local backups                                                                    |
 | `lib.sh`                                     | Shared library — env loading, lock/marker, backup logic, push, cleanup, security                                              |
@@ -33,8 +33,8 @@ Prioritize structural safety over quick workarounds, and never introduce blind p
 - **running VMs** use libvirt's push-based backup (`virsh backup-begin` + polling `virsh domjobinfo`), `QEMU_IMG_CONVERT_WITH_COMPRESSION=1` will produce a `*.qcow2-shrunk` images (same `qemu-img convert -O qcow2 -c <src> <tgt>`).
 - for now we skip **paused/suspended** VMs
 - **Kill sequence** (manual): `pkill -x bc.sh ; ./bc-kill.sh`
-- **Output & logs**: no need it log levels, prefer `printf` over `echo`
+- **Output & logs**: no need in log levels, prefer `printf` over `echo`
 - Do not suggest **CI improvements** (GitHub Actions do not play well with QEMU/KVM, dedicated public testbed will add running cost)
 - `TOCTOU race on lock file` is not an issue
 - `debug.sh leaks the full environment` is not an issue (no secrets to store)
-- 
+-

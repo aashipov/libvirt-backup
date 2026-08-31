@@ -31,7 +31,9 @@ deploy_src() {
     rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" . "${TEST_USERNAME}@${TEST_HOSTNAME}:${TEST_REMOTE_HOME}/${TEST_APP_NAME}" || _fail "Failed to deploy source code"
 }
 
-# Main function
+# ------------------------------------------------------------
+#  Main function to prevent occasional environment pollution
+# ------------------------------------------------------------
 closure() {
     set -e
     #set -x # Debug

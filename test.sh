@@ -48,7 +48,9 @@ display_result() {
     tree -ha "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR:?}/"
 }
 
-# Main function
+# ------------------------------------------------------------
+#  Main function to prevent occasional environment pollution
+# ------------------------------------------------------------
 closure() {
     set -e
     #set -x # Debug
