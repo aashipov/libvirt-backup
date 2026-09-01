@@ -28,13 +28,13 @@ Configuration is stored in `.env` file. Craft one from a template `cp .env.templ
 
 The larger the VM's disk, the more data is on it, the longer backup will take. For hundreds of GiB a disk it takes up to a half a day with modern enterprise-grade hardware.
 
-Preflight configuration check `./debug.sh` (once per configuration round)
+Preflight configuration check (`dry-run`) `./debug.sh` (once per configuration round)
 
 Main script `bc.sh` - backup coordinator — sequential, blocking live backups via `virsh backup-begin` (for running VMs) or `cp` (for shut off ones)
 
 Kill sequence for a running backup job `pkill -x bc.sh ; ./bc-kill.sh`
 
-(Optional) `./rc.sh` - replication & obsolete clean up
+(Optional) `./rc.sh` - replication & obsolete clean up coordinator
 
 ## Design notes
 
@@ -46,7 +46,7 @@ Enterprise solutions like [Proxmox Backup Server](git://git.proxmox.com/git/prox
 
 [Bindings](https://gitlab.com/libvirt) for popular programming languages do exist
 
-GNU Coreutils, sed, grep, environment file and shell script 'glue' is a less consuming alternative to the above for a prototype
+GNU Coreutils, sed, grep, environment file and shell script 'glue' is a less consuming alternative to the above
 
 ## Limitations
 
@@ -55,5 +55,7 @@ GNU Coreutils, sed, grep, environment file and shell script 'glue' is a less con
 - every copy is a qcow2 (space-efficient)
 - only `file`-backed disks are supported — the source must be a local file
 - paused/suspended VMs are skipped; any other non-running state (e.g. `crashed`, `in shutdown`) is treated as an offline backup and its disks are copied as-is, so the image may be inconsistent
-- 'Live' / 'online' backup may produce inconsistent data across VMs which depend on each other. For consistency, turn VMs off, go for 'offline' backup (with/without compression). `Simultaneous` backup of multiple disks will overload system
-- Logical Volume Manager (LVM) is considered slower than traditional partitions. Virtual disks must be attached to VM as virtio / writeback cache mode
+- `live` / `online` backup may produce inconsistent data across VMs which depend on each other. For consistency, go for 'offline' backup (turn VMs off).
+- `simultaneous` backup of multiple disks will overload system
+- logical Volume Manager (LVM) is considered slower than traditional partitions
+- virtual disks must be attached to VM as virtio / writeback cache mode
