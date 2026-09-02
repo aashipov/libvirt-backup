@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# ollama list
+# ollama pull hf.co/google/gemma-4-E4B-it-qat-q4_0-gguf
+# ollama pull hf.co/Qwen/Qwen3-4B-GGUF:Q8_0
+# ollama pull hf.co/unsloth/gpt-oss-20b-GGUF:Q4_0
+# rm -rf ~/.ollama/models/blobs/*partial*
+# ollama launch pi
+# ollama launch opencode
+
+closure() {
+    export OLLAMA_VULKAN=1
+    export OLLAMA_IGPU_ENABLE=1
+    export OLLAMA_GPU_OVERHEAD=524288000
+
+    export OLLAMA_CONTEXT_LENGTH=8192
+    export OLLAMA_MAX_LOADED_MODELS=1
+    export OLLAMA_FLASH_ATTENTION=1
+    export OLLAMA_HOST=0.0.0.0:11434
+    ollama serve
+}
+
+closure

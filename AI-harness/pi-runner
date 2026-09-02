@@ -1,0 +1,10 @@
+#!/bin/bash
+
+closure() {
+    # npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+    # pi install git:github.com/huggingface/pi-llama
+    export LLAMA_BASE_URL=http://0.0.0.0:11434/v1
+    eval pi
+}
+
+closure
