@@ -11,7 +11,7 @@ Debian is fast, stable and open-licensed, makes a good Operating System for virt
 - Virtualization-capable CPU
 - 16+ GiB RAM
 - 100+ GiB disk
-- Linux host: libvirt ≥ 7.2.0, QEMU ≥ 4.2, virt-manager or VirtualBox
+- Linux host: libvirt ≥ 7.2.0, QEMU ≥ 5.0, virt-manager or VirtualBox
 - Windows host: Windows 10 (Windows/Hyper-V Server 2016 Evaluation) or newer; Hyper-V with nested virtualization enabled (`Set-VMProcessor -VMName <VMName> -ExposeVirtualizationExtensions $true`)
 - FreeBSD host with bhyve
 
@@ -26,7 +26,7 @@ Favor [Debian installer](https://cdimage.debian.org/debian-cd/current/amd64/iso-
 Create a disk
 
 ```sh
-qemu-img create -f qcow2 debian.qcow2 1T
+qemu-img create -f qcow2 -o compression_type=zstd debian.qcow2 1T
 ```
 
 Create a VM, 4G memory, attach the disk as VirtIO, attach DVD ISO, follow the installer (e.g., pick a package manager network mirror; install SSH server & standard system utilities)
@@ -185,7 +185,7 @@ Guest: create a prototype disk
 
 ```sh
 curl -LO https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2
-qemu-img convert -O qcow2 -c generic_alpine*.qcow2 prototype.qcow2
+qemu-img convert -O qcow2 -c -o compression_type=zstd generic_alpine*.qcow2 prototype.qcow2
 ```
 
 Create future VMs disks out of a prototype:
@@ -264,7 +264,7 @@ Cockpit, if enabled via `systemd`, requires no configuration, available at [link
 Turn off the VM, navigate to the directory with disk we created `debian.qcow2`, compact the image:
 
 ```sh
-qemu-img convert -O qcow2 -c debian.qcow2 debian-prototype.qcow2
+qemu-img convert -O qcow2 -c -o compression_type=zstd debian.qcow2 debian-prototype.qcow2
 ```
 
 Split/restore:

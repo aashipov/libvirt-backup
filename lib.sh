@@ -227,7 +227,7 @@ shrink_disks() {
             [ -f "${backup_to_shrink}" ] || continue
             local SHRUNK_BACKUP="${backup_to_shrink}-shrunk"
             log "Performing qemu-img convert with compression ${backup_to_shrink} -> ${SHRUNK_BACKUP}"
-            qemu-img convert -O qcow2 -c "${backup_to_shrink}" "${SHRUNK_BACKUP}" || die "qemu-img convert with compression failed for ${backup_to_shrink} -> ${SHRUNK_BACKUP}"
+            qemu-img convert -O qcow2 -c -o compression_type=zstd "${backup_to_shrink}" "${SHRUNK_BACKUP}" || die "qemu-img convert with compression failed for ${backup_to_shrink} -> ${SHRUNK_BACKUP}"
             rm "${backup_to_shrink}" || die "Failed to remove ${backup_to_shrink}"
         done
     fi
@@ -259,12 +259,12 @@ online_backup() {
         then
             die "Failed to get capacity for ${VM_NAME} ${DISK_NAME}"
         fi
-        qemu-img create -f qcow2 "${TARGET_DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_CAPACITY}" || die "Failed to create a target file for ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
+        qemu-img create -f qcow2 -o compression_type=zstd "${TARGET_DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_CAPACITY}" || die "Failed to create a target file for ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
 
         BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}\n        <disk name='${DISK_NAME}' type='file'>\n            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>\n                <driver type='qcow2'/>\n        </disk>\n"
     done < "${VM_DISKS_FILE}"
     BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}    </disks>\n</domainbackup>"
-    
+
     local BACKUP_TASK_FILE="${VM_BACKUP_DIR}/${VM_NAME}-backup-job-descriptor.xml"
     # printf "%s\n" "${BACKUP_JOB_DESCRIPTOR_CONTENT}" would produce an unparseable XML
     printf '%b\n' "${BACKUP_JOB_DESCRIPTOR_CONTENT}" > "${BACKUP_TASK_FILE}"
