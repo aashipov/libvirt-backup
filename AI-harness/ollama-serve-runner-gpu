@@ -2,7 +2,7 @@
 
 # ollama list
 # ollama pull hf.co/google/gemma-4-E4B-it-qat-q4_0-gguf
-# ollama pull hf.co/Qwen/Qwen3-4B-GGUF:Q8_0
+# ollama pull hf.co/Qwen/Qwen3-4B-GGUF:Q4_K_M
 # ollama pull hf.co/unsloth/gpt-oss-20b-GGUF:Q4_0
 # ollama pull hf.co/mistralai/Ministral-3-3B-Instruct-2512-GGUF:Q4_K_M
 # rm -rf ~/.ollama/models/blobs/*partial*

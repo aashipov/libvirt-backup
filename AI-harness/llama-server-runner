@@ -2,10 +2,10 @@
 
 closure() {
     # llama-cli -hf google/gemma-4-E4B-it-qat-q4_0-gguf:Q4_0
-    # llama-cli -hf unsloth/gpt-oss-20b-GGUF:Q8_0
-    # llama-cli -hf mistralai/Ministral-3-3B-Instruct-2512-GGUF:Q8_0
+    # llama-cli -hf unsloth/gpt-oss-20b-GGUF:Q4_0
+    # llama-cli -hf mistralai/Ministral-3-3B-Instruct-2512-GGUF:Q4_K_M
     local THREAD_CNT=6
-    local CMD_LINE="llama-server --threads ${THREAD_CNT} --offline --host 0.0.0.0 --port 11434 --jinja --no-warmup --batch-size 512 --ubatch-size 512 --ctx-size 8192 --n-gpu-layers 0 --no-kv-offload --no-op-offload --no-mmproj-offload"
+    local CMD_LINE="llama-server --threads ${THREAD_CNT} --offline --host 0.0.0.0 --port 11434 --jinja --no-warmup --flash-attn on --context-shift --batch-size 1024 --ubatch-size 1024 --ctx-size 16384 --n-gpu-layers 0 --no-kv-offload --no-op-offload --no-mmproj-offload"
     eval ${CMD_LINE}
 }
 
