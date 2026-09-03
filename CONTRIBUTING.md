@@ -9,6 +9,10 @@
 > [pi](https://github.com/earendil-works/pi) or [opencode](https://github.com/anomalyco/opencode), backed by [llama.cpp](https://github.com/ggml-org/llama.cpp) or [Ollama](https://ollama.com) -driven local models like [Gemma 4](https://huggingface.co/google/gemma-4-E4B-it-qat-q4_0-gguf), [QWEN 3](https://huggingface.co/Qwen/Qwen3-4B-GGUF), [Ministral 3](https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512-GGUF), cloud models like DeepSeek V4, will produce a lot of `belles-lettres` / `fluff` / `good intentions` / `Salon Blödsinn`. Check relevance & [TEST.md](./TEST.md) conformance before commiting those. 
 > [AI-harness](./AI-harness) directory contains Windows/Linux configurations for local llama.cpp and Ollama
 
+# 'Performance' baseline
+
+[HEADFUL.md](./HEADFUL.md) suggests XFS-formatted disk to store VM zstd-compressed qcow2 files. XFS outperforms ext4 in computation & disk intensive tasks like `vscode` compilation (Windows Server 2012R2 or newer). zstd-compressed image displays lower CPU load than its zlib-compressed clone
+
 # Pull requests (for contributors & collaborators)
 
 ### Before you start
