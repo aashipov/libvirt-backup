@@ -6,7 +6,8 @@
 >
 > AI-generated code is allowed. What is **not** allowed is submitting code you do not understand. You are 100% responsible for every line, however it was produced.
 >
-> [pi](https://github.com/earendil-works/pi) or [opencode](https://github.com/anomalyco/opencode), backed by [llama.cpp](https://github.com/ggml-org/llama.cpp) local models like [Gemma 4](https://huggingface.co/google/gemma-4-E2B-it-qat-q4_0-gguf) or [QWEN 3](https://huggingface.co/Qwen/Qwen3-4B-GGUF), cloud models like DeepSeek V4, will produce a lot of `belles-lettres` / `fluff` / `good intentions` / `Salon Blödsinn`. Check relevance & [TEST.md](./TEST.md) conformance before commiting those.
+> [pi](https://github.com/earendil-works/pi) or [opencode](https://github.com/anomalyco/opencode), backed by [llama.cpp](https://github.com/ggml-org/llama.cpp) or [Ollama](https://ollama.com) -driven local models like [Gemma 4](https://huggingface.co/google/gemma-4-E4B-it-qat-q4_0-gguf), [QWEN 3](https://huggingface.co/Qwen/Qwen3-4B-GGUF), [Ministral 3](https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512-GGUF), cloud models like DeepSeek V4, will produce a lot of `belles-lettres` / `fluff` / `good intentions` / `Salon Blödsinn`. Check relevance & [TEST.md](./TEST.md) conformance before commiting those. 
+> [AI-harness](./AI-harness) directory contains Windows/Linux configurations for local llama.cpp and Ollama
 
 # Pull requests (for contributors & collaborators)
 
