@@ -29,7 +29,7 @@ Prioritize structural safety over quick workarounds, and never introduce blind p
 - **No root** / **No sudo/doas ** : `block_root()` checks `id -u` at startup; `sudo` and `doas` are overridden to abort.
 - **Lock file**: `${BACKUP_DIR}/running` prevents concurrent `bc.sh` runs. "Stale lock" would complicate things without bringing much value.
 - **`.env.template` is the schema**: `check_mandatory_variables_set` greps variable names from it and ensures each is set and non-blank; matched vars are then marked `readonly`.
-- **Offline VMs**: disks are `cp`'d (`QEMU_IMG_CONVERT_WITH_COMPRESSION=0`) or `qemu-img convert -O qcow2 -c <src> <tgt>` (`QEMU_IMG_CONVERT_WITH_COMPRESSION=1`);
+- **Offline VMs**: disks are `qemu-img convert`'ed with (`QEMU_IMG_CONVERT_WITH_COMPRESSION=1`) or without (`QEMU_IMG_CONVERT_WITH_COMPRESSION=0`) compression;
 - **running VMs** use libvirt's push-based backup (`virsh backup-begin` + polling `virsh domjobinfo`), `QEMU_IMG_CONVERT_WITH_COMPRESSION=1` will produce a `*.qcow2-shrunk` images (same `qemu-img convert -O qcow2 -c <src> <tgt>`).
 - for now we skip **paused/suspended** VMs
 - **Kill sequence** (manual): `pkill -x bc.sh ; ./bc-kill.sh`
