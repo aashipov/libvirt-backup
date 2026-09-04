@@ -14,6 +14,38 @@ fi
 readonly _LIB_SH_LOADED=1
 
 # ------------------------------------------------------------
+#  Security
+# ------------------------------------------------------------
+die_privileged() {
+    die "Error: This script must not be run as root or with sudo (mass file/dir removal)."
+}
+
+# ------------------------------------------------------------
+#  Block sudo
+# ------------------------------------------------------------
+sudo() {
+    die_privileged
+}
+
+# ------------------------------------------------------------
+#  Block doas
+# ------------------------------------------------------------
+doas() {
+    die_privileged
+}
+
+# ------------------------------------------------------------
+#  Block elevated privilege execution
+# ------------------------------------------------------------
+block_root() {
+    if [ "$(id -u)" -eq 0 ]
+    then
+        die_privileged
+    fi
+}
+block_root
+
+# ------------------------------------------------------------
 #  lib.sh – Global variables
 # ------------------------------------------------------------
 CURRENT_BACKUP_DIR="/tmp"
@@ -141,7 +173,6 @@ check_mandatory_variables_set() {
 #  Environment loading
 # ------------------------------------------------------------
 environment() {
-    block_root
     # Loads environment variables from .env
     local ENV_FILE="$(dirname -- "$(readlink -f -- "$0")")/.env"
     if [ ! -f "${ENV_FILE}" ]
@@ -436,35 +467,4 @@ push_backups_to_another_server() {
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} start"
     rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" "${BACKUP_DIR}/" "${ANOTHER_SERVER_USERNAME}@${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" || die "Push failed"
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} finish"
-}
-
-# ------------------------------------------------------------
-#  Security
-# ------------------------------------------------------------
-die_privileged() {
-    die "Error: This script must not be run as root or with sudo (mass file/dir removal)."
-}
-
-# ------------------------------------------------------------
-#  Block sudo
-# ------------------------------------------------------------
-sudo() {
-    die_privileged
-}
-
-# ------------------------------------------------------------
-#  Block doas
-# ------------------------------------------------------------
-doas() {
-    die_privileged
-}
-
-# ------------------------------------------------------------
-#  Block privileged execution
-# ------------------------------------------------------------
-block_root() {
-    if [ "$(id -u)" -eq 0 ]
-    then
-        die_privileged
-    fi
 }
