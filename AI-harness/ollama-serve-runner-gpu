@@ -14,11 +14,11 @@ closure() {
     export OLLAMA_VULKAN=1
     export OLLAMA_IGPU_ENABLE=1
     # Book some VRAM for desktop apps
-    export OLLAMA_GPU_OVERHEAD=3221225472 #2147483648
+    export OLLAMA_GPU_OVERHEAD=2147483648
 
     export OLLAMA_CONTEXT_LENGTH=24576
     export OLLAMA_MAX_LOADED_MODELS=1
-    export OLLAMA_FLASH_ATTENTION=1
+    export OLLAMA_FLASH_ATTENTION=0
     export OLLAMA_HOST=0.0.0.0:11434
     ollama serve
 }

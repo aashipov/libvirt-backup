@@ -5,8 +5,18 @@ closure() {
     # llama-cli -hf unsloth/gpt-oss-20b-GGUF:Q4_0
     # llama-cli -hf mistralai/Ministral-3-3B-Instruct-2512-GGUF:Q4_K_M
     local THREAD_CNT=6
-    local CMD_LINE="llama-server --threads ${THREAD_CNT} --offline --host 0.0.0.0 --port 11434 --jinja --no-warmup --flash-attn on --context-shift --batch-size 512 --ubatch-size 512 --ctx-size 24576 --n-gpu-layers 32"
-    eval ${CMD_LINE}
+    local BATCH_SIZE=64
+    local CTX_SIZE=24576
+    local N_GPU_LAYERS=99
+    
+    # Phi 4
+    #local CTX_SIZE=16384
+    #local N_GPU_LAYERS=32
+
+    export GGML_VK_DISABLE_COOPMAT=1
+    local CMD_LINE="llama-server --threads ${THREAD_CNT} --offline --host 0.0.0.0 --port 11434 --jinja --no-warmup --flash-attn off --context-shift --batch-size ${BATCH_SIZE} --ubatch-size ${BATCH_SIZE} --ctx-size ${CTX_SIZE} --n-gpu-layers ${N_GPU_LAYERS}"
+
+    ${CMD_LINE}
 }
 
 closure
