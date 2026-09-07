@@ -135,6 +135,13 @@ check_qemu_img() {
 }
 
 # ------------------------------------------------------------
+#  Check if rsync is installed
+# ------------------------------------------------------------
+check_rsync() {
+    rsync --version >/dev/null 2>&1 || die "Cannot reach rsync (is rsync installed?)"
+}
+
+# ------------------------------------------------------------
 #  Check if all of the mandatory variables are set in the environment
 # ------------------------------------------------------------
 check_mandatory_variables_set() {
@@ -184,6 +191,7 @@ environment() {
     check_mandatory_variables_set
     check_libvirt
     check_qemu_img
+    check_rsync
     export LC_ALL=C
     CURRENT_BACKUP_DIR="${BACKUP_DIR}/$(date +%Y-%m-%d)"
     # Uncomment following line to observe locale issues
