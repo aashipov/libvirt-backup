@@ -21,7 +21,6 @@ Configuration is stored in `.env` file. Craft one from a template `cp .env.templ
 - store space-separated list of VM you wish to back up to `VM_NAMES_TO_BACK_UP`
 - adjust `BACKUP_TIMEOUT_SECONDS` a time limit for `live` backup to complete
 - `QEMU_IMG_CONVERT_WITH_COMPRESSION`: 0 do not compress, 1 perform `qemu-img convert -O qcow2 -c ... src tgt` compression (time consuming, but shrinks the backup significantly)
-- `MINIMUM_FREE_DISK_SPACE_REQUIRED` preflight free store check
 - (optional) if you plan to replicate backups to another server/file store via rsync, configure `ANOTHER_SERVER_IP`, `ANOTHER_SERVER_USERNAME` and establish passwordless SSH connection to it
 
 ## Workflow

@@ -201,14 +201,15 @@ environment() {
 create_backup_dir() {
     # Creates a local backup dir if missing
     mkdir -p "${BACKUP_DIR}" || die "Can not create ${BACKUP_DIR}"
-    local ACTUAL_DISK_FREE_SPACE
-    ACTUAL_DISK_FREE_SPACE=$(df -Pk "${BACKUP_DIR}" | awk -v target="Available" 'NR==1 { for(i=1;i<=NF;i++) if($i==target) col=i } NR==2 { print $col }') || die "Failed to calculate free disk space in ${BACKUP_DIR}"
-    if [ "${ACTUAL_DISK_FREE_SPACE}" -lt "${MINIMUM_FREE_DISK_SPACE_REQUIRED}" ]
-    then
-        die "Insufficient disk space in ${BACKUP_DIR}"
-    fi
     mkdir -p "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}" || die "Can not create ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
     touch "${BACKUP_LOG_FILE}"
+}
+
+get_disk_actual_free_space() {
+    # BACKUP_DIR is set up the call stack
+    local DISK_ACTUAL_FREE_SPACE
+    DISK_ACTUAL_FREE_SPACE=$(df --block-size=1 "${BACKUP_DIR}" | awk -v target="Available" 'NR==1 { for(i=1;i<=NF;i++) if($i==target) col=i } NR==2 { print $col }') || die "Failed to calculate free disk space in ${BACKUP_DIR}"
+    printf '%d\n' ${DISK_ACTUAL_FREE_SPACE}
 }
 
 create_current_backup_dir() {
@@ -255,6 +256,16 @@ get_vm_disk_names_and_absolute_paths() {
 }
 
 # ------------------------------------------------------------
+#  Extract actual-size in bytes from `qemu-img info --force-share --output=json ...`
+# ------------------------------------------------------------
+get_disk_actual_size() {
+    local _DISK_FILE_ABSOLUTE_PATH="${1}"
+    local ACTUAL_SIZE
+    ACTUAL_SIZE=$(qemu-img info --force-share --output=json ${_DISK_FILE_ABSOLUTE_PATH} | awk -F'[: ,]+' '$2 == "\"actual-size\"" {v=$3} END {print v}' || die "Failed to get ${_DISK_FILE_ABSOLUTE_PATH} actual-size")
+    printf '%d\n' ${ACTUAL_SIZE}
+}
+
+# ------------------------------------------------------------
 #  Online (live, running VM) backup
 # ------------------------------------------------------------
 online_backup() {
@@ -265,6 +276,7 @@ online_backup() {
 
     # Backup job descriptor content
     local BACKUP_JOB_DESCRIPTOR_CONTENT="<domainbackup>\n    <disks>"
+    local ALL_DISKS_ACTUAL_SIZE=0
     local DISK_NAME
     local DISK_FILE_ABSOLUTE_PATH
     while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
@@ -283,12 +295,20 @@ online_backup() {
         qemu-img create -f qcow2 -o compression_type=zstd "${TARGET_DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_CAPACITY}" || die "Failed to create a target file for ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
 
         BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}\n        <disk name='${DISK_NAME}' type='file'>\n            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>\n                <driver type='qcow2'/>\n        </disk>\n"
+        local DISK_ACTUAL_SIZE=$(get_disk_actual_size "${DISK_FILE_ABSOLUTE_PATH}")
+        ALL_DISKS_ACTUAL_SIZE=$((ALL_DISKS_ACTUAL_SIZE+DISK_ACTUAL_SIZE))
     done < "${VM_DISKS_FILE}"
     BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}    </disks>\n</domainbackup>"
 
     local BACKUP_TASK_FILE="${VM_BACKUP_DIR}/${VM_NAME}-backup-job-descriptor.xml"
     # printf "%s\n" "${BACKUP_JOB_DESCRIPTOR_CONTENT}" would produce an unparseable XML
     printf '%b\n' "${BACKUP_JOB_DESCRIPTOR_CONTENT}" > "${BACKUP_TASK_FILE}"
+
+    local DISK_ACTUAL_FREE_SPACE=$(get_disk_actual_free_space)
+    if [ "${DISK_ACTUAL_FREE_SPACE}" -lt "${ALL_DISKS_ACTUAL_SIZE}" ]
+    then
+        die "Insufficient disk space in ${BACKUP_DIR}"
+    fi
 
     # launch backup
     virsh backup-begin "${VM_NAME}" --reuse-external --backupxml "${BACKUP_TASK_FILE}" || die "Failed to start backup for ${VM_NAME}"
@@ -332,8 +352,22 @@ offline_backup() {
     # Collect VM disk file paths to PSV file
     local VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
     get_vm_disk_names_and_absolute_paths "${VM_NAME}" > "${VM_DISKS_FILE}"
+
     local DISK_NAME
     local DISK_FILE_ABSOLUTE_PATH
+
+    local ALL_DISKS_ACTUAL_SIZE=0
+    while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
+    do
+        local DISK_ACTUAL_SIZE=$(get_disk_actual_size "${DISK_FILE_ABSOLUTE_PATH}")
+        ALL_DISKS_ACTUAL_SIZE=$((ALL_DISKS_ACTUAL_SIZE+DISK_ACTUAL_SIZE))
+    done < "${VM_DISKS_FILE}"
+    local DISK_ACTUAL_FREE_SPACE=$(get_disk_actual_free_space)
+    if [ "${DISK_ACTUAL_FREE_SPACE}" -lt "${ALL_DISKS_ACTUAL_SIZE}" ]
+    then
+        die "Insufficient disk space in ${BACKUP_DIR}"
+    fi
+
     while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
     do
         local DISK_FILE_NAME
