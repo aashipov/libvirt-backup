@@ -9,8 +9,9 @@ closure() {
     local CTX_SIZE=24576
     local N_GPU_LAYERS=99
     
-    # Phi 4
+    # Phi 4 & ChatGPT
     #local CTX_SIZE=16384
+    # Phi 4
     #local N_GPU_LAYERS=32
 
     export GGML_VK_DISABLE_COOPMAT=1
