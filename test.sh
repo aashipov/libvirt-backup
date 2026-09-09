@@ -15,13 +15,21 @@
 # ------------------------------------------------------------
 
 clean_leftovers() {
-    rm -rf "${BACKUP_DIR:?}/"*
-    rm -rf "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR:?}/"*
+    find "${BACKUP_DIR}/" -type d -depth -mindepth 1 -exec rm -rf {} \;
+    find "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" -type d -depth -mindepth 1 -exec rm -rf {} \;
+}
+
+start_vm() {
+    local _VM_NAME="${1}"
+    if ! virsh domstate "${_VM_NAME}" | grep -E -q "running|paused"
+    then
+        virsh start "${_VM_NAME}"
+    fi
 }
 
 launch_vms() {
-    virsh start a
-    virsh start c
+    start_vm a
+    start_vm c
     virsh suspend c
     sleep 10
     virsh list --all

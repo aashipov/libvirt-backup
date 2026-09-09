@@ -15,6 +15,7 @@ closure() {
 
     # Do the job
     environment
+    check_running
 
     #set -x # debug
 
