@@ -270,8 +270,13 @@ online_backup() {
     local VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
     get_vm_disk_names_and_absolute_paths "${VM_NAME}" > "${VM_DISKS_FILE}"
 
-    # Backup job descriptor content
-    local BACKUP_JOB_DESCRIPTOR_CONTENT="<domainbackup>\n    <disks>"
+    local BACKUP_TASK_FILE="${VM_BACKUP_DIR}/${VM_NAME}-backup-job-descriptor.xml"
+    # Build the backup job descriptor in several heredoc steps
+    cat > "${BACKUP_TASK_FILE}" <<EOF
+<domainbackup>
+    <disks>
+EOF
+
     local ALL_DISKS_ACTUAL_SIZE=0
     local DISK_NAME
     local DISK_FILE_ABSOLUTE_PATH
@@ -290,15 +295,20 @@ online_backup() {
         fi
         qemu-img create -f qcow2 -o compression_type=zstd "${TARGET_DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_CAPACITY}" || die "Failed to create a target file for ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
 
-        BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}\n        <disk name='${DISK_NAME}' type='file'>\n            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>\n                <driver type='qcow2'/>\n        </disk>\n"
+        cat >> "${BACKUP_TASK_FILE}" <<EOF
+        <disk name='${DISK_NAME}' type='file'>
+            <target file='${TARGET_DISK_FILE_ABSOLUTE_PATH}'/>
+                <driver type='qcow2'/>
+        </disk>
+EOF
+
         local DISK_ACTUAL_SIZE=$(get_disk_actual_size "${DISK_FILE_ABSOLUTE_PATH}")
         ALL_DISKS_ACTUAL_SIZE=$((ALL_DISKS_ACTUAL_SIZE+DISK_ACTUAL_SIZE))
     done < "${VM_DISKS_FILE}"
-    BACKUP_JOB_DESCRIPTOR_CONTENT="${BACKUP_JOB_DESCRIPTOR_CONTENT}    </disks>\n</domainbackup>"
-
-    local BACKUP_TASK_FILE="${VM_BACKUP_DIR}/${VM_NAME}-backup-job-descriptor.xml"
-    # printf "%s\n" "${BACKUP_JOB_DESCRIPTOR_CONTENT}" would produce an unparseable XML
-    printf '%b\n' "${BACKUP_JOB_DESCRIPTOR_CONTENT}" > "${BACKUP_TASK_FILE}"
+    cat >> "${BACKUP_TASK_FILE}" <<EOF
+    </disks>
+</domainbackup>
+EOF
 
     local DISK_ACTUAL_FREE_SPACE=$(get_disk_actual_free_space)
     if [ "${DISK_ACTUAL_FREE_SPACE}" -lt "${ALL_DISKS_ACTUAL_SIZE}" ]
