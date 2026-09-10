@@ -22,6 +22,6 @@
 
 ### Preparing your PR
 
-- (Optional) ask coding agent for opinion, e.g. `Read the project in the current working directory (ignore catalogs .git, .github, ignore files .gitignore, CONTRIBUTING.md, gui, HEADFUL.md, LICENSE, openbox-rc.xml, SECURITY.md, TEST.md, weston-runner) and suggest improvements`
+- (Optional) ask coding agent for review, e.g. `Read the project in the current working directory (ignore directories: .git, .github; ignore files: .gitignore, CONTRIBUTING.md, gui, HEADFUL.md, LICENSE, openbox-rc.xml, SECURITY.md, TEST.md, weston-runner), perform review and suggest improvements. Do not edit files without permission`
 - Test your changes:
   - [test-runner.sh](./test-runner.sh) must pass
