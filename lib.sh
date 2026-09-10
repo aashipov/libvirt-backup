@@ -191,7 +191,6 @@ environment() {
     check_mandatory_variables_set
     check_libvirt
     check_qemu_img
-    check_rsync
     export LC_ALL=C
     CURRENT_BACKUP_DIR="${BACKUP_DIR}/$(date +%Y-%m-%d)"
     # Uncomment following line to observe locale issues

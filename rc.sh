@@ -18,6 +18,7 @@ closure() {
 
     # Do the job
     environment
+    check_rsync
     create_backup_dir
     check_running
     clean_obsolete_backups
