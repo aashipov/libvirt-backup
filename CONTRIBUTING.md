@@ -22,6 +22,21 @@
 
 ### Preparing your PR
 
-- (Optional) ask coding agent for review, e.g. `Read the project in the current working directory (ignore directories: .git, .github; ignore files: .gitignore, CONTRIBUTING.md, gui, HEADFUL.md, LICENSE, openbox-rc.xml, SECURITY.md, TEST.md, weston-runner), perform review and suggest improvements. Do not edit files without permission`
+- (Optional) ask coding agent for review
 - Test your changes:
   - [test-runner.sh](./test-runner.sh) must pass
+
+### Review prompt
+
+Act as an expert code reviewer. Conduct a thorough, line-by-line and file-by-file review of the project in the current working directory.
+
+**Constraints:**
+
+* **Ignore these directories:** .git, .github
+* **Ignore these files:** .gitignore, CONTRIBUTING.md, gui, HEADFUL.md, LICENSE, openbox-rc.xml, SECURITY.md, TEST.md, weston-runner
+* **Rules:** You have full read permissions to analyze the code line by line, but you must not modify any files.
+
+**Goal:**
+Identify scripting bugs, security flaws (like injection or unquoted variables), performance bottlenecks (like useless uses of cat or inefficient grep/sed/awk pipelines), and edge-case failures.
+
+For every issue found, specify the file name, line numbers, a clear explanation of the Shell best practice violated, and a concrete example of the optimized code.

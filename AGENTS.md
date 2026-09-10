@@ -10,7 +10,7 @@ Prioritize structural safety over quick workarounds, and never introduce blind p
 
 | Path                                         | Role                                                                                                                          |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `bc.sh`                                      | Backup coordinator — sequential, blocking live backups via `virsh backup-begin` (for running VMs) or `cp` (for shut off ones) |
+| `bc.sh`                                      | Backup coordinator — sequential, blocking live backups via `virsh backup-begin` (for running VMs) or `qemu-img convert ...` (for shut off ones) |
 | `bc-kill.sh`                                 | Abort running libvirt backup jobs (`virsh domjobabort`) and remove lock                                                       |
 | `rc.sh`                                      | Rsync backups to remote host, clean obsolete local backups                                                                    |
 | `lib.sh`                                     | Shared library — env loading, lock/marker, backup logic, push, cleanup, security                                              |
