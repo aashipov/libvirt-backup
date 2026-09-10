@@ -223,10 +223,7 @@ create_current_backup_dir() {
 # ------------------------------------------------------------
 check_running() {
     # if marker/lock file ${RUNNING_FILE} exists
-    if [ -f "${RUNNING_FILE}" ]
-    then
-        die "Another copy of this file may be running. Stop it, remove ${RUNNING_FILE} and repeat. Exiting"
-    fi
+    test -f "${RUNNING_FILE}" && die "Another copy of this file may be running. Stop it, remove ${RUNNING_FILE} and repeat. Exiting"
 }
 
 create_running() {
