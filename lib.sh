@@ -403,10 +403,8 @@ backup_vm() {
     # single VM
     local VM_STATE
     VM_STATE="$(virsh domstate "${VM_NAME}")" || die "Failed to get ${VM_NAME} state"
-    local IS_VM_RUNNING=0
     if printf '%s\n' "${VM_STATE}" | grep -q "running"
     then
-        IS_VM_RUNNING=1
         log "${VM_NAME} is running, will use a live backup job"
         online_backup
     elif printf '%s\n' "${VM_STATE}" | grep -q "paused"
