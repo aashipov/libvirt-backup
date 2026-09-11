@@ -37,8 +37,8 @@ Act as an autonomous expert code reviewer. Conduct a thorough, line-by-line and 
 * **Rules:** You have full read permissions to analyze the code line by line, but you must not modify any files.
 
 **Goal:**
-Identify scripting bugs, security flaws (like injection or unquoted variables), performance bottlenecks (like useless uses of cat or inefficient grep/sed/awk pipelines), and edge-case failures.
+Identify scripting bugs, security flaws (like injection or unquoted variables), performance bottlenecks, and edge-case failures.
 
 For every issue found, specify the file name, line numbers, a clear explanation of the Shell best practice violated, and a concrete example of the optimized code.
 
-Dump review report to a file in the current working directory.
+Dump review report to a 'review_report.md' file in the current working directory.
