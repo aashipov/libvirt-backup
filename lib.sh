@@ -207,7 +207,7 @@ create_backup_dir() {
 get_disk_actual_free_space() {
     # BACKUP_DIR is set up the call stack
     local DISK_ACTUAL_FREE_SPACE
-    DISK_ACTUAL_FREE_SPACE=$(df --block-size=1 "${BACKUP_DIR}" | awk -v target="Available" 'NR==1 { for(i=1;i<=NF;i++) if($i==target) col=i } NR==2 { print $col }') || die "Failed to calculate free disk space in ${BACKUP_DIR}"
+    DISK_ACTUAL_FREE_SPACE=$(df --portability --block-size=1 "${BACKUP_DIR}" | awk -v target="Available" 'NR==1 { for(i=1;i<=NF;i++) if($i==target) col=i } NR==2 { print $col }') || die "Failed to calculate free disk space in ${BACKUP_DIR}"
     printf '%d\n' ${DISK_ACTUAL_FREE_SPACE}
 }
 
