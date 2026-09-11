@@ -40,6 +40,7 @@ closure() {
     create_current_backup_dir
     clean_obsolete_backups
     export_vm_and_disk_configuration
+    check_available_disk_space
     backup_vms
     validate_backups
 }
