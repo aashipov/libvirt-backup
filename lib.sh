@@ -208,7 +208,7 @@ get_disk_actual_free_space() {
     # BACKUP_DIR is set up the call stack
     local DISK_ACTUAL_FREE_SPACE
     DISK_ACTUAL_FREE_SPACE=$(df --portability --block-size=1 "${BACKUP_DIR}" | awk -v target="Available" 'NR==1 { for(i=1;i<=NF;i++) if($i==target) col=i } NR==2 { print $col }') || die "Failed to calculate free disk space in ${BACKUP_DIR}"
-    printf '%d\n' ${DISK_ACTUAL_FREE_SPACE}
+    printf '%d\n' "${DISK_ACTUAL_FREE_SPACE}"
 }
 
 create_current_backup_dir() {
@@ -258,7 +258,7 @@ get_disk_actual_size() {
     local _DISK_FILE_ABSOLUTE_PATH="${1}"
     local ACTUAL_SIZE
     ACTUAL_SIZE=$(qemu-img info --force-share --output=json "${_DISK_FILE_ABSOLUTE_PATH}" | awk -F'[: ,]+' '$2 == "\"actual-size\"" {v=$3} END {print v}' || die "Failed to get ${_DISK_FILE_ABSOLUTE_PATH} actual-size")
-    printf '%d\n' ${ACTUAL_SIZE}
+    printf '%d\n' "${ACTUAL_SIZE}"
 }
 
 # ------------------------------------------------------------
