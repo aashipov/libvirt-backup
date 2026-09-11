@@ -351,14 +351,14 @@ offline_backup() {
         local DISK_FILE_NAME
         DISK_FILE_NAME="$(basename "${DISK_FILE_ABSOLUTE_PATH}")"
         local TARGET_DISK_FILE_ABSOLUTE_PATH="${VM_BACKUP_DIR}/${DISK_FILE_NAME}"
-        local QEMU_IMG_CONVERT_CMD="qemu-img convert -O qcow2 -o compression_type=zstd"
         if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" = "1" ]
         then
             TARGET_DISK_FILE_ABSOLUTE_PATH="${TARGET_DISK_FILE_ABSOLUTE_PATH}-shrunk"
-            QEMU_IMG_CONVERT_CMD="${QEMU_IMG_CONVERT_CMD} -c"
+            qemu-img convert -O qcow2 -o compression_type=zstd -c "${DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_FILE_ABSOLUTE_PATH}" || die "Failed to convert ${DISK_FILE_ABSOLUTE_PATH} to ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
+        else
+            qemu-img convert -O qcow2 -o compression_type=zstd "${DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_FILE_ABSOLUTE_PATH}" || die "Failed to convert ${DISK_FILE_ABSOLUTE_PATH} to ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
         fi
-        log "Converting ${DISK_FILE_ABSOLUTE_PATH} to ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
-        ${QEMU_IMG_CONVERT_CMD} "${DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_FILE_ABSOLUTE_PATH}" || die "Failed to convert ${DISK_FILE_ABSOLUTE_PATH} to ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
+        log "Done converting ${DISK_FILE_ABSOLUTE_PATH} to ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
     done < "${VM_DISKS_FILE}"
 }
 
