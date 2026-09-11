@@ -55,6 +55,6 @@ GNU Coreutils, sed, grep, environment file and shell script 'glue' is a less con
 - only `file`-backed disks are supported — the source must be a local file
 - paused/suspended VMs are skipped; any other non-running state (e.g. `crashed`, `in shutdown`) is treated as an offline backup and its disks are copied as-is, so the image may be inconsistent
 - `live` / `online` backup may produce inconsistent data across VMs which depend on each other. For consistency, go for 'offline' backup (turn VMs off).
-- `simultaneous` backup of multiple disks will overload system
+- `simultaneous` backup of multiple VMs will overwhelm the system
 - logical Volume Manager (LVM) is considered slower than traditional partitions
 - virtual disks must be attached to VM as virtio / writeback cache mode

@@ -257,7 +257,7 @@ get_vm_disk_names_and_absolute_paths() {
 get_disk_actual_size() {
     local _DISK_FILE_ABSOLUTE_PATH="${1}"
     local ACTUAL_SIZE
-    ACTUAL_SIZE=$(qemu-img info --force-share --output=json ${_DISK_FILE_ABSOLUTE_PATH} | awk -F'[: ,]+' '$2 == "\"actual-size\"" {v=$3} END {print v}' || die "Failed to get ${_DISK_FILE_ABSOLUTE_PATH} actual-size")
+    ACTUAL_SIZE=$(qemu-img info --force-share --output=json "${_DISK_FILE_ABSOLUTE_PATH}" | awk -F'[: ,]+' '$2 == "\"actual-size\"" {v=$3} END {print v}' || die "Failed to get ${_DISK_FILE_ABSOLUTE_PATH} actual-size")
     printf '%d\n' ${ACTUAL_SIZE}
 }
 
@@ -470,9 +470,11 @@ validate_backups() {
     find "${CURRENT_BACKUP_DIR}" -type f \( -name '*.qcow2' -o -name '*.qcow2-shrunk' \) > "${BACKUPS_TO_CHECK_FILE}" || die "Failed to list backups in ${CURRENT_BACKUP_DIR}"
     while IFS= read -r line
     do
+        log ""
         log "=== Analyzing: ${line} ==="
         qemu-img info "${line}" || die "qemu-img info failed for ${line}"
         qemu-img check "${line}" || die "qemu-img check failed for ${line}"
+        log ""
     done < "${BACKUPS_TO_CHECK_FILE}"
     rm -f "${BACKUPS_TO_CHECK_FILE}"
 }
