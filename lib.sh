@@ -427,6 +427,33 @@ backup_vm() {
 }
 
 # ------------------------------------------------------------
+# Export VM and disk configuration
+#     exports VM configuration to XML
+#     exports VM disk configuration to PSV
+# 
+# VM_NAMES_TO_BACK_UP is set in the .env
+# CURRENT_BACKUP_DIR is set in the environment
+# ------------------------------------------------------------
+export_vm_and_disk_configuration() {
+    log "Export VM and disk configuration start"
+    for VM_NAME in ${VM_NAMES_TO_BACK_UP}
+    do
+        # Per-VM dir in the ${CURRENT_BACKUP_DIR}
+        local VM_BACKUP_DIR="${CURRENT_BACKUP_DIR}/${VM_NAME}"
+        _check_path "VM_BACKUP_DIR" "${VM_BACKUP_DIR}"
+        mkdir -p "${VM_BACKUP_DIR}" || die "Failed to create ${VM_BACKUP_DIR}"
+
+        # Dump VM config
+        virsh dumpxml --migratable "${VM_NAME}" > "${VM_BACKUP_DIR}/${VM_NAME}.xml" || die "Failed to dump an XML config for ${VM_NAME}"
+
+        # Collect VM disk file paths to PSV file
+        local VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
+        get_vm_disk_names_and_absolute_paths "${VM_NAME}" > "${VM_DISKS_FILE}"
+    done
+    log "Export VM and disk configuration finish"
+}
+
+# ------------------------------------------------------------
 #  Back the VMs up
 # ------------------------------------------------------------
 backup_vms() {
