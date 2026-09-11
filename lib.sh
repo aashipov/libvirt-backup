@@ -266,9 +266,7 @@ get_disk_actual_size() {
 # ------------------------------------------------------------
 online_backup() {
     # VM_BACKUP_DIR is set up the call stack
-    # Collect VM disk file paths to PSV file
     local VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
-    get_vm_disk_names_and_absolute_paths "${VM_NAME}" > "${VM_DISKS_FILE}"
 
     local BACKUP_TASK_FILE="${VM_BACKUP_DIR}/${VM_NAME}-backup-job-descriptor.xml"
     # Build the backup job descriptor in several heredoc steps
@@ -277,7 +275,6 @@ online_backup() {
     <disks>
 EOF
 
-    local ALL_DISKS_ACTUAL_SIZE=0
     local DISK_NAME
     local DISK_FILE_ABSOLUTE_PATH
     while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
@@ -301,20 +298,11 @@ EOF
                 <driver type='qcow2'/>
         </disk>
 EOF
-
-        local DISK_ACTUAL_SIZE=$(get_disk_actual_size "${DISK_FILE_ABSOLUTE_PATH}")
-        ALL_DISKS_ACTUAL_SIZE=$((ALL_DISKS_ACTUAL_SIZE+DISK_ACTUAL_SIZE))
     done < "${VM_DISKS_FILE}"
     cat >> "${BACKUP_TASK_FILE}" <<EOF
     </disks>
 </domainbackup>
 EOF
-
-    local DISK_ACTUAL_FREE_SPACE=$(get_disk_actual_free_space)
-    if [ "${DISK_ACTUAL_FREE_SPACE}" -lt "${ALL_DISKS_ACTUAL_SIZE}" ]
-    then
-        die "Insufficient disk space in ${BACKUP_DIR}"
-    fi
 
     # launch backup
     virsh backup-begin "${VM_NAME}" --reuse-external --backupxml "${BACKUP_TASK_FILE}" || die "Failed to start backup for ${VM_NAME}"
@@ -355,25 +343,9 @@ EOF
 # ------------------------------------------------------------
 offline_backup() {
     # VM_BACKUP_DIR is set up the call stack
-    # Collect VM disk file paths to PSV file
     local VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
-    get_vm_disk_names_and_absolute_paths "${VM_NAME}" > "${VM_DISKS_FILE}"
-
     local DISK_NAME
     local DISK_FILE_ABSOLUTE_PATH
-
-    local ALL_DISKS_ACTUAL_SIZE=0
-    while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
-    do
-        local DISK_ACTUAL_SIZE=$(get_disk_actual_size "${DISK_FILE_ABSOLUTE_PATH}")
-        ALL_DISKS_ACTUAL_SIZE=$((ALL_DISKS_ACTUAL_SIZE+DISK_ACTUAL_SIZE))
-    done < "${VM_DISKS_FILE}"
-    local DISK_ACTUAL_FREE_SPACE=$(get_disk_actual_free_space)
-    if [ "${DISK_ACTUAL_FREE_SPACE}" -lt "${ALL_DISKS_ACTUAL_SIZE}" ]
-    then
-        die "Insufficient disk space in ${BACKUP_DIR}"
-    fi
-
     while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
     do
         local DISK_FILE_NAME
@@ -400,11 +372,6 @@ backup_vm() {
 
     # Per-VM dir in the ${CURRENT_BACKUP_DIR}
     local VM_BACKUP_DIR="${CURRENT_BACKUP_DIR}/${VM_NAME}"
-    _check_path "VM_BACKUP_DIR" "${VM_BACKUP_DIR}"
-    mkdir -p "${VM_BACKUP_DIR}" || die "Failed to create ${VM_BACKUP_DIR}"
-
-    # Dump VM config
-    virsh dumpxml --migratable "${VM_NAME}" > "${VM_BACKUP_DIR}/${VM_NAME}.xml" || die "Failed to dump an XML config for ${VM_NAME}"
 
     # Capture VM state once and reuse it below: polling `virsh domstate` per-disk
     # (and again after the loop) could see a state flip mid-run (VM started or
