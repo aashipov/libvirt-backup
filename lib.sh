@@ -7,11 +7,37 @@
 # ------------------------------------------------------------
 #  Prevent multiple loads of the library
 # ------------------------------------------------------------
-if [ -n "${_LIB_SH_LOADED}" ]
-then
-    return
-fi
-readonly _LIB_SH_LOADED=1
+test -n "${_LIB_SH_LOADED}" && return
+_LIB_SH_LOADED=1
+readonly _LIB_SH_LOADED
+
+# ------------------------------------------------------------
+#  Utility helpers
+# ------------------------------------------------------------
+
+log_internal() {
+    if [ -n "${BACKUP_LOG_FILE:-}" ] && [ -f "${BACKUP_LOG_FILE}" ]
+    then
+        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${1}" | tee -a "${BACKUP_LOG_FILE}"
+    else
+        # BACKUP_LOG_FILE not set yet (e.g. missing .env) — stdout only
+        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${1}"
+    fi
+}
+
+log() {
+    log_internal "${1}"
+}
+
+die() {
+    log_internal "${1}"
+    exit 1
+}
+
+fail_internal() {
+    printf '%s\n' "${@}"
+    exit 1
+}
 
 # ------------------------------------------------------------
 #  Security
@@ -46,37 +72,26 @@ block_root() {
 block_root
 
 # ------------------------------------------------------------
-#  lib.sh – Global variables
-# ------------------------------------------------------------
-CURRENT_BACKUP_DIR="/tmp"
-
-# ------------------------------------------------------------
-#  Utility helpers
+#  Global variables
 # ------------------------------------------------------------
 
-_log() {
-    if [ -n "${BACKUP_LOG_FILE:-}" ] && [ -f "${BACKUP_LOG_FILE}" ]
+# ------------------------------------------------------------
+# Script/base dir
+# ------------------------------------------------------------
+get_base_dir() {
+    if [ -f "${0}" ]
     then
-        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${1}" | tee -a "${BACKUP_LOG_FILE}"
+        # $0 points to a file on disk
+        printf '%s\n' "$(cd -- "$(dirname -- "${0}")" && pwd)"
     else
-        # BACKUP_LOG_FILE not set yet (e.g. missing .env) — stdout only
-        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${1}"
+        # The script was sourced in a shell where $0 is not the script path
+        # Fallback to the current working directory
+        printf '%s\n' "$(pwd)"
     fi
 }
 
-log() {
-    _log "${1}"
-}
-
-die() {
-    _log "${1}"
-    exit 1
-}
-
-_fail() {
-    printf '%s\n' "${@}"
-    exit 1
-}
+CURRENT_BACKUP_DIR="/tmp"
+BASE_DIR="$(get_base_dir)"
 
 # ------------------------------------------------------------
 #  Fail if a variable value is blank or unsafe
@@ -88,31 +103,60 @@ _fail() {
 #   - tilde home shorthands ('~/backup')
 #   - '..' path traversal ('../x', '/a/../b')
 #   - multiple slashes in a row ('//', '/a//b')
-#   - shell metacharacters: backticks, parentheses, curly braces, square brackets
+#   - shell metacharacters (backticks, parentheses, braces, brackets)
 # ------------------------------------------------------------
-_check_path() {
-    local VAR_NAME="${1}"
-    local VAR_VALUE="${2}"
-    local USERS_HOME="${HOME}"
+check_path() {
+    VAR_NAME=$1
+    VAR_VALUE=$2
+    USERS_HOME=$HOME
 
-    case "${VAR_VALUE}" in
-        '')           die "${VAR_NAME} is blank" ;;
-        "${USERS_HOME}"|"${USERS_HOME}/") die "${VAR_NAME} refers user's home directory" ;;
-        *'$'*)        die "${VAR_NAME} contains an unexpanded variable expansion (${VAR_VALUE})" ;;
-        *'~'*)        die "${VAR_NAME} contains a tilde '~' — use an absolute path (${VAR_VALUE})" ;;
-        *'..'*)       die "${VAR_NAME} contains '..' — path traversal is not allowed (${VAR_VALUE})" ;;
-        *'//'*)       die "${VAR_NAME} contains multiple slashes in a row (${VAR_VALUE})" ;;
-        /*)           : ;;
-        *)            die "${VAR_NAME} is not an absolute path (${VAR_VALUE})" ;;
+    # 1. Blank or unset
+    if [ -z "$VAR_VALUE" ]; then
+        die "$VAR_NAME is blank"
+    fi
+
+    # 2. Refers to the user’s home directory
+    if [ "$VAR_VALUE" = "$USERS_HOME" ] || [ "$VAR_VALUE" = "${USERS_HOME}/" ]; then
+        die "$VAR_NAME refers user's home directory"
+    fi
+
+    # 3. Unexpanded variable expansion (contains a literal '$')
+    case "$VAR_VALUE" in
+        *\$*) die "$VAR_NAME contains an unexpanded variable expansion ($VAR_VALUE)";;
     esac
 
-    case "${VAR_VALUE}" in
-        *[!a-zA-Z0-9/_.-]*)  die "${VAR_NAME} contains unsafe characters (${VAR_VALUE}) — only alphanumeric, '/', '_', '.', and '-' are allowed" ;;
+    # 4. Tilde shorthand
+    case "$VAR_VALUE" in
+        *~*) die "$VAR_NAME contains a tilde '~' — use an absolute path ($VAR_VALUE)";;
     esac
 
-    case "${VAR_VALUE}" in
-        *[!/]*)       : ;;
-        *)            die "${VAR_NAME} contains only slashes (${VAR_VALUE})" ;;
+    # 5. Path traversal via '..'
+    case "$VAR_VALUE" in
+        *..*) die "$VAR_NAME contains '..' — path traversal is not allowed ($VAR_VALUE)";;
+    esac
+
+    # 6. Multiple slashes in a row
+    case "$VAR_VALUE" in
+        *//*) die "$VAR_NAME contains multiple slashes in a row ($VAR_VALUE)";;
+    esac
+
+    # 7. Must start with a slash (absolute path)
+    case "$VAR_VALUE" in
+        /*) ;;
+        *) die "$VAR_NAME is not an absolute path ($VAR_VALUE)";;
+    esac
+
+    # 8. Unsafe characters – allow only alphanum, '/', '_', '.', '-'
+    case "$VAR_VALUE" in
+        *[!a-zA-Z0-9/_.-]*)
+            die "$VAR_NAME contains unsafe characters ($VAR_VALUE) — only alphanumeric, '/', '_', '.', and '-' are allowed"
+            ;;
+    esac
+
+    # 9. Value made only of slashes
+    case "$VAR_VALUE" in
+        *[!/]*) ;;
+        *) die "$VAR_NAME contains only slashes ($VAR_VALUE)";;
     esac
 }
 
@@ -146,7 +190,7 @@ check_rsync() {
 # ------------------------------------------------------------
 check_mandatory_variables_set() {
     # .env.template is a single source of truth for mandatory variables
-    local MANDATORY_VARIABLES_NAMES="$(awk -F= '!/^#/ && !/^$/ {print $1}' "$(dirname "$(readlink -f "${0}")")"/.env.template)"
+    MANDATORY_VARIABLES_NAMES="$(awk -F= '!/^#/ && !/^$/ {print $1}' ${BASE_DIR}/.env.template)"
     # set -f prevents pathname expansion of names read from .env.template
     set -f
     for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
@@ -165,8 +209,12 @@ check_mandatory_variables_set() {
         fi
     done
     set +f
-    _check_path "BACKUP_DIR" "${BACKUP_DIR}"
-    _check_path "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
+
+    # Clean up variables to mimic local scoping
+    unset MANDATORY_VARIABLES_NAMES VAR_PTR VAR_VALUE
+
+    check_path "BACKUP_DIR" "${BACKUP_DIR}"
+    check_path "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
     # DAYS_TO_KEEP_BACKUPS feeds `find -mtime`: a leading '+' is mandatory for
     # the 'older than N days' semantic (a bare number would match a 24h window,
     # e.g. 0 would delete everything modified in the last day)
@@ -213,7 +261,7 @@ get_disk_actual_free_space() {
 
 create_current_backup_dir() {
     # Creates a ${BACKUP_DIR}/YYYY-mm-dd for the current run of the script
-    _check_path "CURRENT_BACKUP_DIR" "${CURRENT_BACKUP_DIR}"
+    check_path "CURRENT_BACKUP_DIR" "${CURRENT_BACKUP_DIR}"
     mkdir -p "${CURRENT_BACKUP_DIR}" || die "Can not create CURRENT_BACKUP_DIR dir ${CURRENT_BACKUP_DIR}"
 }
 
@@ -407,7 +455,7 @@ export_vm_and_disk_configuration() {
     do
         # Per-VM dir in the ${CURRENT_BACKUP_DIR}
         local VM_BACKUP_DIR="${CURRENT_BACKUP_DIR}/${VM_NAME}"
-        _check_path "VM_BACKUP_DIR" "${VM_BACKUP_DIR}"
+        check_path "VM_BACKUP_DIR" "${VM_BACKUP_DIR}"
         mkdir -p "${VM_BACKUP_DIR}" || die "Failed to create ${VM_BACKUP_DIR}"
 
         # Dump VM config
