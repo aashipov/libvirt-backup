@@ -14,20 +14,34 @@
 #   TEST_REMOTE_HOME – remote home directory, default '/home/${TEST_USERNAME}'
 # ------------------------------------------------------------
 
+# ------------------------------------------------------------
+# Script/base dir
+# ------------------------------------------------------------
+get_base_dir() {
+    if [ -f "${0}" ]
+    then
+        # $0 points to a file on disk
+        printf '%s\n' "$(cd -- "$(dirname -- "${0}")" && pwd)"
+    else
+        # The script was sourced in a shell where $0 is not the script path
+        # Fallback to the current working directory
+        printf '%s\n' "$(pwd)"
+    fi
+}
+
 clean_leftovers() {
     find "${BACKUP_DIR}/" -type d -depth -mindepth 1 -exec rm -rf {} \;
     find "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" -type d -depth -mindepth 1 -exec rm -rf {} \;
 }
 
 start_vm() {
-    local _VM_NAME="${1}"
-    if ! virsh domstate "${_VM_NAME}" | grep -E -q "running|paused"
+    if ! virsh domstate "${1}" | grep -E -q "running|paused"
     then
-        virsh start "${_VM_NAME}"
+        virsh start "${1}"
     fi
 }
 
-launch_vms() {
+start_vms() {
     start_vm a
     start_vm c
     virsh suspend c
@@ -40,7 +54,7 @@ happy_path() {
     ./rc.sh
 }
 
-turn_off_vms() {
+stop_vms() {
     virsh resume c
     virsh destroy c
     virsh shutdown a
@@ -63,17 +77,20 @@ closure() {
     set -e
     #set -x # Debug
 
+    BASE_DIR="$(get_base_dir)"
+
     # Load library
-    . "$(dirname -- "$(readlink -f -- "$0")")/lib.sh"
+    . "${BASE_DIR}/lib.sh"
 
     # Do the job
-    cd "$(dirname -- "$(readlink -f -- "$0")")"
+    cd "${BASE_DIR}"
     environment
     clean_leftovers
-    launch_vms
+    start_vms
     happy_path
-    turn_off_vms
+    stop_vms
     display_result
+    unset BASE_DIR
 }
 
 closure

@@ -14,6 +14,24 @@
 #   TEST_REMOTE_HOME – remote home directory, default '/home/${TEST_USERNAME}'
 # ------------------------------------------------------------
 
+# ------------------------------------------------------------
+# Script/base dir
+# ------------------------------------------------------------
+get_base_dir() {
+    if [ -f "${0}" ]
+    then
+        # $0 points to a file on disk
+        printf '%s\n' "$(cd -- "$(dirname -- "${0}")" && pwd)"
+    else
+        # The script was sourced in a shell where $0 is not the script path
+        # Fallback to the current working directory
+        printf '%s\n' "$(pwd)"
+    fi
+}
+
+# ------------------------------------------------------------
+# Check .env presence
+# ------------------------------------------------------------
 check_dot_env_file() {
     if [ ! -f ".env" ]
     then
@@ -26,8 +44,11 @@ check_dot_env_file() {
     fi
 }
 
+# ------------------------------------------------------------
+# rsync cwd
+# ------------------------------------------------------------
 deploy_src() {
-    rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" . "${TEST_HOSTNAME}:${TEST_REMOTE_HOME}/${TEST_APP_NAME}" || fail_internal "Failed to deploy source code"
+    rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" "${BASE_DIR}" "${TEST_HOSTNAME}:${TEST_REMOTE_HOME}/${TEST_APP_NAME}" || fail_internal "Failed to deploy source code"
 }
 
 # ------------------------------------------------------------
@@ -37,16 +58,19 @@ closure() {
     set -e
     #set -x # Debug
 
+    BASE_DIR="$(get_base_dir)"
+
     # Load library
-    . "$(dirname -- "$(readlink -f -- "$0")")/lib.sh"
+    . "${BASE_DIR}/lib.sh"
 
     # Do the job
-    cd "$(dirname -- "$(readlink -f -- "$0")")"
+    cd "${BASE_DIR}"
     check_dot_env_file
     environment
     deploy_src
     ssh "${TEST_HOSTNAME}" "${TEST_APP_NAME}/debug.sh" || fail_internal "./debug.sh via SSH failed"
     ssh "${TEST_HOSTNAME}" "${TEST_APP_NAME}/test.sh" || fail_internal "./test.sh via SSH failed"
+    unset BASE_DIR
 }
 
 closure
