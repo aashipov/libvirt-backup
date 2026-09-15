@@ -190,38 +190,57 @@ check_rsync() {
 # ------------------------------------------------------------
 check_mandatory_variables_set() {
     # .env.template is a single source of truth for mandatory variables
-    MANDATORY_VARIABLES_NAMES="$(awk -F= '!/^#/ && !/^$/ {print $1}' ${BASE_DIR}/.env.template)"
+    MANDATORY_VARIABLES_NAMES="$(awk -F= '!/^#/ && !/^$/ {print $1}' "${BASE_DIR}/.env.template")" || die "Failed to extract variables names from ${BASE_DIR}/.env.template"
+
     # set -f prevents pathname expansion of names read from .env.template
-    set -f
+    # Save and restore the previous state instead of blindly unsetting it.
+    case "${-}" in
+        *f*)
+            HAD_F=1
+            ;;
+        *)
+            HAD_F=0
+            set -f
+            ;;
+    esac
+
     for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
     do
         # Names from .env.template are interpolated via eval below, so they
-        # must be valid shell identifiers before being used
-        case "${VAR_PTR}" in
-            ''|[!A-Za-z_]*|*[!A-Za-z0-9_]*) die "Invalid variable name in .env.template: ${VAR_PTR}" ;;
-        esac
+        # must be valid shell identifiers before being used.
+        # Explicit enumeration avoids locale-dependent bracket ranges
+        # (e.g. [A-Z] does not reliably mean ASCII A-Z in UTF-8 locales).
+        if ! printf '%s\n' "${VAR_PTR}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZ][ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_]+$'
+        then
+            die "Invalid variable name in .env.template: ${VAR_PTR}"
+        fi
         eval "VAR_VALUE=\"\${${VAR_PTR}:-}\""
         if [ -z "${VAR_VALUE}" ]
         then
             die "Mandatory variable ${VAR_PTR} is not defined or blank"
         else
-            eval "readonly ${VAR_PTR}"
+            # Guard against re-declaring a readonly variable on re-source.
+            eval "readonly ${VAR_PTR} 2>/dev/null || :"
         fi
     done
-    set +f
+
+    if [ "${HAD_F}" -eq 0 ]
+    then
+        set +f
+    fi
 
     # Clean up variables to mimic local scoping
-    unset MANDATORY_VARIABLES_NAMES VAR_PTR VAR_VALUE
+    unset MANDATORY_VARIABLES_NAMES VAR_PTR VAR_VALUE HAD_F
 
     check_path "BACKUP_DIR" "${BACKUP_DIR}"
     check_path "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
     # DAYS_TO_KEEP_BACKUPS feeds `find -mtime`: a leading '+' is mandatory for
     # the 'older than N days' semantic (a bare number would match a 24h window,
     # e.g. 0 would delete everything modified in the last day)
-    case "${DAYS_TO_KEEP_BACKUPS}" in
-        '+'[0-9]*) : ;;
-        *) die "DAYS_TO_KEEP_BACKUPS must be of the form '+N' (older than N days), got '${DAYS_TO_KEEP_BACKUPS}'" ;;
-    esac
+    if ! printf '%s\n' "${DAYS_TO_KEEP_BACKUPS}" | grep -qE '^\+[0123456789]+$'
+    then
+        die "DAYS_TO_KEEP_BACKUPS must be of the form '+N' (older than N days), got '${DAYS_TO_KEEP_BACKUPS}'"
+    fi
 }
 
 # ------------------------------------------------------------
