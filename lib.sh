@@ -244,17 +244,19 @@ check_mandatory_variables_set() {
 }
 
 # ------------------------------------------------------------
-#  Environment loading
+#  Environment loader
 # ------------------------------------------------------------
 environment() {
+    # BASE_DIR is set up the call stack
     # Loads environment variables from .env
-    local ENV_FILE="$(dirname -- "$(readlink -f -- "$0")")/.env"
+    local ENV_FILE="${BASE_DIR}/.env"
     if [ ! -f "${ENV_FILE}" ]
     then
         die "No ${ENV_FILE} file found, craft one from ${ENV_FILE}.template"
     fi
-    # . for bash, zsh, ksh, (d)ash. source for (t)csh
+    # source: not found workaround
     . "${ENV_FILE}"
+    unset ENV_FILE
     check_mandatory_variables_set
     check_libvirt
     check_qemu_img
