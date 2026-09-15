@@ -454,17 +454,17 @@ offline_backup() {
 # ------------------------------------------------------------
 backup_vm() {
     # Exports VM configuration (XML) and copies disks
-    local VM_NAME="${1}"
+    VM_NAME="${1}"
     log "${VM_NAME} backup start"
 
     # Per-VM dir in the ${CURRENT_BACKUP_DIR}
-    local VM_BACKUP_DIR="${CURRENT_BACKUP_DIR}/${VM_NAME}"
+    VM_BACKUP_DIR="${CURRENT_BACKUP_DIR}/${VM_NAME}"
 
     # Capture VM state once and reuse it below: polling `virsh domstate` per-disk
     # (and again after the loop) could see a state flip mid-run (VM started or
     # stopped), which would mix offline disk copies and live backup jobs for a
     # single VM
-    local VM_STATE
+    VM_STATE=""
     VM_STATE="$(virsh domstate "${VM_NAME}")" || die "Failed to get ${VM_NAME} state"
     if printf '%s\n' "${VM_STATE}" | grep -q "running"
     then
@@ -478,6 +478,7 @@ backup_vm() {
         log "${VM_NAME} is not running, will use an offline backup"
         offline_backup
     fi
+    unset VM_NAME VM_BACKUP_DIR VM_STATE
 }
 
 # ------------------------------------------------------------
