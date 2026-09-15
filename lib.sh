@@ -335,10 +335,10 @@ get_vm_disk_names_and_absolute_paths() {
 #  Extract actual-size in bytes from `qemu-img info --force-share --output=json ...`
 # ------------------------------------------------------------
 get_disk_actual_size() {
-    local _DISK_FILE_ABSOLUTE_PATH="${1}"
-    local ACTUAL_SIZE
-    ACTUAL_SIZE=$(qemu-img info --force-share --output=json "${_DISK_FILE_ABSOLUTE_PATH}" | awk -F'[: ,]+' '$2 == "\"actual-size\"" {v=$3} END {print v}' || die "Failed to get ${_DISK_FILE_ABSOLUTE_PATH} actual-size")
+    ACTUAL_SIZE=0
+    ACTUAL_SIZE=$(qemu-img info --force-share --output=json "${1}" | awk -F'[: ,]+' '$2 == "\"actual-size\"" {v=$3} END {print v}' || die "Failed to get ${1} actual-size")
     printf '%d\n' "${ACTUAL_SIZE}"
+    unset ACTUAL_SIZE
 }
 
 # ------------------------------------------------------------
