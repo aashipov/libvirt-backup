@@ -387,8 +387,10 @@ EOF
 EOF
 
     unset DISK_NAME DISK_FILE_ABSOLUTE_PATH
+
     # launch backup
     virsh backup-begin "${VM_NAME}" --reuse-external --backupxml "${BACKUP_TASK_FILE}" || die "Failed to start backup for ${VM_NAME}"
+    [ "${?}" -ne 0 ] && die "virsh backup-begin ... failed, exit code ${?}"
 
     # wait completion (bounded by BACKUP_TIMEOUT_SECONDS)
     BACKUP_DEADLINE=$(( $(date +%s) + BACKUP_TIMEOUT_SECONDS ))
