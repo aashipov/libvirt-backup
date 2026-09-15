@@ -45,7 +45,7 @@ Enterprise solutions like [Proxmox Backup Server](git://git.proxmox.com/git/prox
 
 [Bindings](https://gitlab.com/libvirt) for popular programming languages do exist
 
-GNU Coreutils, sed, grep, environment file and shell script 'glue' is a less consuming alternative to the above
+POSIX Shell Command Language, grep, awk, an environment file make a simpler alternative to the above
 
 ## Limitations
 
