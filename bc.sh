@@ -32,7 +32,7 @@ closure() {
     # Release the lock on normal exit
     trap rm_running EXIT
 
-    create_backup_dir # at this point log file must be available
+    create_backup_dirs_and_log # at this point log file must be available
 
     check_running
     create_running

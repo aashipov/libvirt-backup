@@ -7,7 +7,7 @@
 # ------------------------------------------------------------
 #  Prevent multiple loads of the library
 # ------------------------------------------------------------
-test -n "${_LIB_SH_LOADED}" && return
+[ -n "${_LIB_SH_LOADED}" ] && return
 _LIB_SH_LOADED=1
 readonly _LIB_SH_LOADED
 
@@ -37,6 +37,10 @@ die() {
 fail_internal() {
     printf '%s\n' "${@}"
     exit 1
+}
+
+is_writable() {
+    [ ! -w "${1}" ] && die "${1} is not writable"
 }
 
 # ------------------------------------------------------------
@@ -266,24 +270,32 @@ environment() {
     #export LANGUAGE=ru_RU:ru LANG=ru_RU.UTF-8 LC_ALL=ru_RU.UTF-8
 }
 
-create_backup_dir() {
+# ------------------------------------------------------------
+#  Backup dirs and log file
+# ------------------------------------------------------------
+create_backup_dirs_and_log() {
     # Creates a local backup dir if missing
     mkdir -p "${BACKUP_DIR}" || die "Can not create ${BACKUP_DIR}"
+    is_writable "${BACKUP_DIR}"
     mkdir -p "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}" || die "Can not create ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
-    touch "${BACKUP_LOG_FILE}"
+    is_writable "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
+    touch "${BACKUP_LOG_FILE}" || die "Can not create ${BACKUP_LOG_FILE}"
+    is_writable "${BACKUP_LOG_FILE}"
 }
 
 get_disk_actual_free_space() {
     # BACKUP_DIR is set up the call stack
-    local DISK_ACTUAL_FREE_SPACE
-    DISK_ACTUAL_FREE_SPACE=$(df --portability --block-size=1 "${BACKUP_DIR}" | awk -v target="Available" 'NR==1 { for(i=1;i<=NF;i++) if($i==target) col=i } NR==2 { print $col }') || die "Failed to calculate free disk space in ${BACKUP_DIR}"
+    DISK_ACTUAL_FREE_SPACE=0
+    DISK_ACTUAL_FREE_SPACE="$(df --portability --block-size=1 "${BACKUP_DIR}" | awk -v target="Available" 'NR==1 { for(i=1;i<=NF;i++) if($i==target) col=i } NR==2 { print $col }')" || die "Failed to calculate free disk space in ${BACKUP_DIR}"
     printf '%d\n' "${DISK_ACTUAL_FREE_SPACE}"
+    unset DISK_ACTUAL_FREE_SPACE
 }
 
 create_current_backup_dir() {
     # Creates a ${BACKUP_DIR}/YYYY-mm-dd for the current run of the script
     check_path "CURRENT_BACKUP_DIR" "${CURRENT_BACKUP_DIR}"
-    mkdir -p "${CURRENT_BACKUP_DIR}" || die "Can not create CURRENT_BACKUP_DIR dir ${CURRENT_BACKUP_DIR}"
+    mkdir -p "${CURRENT_BACKUP_DIR}" || die "Can not create ${CURRENT_BACKUP_DIR}"
+    is_writable "${CURRENT_BACKUP_DIR}"
 }
 
 # ------------------------------------------------------------
