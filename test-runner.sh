@@ -10,7 +10,6 @@
 #
 # The test target is configurable via the environment (defaults match the TEST.md test VM):
 #   TEST_HOSTNAME  – remote host (e.g. an /etc/hosts synonym), default 'unix'
-#   TEST_USERNAME  – unprivileged user at that host, default 'user'
 #   TEST_APP_NAME  – remote directory for the project, default 'libvirt-backup'
 #   TEST_REMOTE_HOME – remote home directory, default '/home/${TEST_USERNAME}'
 # ------------------------------------------------------------
@@ -28,7 +27,7 @@ check_dot_env_file() {
 }
 
 deploy_src() {
-    rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" . "${TEST_USERNAME}@${TEST_HOSTNAME}:${TEST_REMOTE_HOME}/${TEST_APP_NAME}" || fail_internal "Failed to deploy source code"
+    rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" . "${TEST_HOSTNAME}:${TEST_REMOTE_HOME}/${TEST_APP_NAME}" || fail_internal "Failed to deploy source code"
 }
 
 # ------------------------------------------------------------
@@ -46,8 +45,8 @@ closure() {
     check_dot_env_file
     environment
     deploy_src
-    ssh "${TEST_USERNAME}@${TEST_HOSTNAME}" "${TEST_APP_NAME}/debug.sh" || fail_internal "./debug.sh via SSH failed"
-    ssh "${TEST_USERNAME}@${TEST_HOSTNAME}" "${TEST_APP_NAME}/test.sh" || fail_internal "./test.sh via SSH failed"
+    ssh "${TEST_HOSTNAME}" "${TEST_APP_NAME}/debug.sh" || fail_internal "./debug.sh via SSH failed"
+    ssh "${TEST_HOSTNAME}" "${TEST_APP_NAME}/test.sh" || fail_internal "./test.sh via SSH failed"
 }
 
 closure
