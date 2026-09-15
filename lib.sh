@@ -428,14 +428,14 @@ EOF
 # ------------------------------------------------------------
 offline_backup() {
     # VM_BACKUP_DIR is set up the call stack
-    local VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
-    local DISK_NAME
-    local DISK_FILE_ABSOLUTE_PATH
+    VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
+    DISK_NAME=""
+    DISK_FILE_ABSOLUTE_PATH=""
     while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
     do
-        local DISK_FILE_NAME
+        DISK_FILE_NAME=""
         DISK_FILE_NAME="$(basename "${DISK_FILE_ABSOLUTE_PATH}")"
-        local TARGET_DISK_FILE_ABSOLUTE_PATH="${VM_BACKUP_DIR}/${DISK_FILE_NAME}"
+        TARGET_DISK_FILE_ABSOLUTE_PATH="${VM_BACKUP_DIR}/${DISK_FILE_NAME}"
         if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" = "1" ]
         then
             TARGET_DISK_FILE_ABSOLUTE_PATH="${TARGET_DISK_FILE_ABSOLUTE_PATH}-shrunk"
@@ -444,7 +444,9 @@ offline_backup() {
             qemu-img convert -O qcow2 -o compression_type=zstd "${DISK_FILE_ABSOLUTE_PATH}" "${TARGET_DISK_FILE_ABSOLUTE_PATH}" || die "Failed to convert ${DISK_FILE_ABSOLUTE_PATH} to ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
         fi
         log "Done converting ${DISK_FILE_ABSOLUTE_PATH} to ${TARGET_DISK_FILE_ABSOLUTE_PATH}"
+        unset DISK_FILE_NAME TARGET_DISK_FILE_ABSOLUTE_PATH
     done < "${VM_DISKS_FILE}"
+    unset VM_DISKS_FILE DISK_NAME DISK_FILE_ABSOLUTE_PATH
 }
 
 # ------------------------------------------------------------
