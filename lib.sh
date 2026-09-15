@@ -345,26 +345,25 @@ get_disk_actual_size() {
 #  Online (live, running VM) backup
 # ------------------------------------------------------------
 online_backup() {
-    # VM_BACKUP_DIR is set up the call stack
-    local VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
-
-    local BACKUP_TASK_FILE="${VM_BACKUP_DIR}/${VM_NAME}-backup-job-descriptor.xml"
+    # VM_BACKUP_DIR VM_NAME is set up the call stack
+    VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
+    BACKUP_TASK_FILE="${VM_BACKUP_DIR}/${VM_NAME}-backup-job-descriptor.xml"
     # Build the backup job descriptor in several heredoc steps
     cat > "${BACKUP_TASK_FILE}" <<EOF
 <domainbackup>
     <disks>
 EOF
 
-    local DISK_NAME
-    local DISK_FILE_ABSOLUTE_PATH
+    DISK_NAME=""
+    DISK_FILE_ABSOLUTE_PATH=""
     while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
     do
-        local DISK_FILE_NAME
+        DISK_FILE_NAME=""
         DISK_FILE_NAME="$(basename "${DISK_FILE_ABSOLUTE_PATH}")"
-        local TARGET_DISK_FILE_ABSOLUTE_PATH="${VM_BACKUP_DIR}/${DISK_FILE_NAME}"
+        TARGET_DISK_FILE_ABSOLUTE_PATH="${VM_BACKUP_DIR}/${DISK_FILE_NAME}"
 
         # Workaround target file permissions
-        local TARGET_DISK_CAPACITY
+        TARGET_DISK_CAPACITY=0
         TARGET_DISK_CAPACITY="$(virsh domblkinfo "${VM_NAME}" "${DISK_NAME}" | awk '$1 == "Capacity:" {print $2}')"
         if [ -z "${TARGET_DISK_CAPACITY}" ]
         then
@@ -378,18 +377,21 @@ EOF
                 <driver type='qcow2'/>
         </disk>
 EOF
+    unset DISK_FILE_NAME TARGET_DISK_FILE_ABSOLUTE_PATH TARGET_DISK_CAPACITY
     done < "${VM_DISKS_FILE}"
     cat >> "${BACKUP_TASK_FILE}" <<EOF
     </disks>
 </domainbackup>
 EOF
 
+    unset DISK_NAME DISK_FILE_ABSOLUTE_PATH
     # launch backup
     virsh backup-begin "${VM_NAME}" --reuse-external --backupxml "${BACKUP_TASK_FILE}" || die "Failed to start backup for ${VM_NAME}"
 
     # wait completion (bounded by BACKUP_TIMEOUT_SECONDS)
-    local BACKUP_DEADLINE=$(( $(date +%s) + BACKUP_TIMEOUT_SECONDS ))
-    while :; do
+    BACKUP_DEADLINE=$(( $(date +%s) + BACKUP_TIMEOUT_SECONDS ))
+    while :
+    do
         # timeout?
         if [ "$(date +%s)" -ge "${BACKUP_DEADLINE}" ]
         then
@@ -404,18 +406,21 @@ EOF
         # wait
         sleep 10
     done
+    unset BACKUP_DEADLINE
 
     if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" = "1" ]
     then
         for backup_to_shrink in "${VM_BACKUP_DIR}"/*.qcow2
         do
             [ -f "${backup_to_shrink}" ] || continue
-            local SHRUNK_BACKUP="${backup_to_shrink}-shrunk"
+            SHRUNK_BACKUP="${backup_to_shrink}-shrunk"
             log "Converting ${backup_to_shrink} to ${SHRUNK_BACKUP}"
             qemu-img convert -O qcow2 -o compression_type=zstd -c "${backup_to_shrink}" "${SHRUNK_BACKUP}" || die "Failed to convert ${backup_to_shrink} to ${SHRUNK_BACKUP}"
             rm "${backup_to_shrink}" || die "Failed to remove ${backup_to_shrink}"
+            unset SHRUNK_BACKUP
         done
     fi
+    unset VM_DISKS_FILE BACKUP_TASK_FILE
 }
 
 # ------------------------------------------------------------
