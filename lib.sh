@@ -218,6 +218,7 @@ check_mandatory_variables_set() {
         then
             die "Invalid variable name in .env.template: ${VAR_PTR}"
         fi
+        VAR_VALUE=""
         eval "VAR_VALUE=\"\${${VAR_PTR}:-}\""
         if [ -z "${VAR_VALUE}" ]
         then
@@ -226,6 +227,7 @@ check_mandatory_variables_set() {
             # Guard against re-declaring a readonly variable on re-source.
             eval "readonly ${VAR_PTR} 2>/dev/null || :"
         fi
+        unset VAR_VALUE
     done
 
     if [ "${HAD_F}" -eq 0 ]
