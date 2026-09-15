@@ -303,12 +303,13 @@ create_current_backup_dir() {
 # ------------------------------------------------------------
 check_running() {
     # if marker/lock file ${RUNNING_FILE} exists
-    test -f "${RUNNING_FILE}" && die "Another copy of this file may be running. Stop it, remove ${RUNNING_FILE} and repeat. Exiting"
+    [ -f "${RUNNING_FILE}" ] && die "Another copy of this file may be running. Stop it, remove ${RUNNING_FILE} and repeat. Exiting"
 }
 
 create_running() {
     # creates a marker/lock file ${RUNNING_FILE}
     touch "${RUNNING_FILE}"
+    is_writable "${RUNNING_FILE}"
 }
 
 rm_running() {
@@ -323,13 +324,11 @@ get_vm_disk_names_and_absolute_paths() {
     # Extract disk name | absolute path to disk file
     # Filter on the Device column ('disk') to skip cdrom and avoid false
     # positives from source paths containing the word 'disk'
-    local _VM_NAME="${1}"
-    local DISK_FILES="$(virsh domblklist --details "${_VM_NAME}" | awk '$2 == "disk" && $4 != "-" {print $3 "|" $4}')"
-    if [ -z "${DISK_FILES}" ]
-    then
-        die "Could not parse disk list for ${_VM_NAME}"
-    fi
-    printf "%s\n" "${DISK_FILES}"
+    DISK_FILES=""
+    DISK_FILES="$(virsh domblklist --details "${1}" | awk '$2 == "disk" && $4 != "-" {print $3 "|" $4}')"
+    [ -z "${DISK_FILES}" ] && die "Could not parse disk list for ${1}"
+    printf '%s\n' "${DISK_FILES}"
+    unset DISK_FILES
 }
 
 # ------------------------------------------------------------
