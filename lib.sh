@@ -7,9 +7,9 @@
 # ------------------------------------------------------------
 #  Prevent multiple loads of the library
 # ------------------------------------------------------------
-[ -n "${_LIB_SH_LOADED}" ] && return
-_LIB_SH_LOADED=1
-readonly _LIB_SH_LOADED
+[ -n "${LIB_SH_LOADED}" ] && return
+LIB_SH_LOADED=1
+readonly LIB_SH_LOADED
 
 # ------------------------------------------------------------
 #  Utility helpers

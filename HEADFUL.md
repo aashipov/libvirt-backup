@@ -80,14 +80,14 @@ systemctl enable --now cron
 > `sudo dnf install -y virt-manager weston xrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb gvfs-sftp
 `
 
-Add an unprivileged user `user` to `sudo` and `libvirt` groups:
+Add an unprivileged user `administrator` to `sudo` and `libvirt` groups:
 
 ```sh
-/usr/sbin/usermod -aG sudo user && /usr/sbin/usermod -aG libvirt user
+/usr/sbin/usermod -aG sudo administrator && /usr/sbin/usermod -aG libvirt administrator
 ```
 
 > [!NOTE]
-> RHEL-descendants: `/usr/sbin/usermod -aG libvirt user`
+> RHEL-descendants: `/usr/sbin/usermod -aG libvirt administrator`
 
 Exit `su -` and SSH session, re-login.
 
@@ -163,7 +163,7 @@ Host:
 cat << 'EOF' | tee -a ${HOME}/.ssh/config
 Host unix
     HostName unix
-    User user
+    User administrator
     IdentityFile ~/.ssh/unix/id_rsa
     IdentitiesOnly yes
 EOF
@@ -172,7 +172,7 @@ EOF
 Host:
 
 ```sh
-ssh-copy-id -i ~/.ssh/unix/id_rsa unix
+ssh-copy-id -i ~/.ssh/unix/id_rsa administrator@unix
 ```
 
 Guest: `ssh-copy-id 127.0.0.2`, verify paswordless login `ssh 127.0.0.2`
@@ -265,12 +265,4 @@ Turn off the VM, navigate to the directory with disk we created `debian.qcow2`, 
 
 ```sh
 qemu-img convert -O qcow2 -c -o compression_type=zstd debian.qcow2 debian-prototype.qcow2
-```
-
-Split/restore:
-
-```sh
-split -b 1792M debian-prototype.qcow2 debian-prototype.part_
-rm debian.qcow2
-cat debian-prototype.part_* > debian.qcow2
 ```
