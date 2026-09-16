@@ -219,13 +219,13 @@ check_mandatory_variables_set() {
             die "Invalid variable name in .env.template: ${VAR_PTR}"
         fi
         VAR_VALUE=""
-        eval "VAR_VALUE=\"\${${VAR_PTR}:-}\""
+        VAR_VALUE="$(env | awk -v VAR_PTR="${VAR_PTR}" -F '=' '$1==VAR_PTR { print $2}')"
         if [ -z "${VAR_VALUE}" ]
         then
             die "Mandatory variable ${VAR_PTR} is not defined or blank"
         else
             # Guard against re-declaring a readonly variable on re-source.
-            eval "readonly ${VAR_PTR} 2>/dev/null || :"
+            readonly "${VAR_PTR}"
         fi
         unset VAR_VALUE
     done
@@ -260,9 +260,21 @@ environment() {
     then
         die "No ${ENV_FILE} file found, craft one from ${ENV_FILE}.template"
     fi
+    # allexport .env
+    case "${-}" in
+        *a*)
+            HAD_A=1
+            ;;
+        *)
+            HAD_A=0
+            set -a
+            ;;
+    esac
     # source: not found workaround
     . "${ENV_FILE}"
-    unset ENV_FILE
+    [ "${HAD_A}" -eq 0 ] && set +a
+    # allexport .env
+    unset ENV_FILE HAD_A
     check_mandatory_variables_set
     check_libvirt
     check_qemu_img
