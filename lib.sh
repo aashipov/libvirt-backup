@@ -571,17 +571,16 @@ backup_vms() {
 #  Validate *.qcow2 files in "${CURRENT_BACKUP_DIR}"
 # ------------------------------------------------------------
 validate_backups() {
-    local BACKUPS_TO_CHECK_FILE="${CURRENT_BACKUP_DIR}/.backups-to-check.txt"
+    BACKUPS_TO_CHECK_FILE="${CURRENT_BACKUP_DIR}/.backups-to-check.txt"
     find "${CURRENT_BACKUP_DIR}" -type f \( -name '*.qcow2' -o -name '*.qcow2-shrunk' \) > "${BACKUPS_TO_CHECK_FILE}" || die "Failed to list backups in ${CURRENT_BACKUP_DIR}"
     while IFS= read -r line
     do
-        log ""
-        log "=== Analyzing: ${line} ==="
+        log "Analyzing: ${line}"
         qemu-img info "${line}" || die "qemu-img info failed for ${line}"
         qemu-img check "${line}" || die "qemu-img check failed for ${line}"
-        log ""
     done < "${BACKUPS_TO_CHECK_FILE}"
     rm -f "${BACKUPS_TO_CHECK_FILE}"
+    unset BACKUPS_TO_CHECK_FILE
 }
 
 # ------------------------------------------------------------
