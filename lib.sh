@@ -507,7 +507,7 @@ export_vm_and_disk_configuration() {
     for VM_NAME in ${VM_NAMES_TO_BACK_UP}
     do
         # Per-VM dir in the ${CURRENT_BACKUP_DIR}
-        local VM_BACKUP_DIR="${CURRENT_BACKUP_DIR}/${VM_NAME}"
+        VM_BACKUP_DIR="${CURRENT_BACKUP_DIR}/${VM_NAME}"
         check_path "VM_BACKUP_DIR" "${VM_BACKUP_DIR}"
         mkdir -p "${VM_BACKUP_DIR}" || die "Failed to create ${VM_BACKUP_DIR}"
 
@@ -515,8 +515,9 @@ export_vm_and_disk_configuration() {
         virsh dumpxml --migratable "${VM_NAME}" > "${VM_BACKUP_DIR}/${VM_NAME}.xml" || die "Failed to dump an XML config for ${VM_NAME}"
 
         # Collect VM disk file paths to PSV file
-        local VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
+        VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
         get_vm_disk_names_and_absolute_paths "${VM_NAME}" > "${VM_DISKS_FILE}"
+        unset VM_BACKUP_DIR VM_DISKS_FILE
     done
     log "Export VM and disk configuration finish"
 }
@@ -530,25 +531,28 @@ export_vm_and_disk_configuration() {
 # ------------------------------------------------------------
 check_available_disk_space() {
     log "Check available disk space start"
-    local ALL_DISKS_ACTUAL_SIZE=0
+    ALL_DISKS_ACTUAL_SIZE=0
     for VM_NAME in ${VM_NAMES_TO_BACK_UP}
     do
-        local VM_BACKUP_DIR="${CURRENT_BACKUP_DIR}/${VM_NAME}"
-        local VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
-        local DISK_NAME
-        local DISK_FILE_ABSOLUTE_PATH
+        VM_BACKUP_DIR="${CURRENT_BACKUP_DIR}/${VM_NAME}"
+        VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
+        DISK_NAME=""
+        DISK_FILE_ABSOLUTE_PATH=""
         while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
         do
-            local DISK_ACTUAL_SIZE=$(get_disk_actual_size "${DISK_FILE_ABSOLUTE_PATH}")
+            DISK_ACTUAL_SIZE=$(get_disk_actual_size "${DISK_FILE_ABSOLUTE_PATH}")
             ALL_DISKS_ACTUAL_SIZE=$((ALL_DISKS_ACTUAL_SIZE+DISK_ACTUAL_SIZE))
+            unset DISK_ACTUAL_SIZE
         done < "${VM_DISKS_FILE}"
+        unset VM_BACKUP_DIR VM_DISKS_FILE DISK_NAME DISK_FILE_ABSOLUTE_PATH
     done
-    local DISK_ACTUAL_FREE_SPACE=$(get_disk_actual_free_space)
+    DISK_ACTUAL_FREE_SPACE=$(get_disk_actual_free_space)
     if [ "${DISK_ACTUAL_FREE_SPACE}" -lt "${ALL_DISKS_ACTUAL_SIZE}" ]
     then
         die "Insufficient disk space in ${BACKUP_DIR}"
     fi
     log "Check available disk space finish"
+    unset ALL_DISKS_ACTUAL_SIZE DISK_ACTUAL_FREE_SPACE
 }
 
 # ------------------------------------------------------------
