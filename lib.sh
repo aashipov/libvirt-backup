@@ -110,57 +110,55 @@ BASE_DIR="$(get_base_dir)"
 #   - shell metacharacters (backticks, parentheses, braces, brackets)
 # ------------------------------------------------------------
 check_path() {
-    VAR_NAME=$1
-    VAR_VALUE=$2
-    USERS_HOME=$HOME
+    VAR_PTR="${1}"
+    VAR_VALUE="${2}"
+    USERS_HOME="${HOME}"
 
     # 1. Blank or unset
-    if [ -z "$VAR_VALUE" ]; then
-        die "$VAR_NAME is blank"
-    fi
+    [ -z "${VAR_VALUE}" ] && die "${VAR_PTR} is blank"
 
     # 2. Refers to the user’s home directory
-    if [ "$VAR_VALUE" = "$USERS_HOME" ] || [ "$VAR_VALUE" = "${USERS_HOME}/" ]; then
-        die "$VAR_NAME refers user's home directory"
+    if [ "${VAR_VALUE}" = "${USERS_HOME}" ] || [ "${VAR_VALUE}" = "${USERS_HOME}/" ]
+    then
+        die "${VAR_PTR} refers user's home directory"
     fi
 
     # 3. Unexpanded variable expansion (contains a literal '$')
-    case "$VAR_VALUE" in
-        *\$*) die "$VAR_NAME contains an unexpanded variable expansion ($VAR_VALUE)";;
+    case "${VAR_VALUE}" in
+        *\$*) die "${VAR_PTR} contains an unexpanded variable expansion (${VAR_VALUE})";;
     esac
 
     # 4. Tilde shorthand
-    case "$VAR_VALUE" in
-        *~*) die "$VAR_NAME contains a tilde '~' — use an absolute path ($VAR_VALUE)";;
+    case "${VAR_VALUE}" in
+        *~*) die "${VAR_PTR} contains a tilde '~' — use an absolute path (${VAR_VALUE})";;
     esac
 
     # 5. Path traversal via '..'
-    case "$VAR_VALUE" in
-        *..*) die "$VAR_NAME contains '..' — path traversal is not allowed ($VAR_VALUE)";;
+    case "${VAR_VALUE}" in
+        *..*) die "${VAR_PTR} contains '..' — path traversal is not allowed (${VAR_VALUE})";;
     esac
 
     # 6. Multiple slashes in a row
-    case "$VAR_VALUE" in
-        *//*) die "$VAR_NAME contains multiple slashes in a row ($VAR_VALUE)";;
+    case "${VAR_VALUE}" in
+        *//*) die "${VAR_PTR} contains multiple slashes in a row (${VAR_VALUE})";;
     esac
 
     # 7. Must start with a slash (absolute path)
-    case "$VAR_VALUE" in
+    case "${VAR_VALUE}" in
         /*) ;;
-        *) die "$VAR_NAME is not an absolute path ($VAR_VALUE)";;
+        *) die "${VAR_PTR} is not an absolute path (${VAR_VALUE})";;
     esac
 
     # 8. Unsafe characters – allow only alphanum, '/', '_', '.', '-'
-    case "$VAR_VALUE" in
-        *[!a-zA-Z0-9/_.-]*)
-            die "$VAR_NAME contains unsafe characters ($VAR_VALUE) — only alphanumeric, '/', '_', '.', and '-' are allowed"
-            ;;
-    esac
+    if ! printf '%s\n' "${VAR_VALUE}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/][ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/0123456789._-]+$'
+    then
+        die "${VAR_PTR} contains unsafe characters (${VAR_VALUE}) — only alphanumeric, '/', '_', '.', and '-' are allowed"
+    fi
 
     # 9. Value made only of slashes
     case "$VAR_VALUE" in
         *[!/]*) ;;
-        *) die "$VAR_NAME contains only slashes ($VAR_VALUE)";;
+        *) die "$VAR_PTR contains only slashes ($VAR_VALUE)";;
     esac
 }
 
@@ -207,7 +205,6 @@ check_mandatory_variables_set() {
             set -f
             ;;
     esac
-
     for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
     do
         # Names from .env.template are interpolated via eval below, so they
@@ -227,19 +224,19 @@ check_mandatory_variables_set() {
             # Guard against re-declaring a readonly variable on re-source.
             readonly "${VAR_PTR}"
         fi
+        if [ "${VAR_PTR}" = "BACKUP_DIR" ] || [ "${VAR_PTR}" = "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" ]
+        then
+            check_path "${VAR_PTR}" "${VAR_VALUE}"
+        fi
         unset VAR_VALUE
     done
-
     if [ "${HAD_F}" -eq 0 ]
     then
         set +f
     fi
-
     # Clean up variables to mimic local scoping
     unset MANDATORY_VARIABLES_NAMES VAR_PTR VAR_VALUE HAD_F
 
-    check_path "BACKUP_DIR" "${BACKUP_DIR}"
-    check_path "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
     # DAYS_TO_KEEP_BACKUPS feeds `find -mtime`: a leading '+' is mandatory for
     # the 'older than N days' semantic (a bare number would match a 24h window,
     # e.g. 0 would delete everything modified in the last day)
