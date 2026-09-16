@@ -38,12 +38,12 @@ closure() {
     printf '%s\n' "Environment"
     printf '%s\n' "------------------------------------------------------------"
     env
-    printf "\n"
+    printf '\n'
 
     printf '%s\n' "User groups"
     printf '%s\n' "------------------------------------------------------------"
     groups
-    printf "\n"
+    printf '\n'
 
     RUNNING_VMS=""
     RUNNING_VMS="$(virsh list --name --state-running)" || fail_internal "Failed to list running VMs"
@@ -54,7 +54,7 @@ closure() {
         DISKS="$(get_vm_disk_names_and_absolute_paths "${RUNNING_VM}")" || fail_internal "Could not get disk list for ${RUNNING_VM}"
         for DISK in ${DISKS}
         do
-            printf "\t%s\n" "${DISK}"
+            printf '\t%s\n' "${DISK}"
         done
         unset DISKS
     done

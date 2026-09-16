@@ -29,7 +29,7 @@ check_dot_env_file() {
     fi
     if ! grep -q 'TEST_' ".env"
     then
-        printf "\n" >> .env
+        printf '\n' >> .env
         cat .test.env.template >> .env
     fi
 }
