@@ -598,7 +598,6 @@ kill_backup_jobs() {
 # ------------------------------------------------------------
 cleanup_on_exit() {
     kill_backup_jobs
-    rm_running
     exit 1
 }
 
