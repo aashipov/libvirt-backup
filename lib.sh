@@ -405,17 +405,10 @@ EOF
     BACKUP_DEADLINE=$(( $(date +%s) + BACKUP_TIMEOUT_SECONDS ))
     while :
     do
-        # timeout?
-        if [ "$(date +%s)" -ge "${BACKUP_DEADLINE}" ]
-        then
-            log "Backup job for ${VM_NAME} did not finish within ${BACKUP_TIMEOUT_SECONDS}s"
-            cleanup_on_exit
-        fi
         # job complete?
-        if virsh domjobinfo "${VM_NAME}" | grep -q "None"
-        then
-            break
-        fi
+        virsh domjobinfo "${VM_NAME}" | grep -q "None" && break
+        # timeout?
+        [ "$(date +%s)" -ge "${BACKUP_DEADLINE}" ] && log "Backup job for ${VM_NAME} did not finish within ${BACKUP_TIMEOUT_SECONDS}s" && cleanup_on_exit
         # wait
         sleep 10
     done
