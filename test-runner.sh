@@ -48,10 +48,11 @@ closure() {
     set -e
     #set -x # Debug
 
+    # Define BASE_DIR
     BASE_DIR="$(get_base_dir)"
-
     # Load library
     . "${BASE_DIR}/lib.sh"
+    [ "${?}" -ne 0 ] && printf 'Could not load lib.sh, exiting' && exit 1
 
     # Do the job
     cd "${BASE_DIR}"

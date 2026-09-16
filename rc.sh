@@ -25,10 +25,11 @@ get_base_dir() {
 closure() {
     #set -x # debug
 
+    # Define BASE_DIR
     BASE_DIR="$(get_base_dir)"
-
     # Load library
     . "${BASE_DIR}/lib.sh"
+    [ "${?}" -ne 0 ] && printf 'Could not load lib.sh, exiting' && exit 1
 
     # Do the job
     environment
