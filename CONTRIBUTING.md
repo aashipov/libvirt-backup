@@ -41,4 +41,6 @@ Identify scripting bugs, security flaws (like injection or unquoted variables), 
 
 For every issue found, specify the file name, line numbers, a clear explanation of the Shell best practice violated, and a concrete example of the optimized code.
 
+You may compact context, dump data to markdown files.
+
 Dump review report to a 'review_report.md' file in the current working directory.
