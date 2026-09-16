@@ -252,7 +252,7 @@ check_mandatory_variables_set() {
 environment() {
     # BASE_DIR is set up the call stack
     # Loads environment variables from .env
-    local ENV_FILE="${BASE_DIR}/.env"
+    ENV_FILE="${BASE_DIR}/.env"
     if [ ! -f "${ENV_FILE}" ]
     then
         die "No ${ENV_FILE} file found, craft one from ${ENV_FILE}.template"
