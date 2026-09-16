@@ -2,16 +2,6 @@
 
 # ------------------------------------------------------------
 #  test.sh – Semi-automated integration test
-#
-# Prepare a virtual machine called `unix`, unprivileged user called `user`, as per `HEADFUL.md`
-# Craft a `/etc/hosts` synonym for `unix` IP
-# Enable paswordless login `ssh-copy-id user@unix`, make sure it works (`ssh user@unix`), deploy the key to unix's /home/user/.ssh/
-#
-# The test target is configurable via the environment (defaults match the TEST.md test VM):
-#   TEST_HOSTNAME  – remote host (e.g. an /etc/hosts synonym), default 'unix'
-#   TEST_USERNAME  – unprivileged user at that host, default 'user'
-#   TEST_APP_NAME  – remote directory for the project, default 'libvirt-backup'
-#   TEST_REMOTE_HOME – remote home directory, default '/home/${TEST_USERNAME}'
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------

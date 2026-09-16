@@ -3,8 +3,6 @@
 # ------------------------------------------------------------
 #  debug.sh – debug scripts, e.g. non-interactive shell like cron
 # ------------------------------------------------------------
-# The intended use:
-# ./debug.sh | tee "$HOME/libvirt-backup-debug.log"
 
 # ------------------------------------------------------------
 # Script/base dir
@@ -60,7 +58,7 @@ closure() {
         done
         unset DISKS
     done
-    unset BASE_DIR RUNNING_VMS
+    unset RUNNING_VMS
 }
 
 closure

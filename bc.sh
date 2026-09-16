@@ -3,17 +3,6 @@
 # ------------------------------------------------------------
 #  bc.sh – Live‑disk backup for libvirt VMs
 # ------------------------------------------------------------
-#
-#  Configuration (via .env):
-#    BACKUP_DIR          – local directory for backups
-#    BACKUP_LOG_FILE     – file to append log messages
-#    VM_NAMES_TO_BACK_UP – space separated list of VM names
-# ------------------------------------------------------------
-# SEE ALSO:
-#   https://libvirt.org/kbase/live_full_disk_backup.html
-#   ./lib.sh
-#   ./bc-kill.sh
-#
 
 # ------------------------------------------------------------
 # Script/base dir
