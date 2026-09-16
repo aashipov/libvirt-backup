@@ -39,7 +39,7 @@ start_vms() {
     virsh list --all
 }
 
-happy_path() {
+backup_and_sync() {
     ./bc.sh
     ./rc.sh
 }
@@ -60,6 +60,14 @@ display_result() {
     tree -ha "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR:?}/"
 }
 
+happy_path() {
+    clean_leftovers
+    start_vms
+    backup_and_sync
+    stop_vms
+    display_result
+}
+
 # ------------------------------------------------------------
 #  Main function to prevent occasional environment pollution
 # ------------------------------------------------------------
@@ -75,12 +83,15 @@ closure() {
 
     # Do the job
     cd "${BASE_DIR}"
+
+    printf '\nQEMU_IMG_CONVERT_WITH_COMPRESSION=0\n' | tee -a "${BASE_DIR}/.env"
     environment
-    clean_leftovers
-    start_vms
     happy_path
-    stop_vms
-    display_result
+
+    printf '\nQEMU_IMG_CONVERT_WITH_COMPRESSION=1\n' | tee -a "${BASE_DIR}/.env"
+    environment
+    happy_path
+
     unset BASE_DIR
 }
 

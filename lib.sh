@@ -220,9 +220,6 @@ check_mandatory_variables_set() {
         if [ -z "${VAR_VALUE}" ]
         then
             die "Mandatory variable ${VAR_PTR} is not defined or blank"
-        else
-            # Guard against re-declaring a readonly variable on re-source.
-            readonly "${VAR_PTR}"
         fi
         if [ "${VAR_PTR}" = "BACKUP_DIR" ] || [ "${VAR_PTR}" = "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" ]
         then
