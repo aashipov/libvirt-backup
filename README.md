@@ -14,7 +14,7 @@ Typical deployment is to an unprivileged user `${HOME}` directory
 
 With access to the Internet `git clone https://github.com/aashipov/libvirt-backup.git` deployment and `git pull -r` updates are recommended
 
-For 'air-gapped' / 'airtight' environments pick a top [Release libvirt-backup-*.tar.gz](https://github.com/aashipov/libvirt-backup/releases) `libvirt-backup*.tar.gz` asset, extract with overwrite `mkdir -p ${HOME}/libvirt-backup/ && tar --strip-components=1 -xzf libvirt-backup*.tar.gz -C ${HOME}/libvirt-backup/`
+For 'air-gapped' / 'airtight' environments pick a top [libvirt-backup-*.tar.gz](https://github.com/aashipov/libvirt-backup/releases) Release asset, extract with overwrite `mkdir -p ${HOME}/libvirt-backup/ && tar --strip-components=1 -xzf libvirt-backup*.tar.gz -C ${HOME}/libvirt-backup/`
 
 Configuration is stored in `.env` file. Craft one from a template `cp .env.template .env`
 
