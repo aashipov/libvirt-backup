@@ -29,7 +29,7 @@
 
 ### Review prompt
 
-Act as an autonomous expert code reviewer. Conduct a thorough, line-by-line and file-by-file review of the project in the current working directory.
+Perform a thorough, line-by-line and file-by-file review of the project in the current working directory.
 
 **Constraints:**
 
@@ -44,4 +44,4 @@ For every issue found, specify the file name, line numbers, a clear explanation 
 
 You may compact context, dump data to markdown files.
 
-Dump review report to a 'review_report.md' file in the current working directory.
+Dump review report to a 'libvirt-backup_review_report.md' file in the user home directory.
