@@ -44,4 +44,4 @@ For every issue found, specify the file name, line numbers, a clear explanation 
 
 You may compact context, dump data to markdown files.
 
-Dump review report to a 'libvirt-backup_review_report.md' file in the user home directory.
+Dump review report to a 'libvirt-backup_review_report.md' file.
