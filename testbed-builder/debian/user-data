@@ -1,11 +1,13 @@
+#cloud-config
 hostname: debian
 
 users:
   - name: administrator
+    uid: 10001  
     groups: [sudo, libvirt]
     shell: /bin/bash
     sudo: "ALL=(ALL) NOPASSWD:ALL"
-    passwd: "P@s$W0rld"
+    passwd: administrator
     lock_passwd: false
 
 # Do NOT let cloud-init disable root or sshd; we need xrdp later
@@ -73,7 +75,7 @@ write_files:
 
   # Avoid libvirt nested network clash (host 192.168.122.0/24)
   - path: /etc/libvirt/qemu/networks/default.xml
-    permissions: '0644'
+    permissions: '0600'
     content: |
       <network>
         <name>nested</name>
@@ -87,6 +89,9 @@ write_files:
       </network>
 
 runcmd:
+  # Ensure GID
+  - [ groupmod, -g, "10001", administrator ]
+   
   # Enable & start core services
   - [ systemctl, enable, --now, cron ]
   - [ systemctl, enable, --now, libvirtd ]
