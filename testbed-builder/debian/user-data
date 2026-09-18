@@ -3,12 +3,15 @@ hostname: debian
 
 users:
   - name: administrator
-    uid: 10001  
+    uid: 10001
     groups: [sudo, libvirt]
     shell: /bin/bash
     sudo: "ALL=(ALL) NOPASSWD:ALL"
-    passwd: administrator
+    # openssl passwd -6
+    passwd: $6$Pd1cp4lrjXAzHVRQ$eEXKWPBSEZbQu3Zo1tiAkq/5y/47kpW3X8.tunysYe1Kfz3eoyUzBAaAr9kPJkGgEb43ub9byu8nyqIcCvWGV1
     lock_passwd: false
+    chpasswd:
+      expire: False
 
 # Do NOT let cloud-init disable root or sshd; we need xrdp later
 ssh_pwauth: true
@@ -91,7 +94,7 @@ write_files:
 runcmd:
   # Ensure GID
   - [ groupmod, -g, "10001", administrator ]
-   
+
   # Enable & start core services
   - [ systemctl, enable, --now, cron ]
   - [ systemctl, enable, --now, libvirtd ]
