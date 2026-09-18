@@ -112,7 +112,7 @@ sudo systemctl enable --now cockpit
 export XDG_CURRENT_DESKTOP=openbox
 exec dbus-run-session -- openbox-session
 EOF
-cd ${HOME} && chmod +x .xinitrc && ln -s .xinitrc .xsession && ln -s .xinitrc .Xclients`
+cd ${HOME} && chmod +x .xinitrc && ln -s .xinitrc .xsession && ln -s .xinitrc .Xclients && ln -s .xinitrc startwm.sh`
 
 At this point you should be able to RDP the Openbox in guest vm via `mstsc.exe`, `xfreerdp`/`wlfreerdp`, `Remmina` (Note: modern distros include `xfreerdp3`/`wlfreerdp3`, so craft symlinks in `/usr/bin` by hand):
 

@@ -288,7 +288,6 @@ create_backup_dirs_and_log() {
     mkdir -p "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}" || die "Can not create ${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
     is_writable "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}"
     touch "${BACKUP_LOG_FILE}" || die "Can not create ${BACKUP_LOG_FILE}"
-    is_writable "${BACKUP_LOG_FILE}"
 }
 
 get_disk_actual_free_space() {
