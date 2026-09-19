@@ -46,21 +46,22 @@ closure() {
     TARGET_VM_NAME="${DISTRO}-builder"
     TARGET_DISK_FILE="${BACKUP_DIR}/${DISTRO}-builder.qcow2"
     SEED_ISO_FILE="${BACKUP_DIR}/${DISTRO}"-seed.iso
-    GENERIC_IMAGE_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
-    GENERIC_IMAGE_FILE="${BACKUP_DIR}/${DISTRO}"-genericcloud.qcow2
+    #QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
+    QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2"
+    QCOW2_FILE="${BACKUP_DIR}/$(basename "${QCOW2_URL}")"
 
     cd "${BASE_DIR}/testbed-builder/${DISTRO}"
-    
+
     if [ ! -f "${SEED_ISO_FILE}" ]
     then
         xorriso -as mkisofs -output "${SEED_ISO_FILE}" -volid cidata -joliet -rock user-data meta-data || die "Failed to create a ${BACKUP_DIR}/${DISTRO}-seed.iso"
     fi
 
-    if [ ! -f "${GENERIC_IMAGE_FILE}" ]
+    if [ ! -f "${QCOW2_FILE}" ]
     then
-        curl -L -o "${GENERIC_IMAGE_FILE}" "${GENERIC_IMAGE_URL}"
+        curl -L -o "${QCOW2_FILE}" "${QCOW2_URL}"
     fi
-    
+
     if virsh list --all | grep -q "${TARGET_VM_NAME}"
     then
         if virsh list --all | grep -q "${TARGET_VM_NAME}" | grep -q "running"
@@ -73,7 +74,8 @@ closure() {
 
     if [ ! -f "${TARGET_DISK_FILE}" ]
     then
-        qemu-img convert -O qcow2 -o compression_type=zstd -c "${GENERIC_IMAGE_FILE}" "${TARGET_DISK_FILE}" || die "Failed to convert ${GENERIC_IMAGE_FILE} to ${TARGET_DISK_FILE}"
+        qemu-img convert -O qcow2 -o compression_type=zstd -c "${QCOW2_FILE}" "${TARGET_DISK_FILE}" || die "Failed to convert ${QCOW2_FILE} to ${TARGET_DISK_FILE}"
+        qemu-img resize "${TARGET_DISK_FILE}" 10G
     fi
 
     virt-install \
@@ -85,10 +87,10 @@ closure() {
       --disk path="${SEED_ISO_FILE}",device=cdrom \
       --network network=default,model=virtio \
       --graphics vnc,listen=0.0.0.0 \
-      --os-variant debian13 \
-      --boot hd
+      --osinfo detect=on,require=off \
+      --import
 
-    unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE GENERIC_IMAGE_URL GENERIC_IMAGE_FILE
+    unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE
 }
 
 closure "${@}"
