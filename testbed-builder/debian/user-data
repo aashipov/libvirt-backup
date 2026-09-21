@@ -32,8 +32,7 @@ packages:
   - curl
   - mc
   - openssh-server
-  - dhcpcd
-  - resolvconf
+  - systemd-resolved
   - virt-manager
   - weston
   - winpr3-utils
