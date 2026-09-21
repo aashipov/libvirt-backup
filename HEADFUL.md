@@ -122,6 +122,20 @@ xfreerdp /w:1600 /h:900 +clipboard /u:<user> /p:<password> /v:<IP> /port:3389
 
 Right click to see Openbox menu
 
+### cloud-init network configuration
+
+Find out interface name `networkctl list`. E.g., it returns `ens3` ethernet adapter.
+
+```sh
+cat << 'EOF' | sudo tee /etc/systemd/network/ethernet.network
+[Match]
+Name=ens3
+
+[Network]
+DHCP=yes
+EOF
+```
+
 ### Weston
 
 Deploy [weston-runner](./weston-runner) to guest, launch via SSH
