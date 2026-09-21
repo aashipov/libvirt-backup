@@ -110,6 +110,7 @@ closure() {
       --cloud-init meta-data=${BASE_DIR}/testbed-builder/${DISTRO}/meta-data,user-data=${BASE_DIR}/testbed-builder/${DISTRO}/user-data
       #--disk path="${SEED_ISO_FILE}",device=cdrom
 
+      printf '%s\n' "Check progress: virsh console ${DISTRO}-builder"
       printf '%s\n' "Follow logs via SSH: sudo cat /var/log/cloud-init-output.log | tail"
       printf '%s\n' "Generate administrator's SSH key: mkdir -p /home/administrator/.ssh/ && ssh-keygen -t rsa -b 4096 -C "dummy@dummy.org" -f /home/administrator/.ssh/id_rsa && ssh-copy-id 127.0.0.2"
 
