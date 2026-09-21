@@ -111,6 +111,7 @@ closure() {
       #--disk path="${SEED_ISO_FILE}",device=cdrom
 
       printf '%s\n' "Follow logs via SSH: sudo cat /var/log/cloud-init-output.log | tail"
+      printf '%s\n' "Generate administrator's SSH key: mkdir, -p, /home/administrator/.ssh/ && ssh-keygen -t rsa -b 4096 -C "dummy@dummy.org" -f /home/administrator/.ssh/id_rsa -N \"\" && ssh-copy-id administrator@127.0.0.2"
 
     unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE
 }

@@ -97,10 +97,5 @@ runcmd:
   - [ ln, -sf, /home/administrator/.xinitrc, /home/administrator/.Xclients ]
   - [ ln, -sf, /home/administrator/.xinitrc, /home/administrator/startwm.sh ]
 
-  # SSH key
-  - [ mkdir, -p, /home/administrator/.ssh/]
-  - [ sudo, -i, -u, administrator, ssh-keygen, -t rsa, -b 4096, -C "dummy@dummy.org", -f /home/administrator/.ssh/id_rsa, -N "" ]
-  - [ sudo, -i, -u, administrator, ssh-copy-id, administrator@127.0.0.2 ]
-
   # Ensure administrator owns their dotfiles
   - [ chown, -R, administrator:administrator, /home/administrator ]
