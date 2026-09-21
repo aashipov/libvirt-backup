@@ -22,6 +22,13 @@ get_base_dir() {
     fi
 }
 
+build_seed_iso_file() {
+    if [ ! -f "${SEED_ISO_FILE}" ]
+    then
+        xorriso -as mkisofs -output "${SEED_ISO_FILE}" -volid cidata -joliet -rock "${BASE_DIR}/testbed-builder/${DISTRO}/user-data" "${BASE_DIR}/testbed-builder/${DISTRO}/meta-data" || die "Failed to create a ${BACKUP_DIR}/${DISTRO}-seed.iso"
+    fi
+}
+
 # ------------------------------------------------------------
 #  Main function to prevent occasional environment pollution
 # ------------------------------------------------------------
@@ -50,13 +57,6 @@ closure() {
     QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2"
     QCOW2_FILE="${BACKUP_DIR}/$(basename "${QCOW2_URL}")"
 
-    cd "${BASE_DIR}/testbed-builder/${DISTRO}"
-
-    if [ ! -f "${SEED_ISO_FILE}" ]
-    then
-        xorriso -as mkisofs -output "${SEED_ISO_FILE}" -volid cidata -joliet -rock user-data meta-data || die "Failed to create a ${BACKUP_DIR}/${DISTRO}-seed.iso"
-    fi
-
     if [ ! -f "${QCOW2_FILE}" ]
     then
         curl -L -o "${QCOW2_FILE}" "${QCOW2_URL}"
@@ -78,17 +78,20 @@ closure() {
         qemu-img resize "${TARGET_DISK_FILE}" 10G
     fi
 
+    build_seed_iso_file
+    
     virt-install \
       --name "${TARGET_VM_NAME}" \
       --memory 4096 \
       --vcpus 8 \
       --cpu host-passthrough \
       --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio \
-      --disk path="${SEED_ISO_FILE}",device=cdrom \
       --network network=default,model=virtio \
       --graphics vnc,listen=0.0.0.0 \
       --osinfo detect=on,require=off \
-      --import
+      --import \
+      --cloud-init meta-data=${BASE_DIR}/testbed-builder/${DISTRO}/meta-data,user-data=${BASE_DIR}/testbed-builder/${DISTRO}/user-data
+      #--disk path="${SEED_ISO_FILE}",device=cdrom
 
     unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE
 }
