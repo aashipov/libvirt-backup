@@ -78,7 +78,7 @@ closure() {
         qemu-img resize "${TARGET_DISK_FILE}" 10G
     fi
 
-    build_seed_iso_file
+    #build_seed_iso_file
     
     virt-install \
       --name "${TARGET_VM_NAME}" \
