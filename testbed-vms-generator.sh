@@ -6,6 +6,7 @@
 
 closure() {
     cd /tmp/
+    sudo virsh net-edit default
     ALPINE_ISO_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
     ALPINE_ISO_FILE="/tmp/$(basename ${ALPINE_ISO_URL})"
     if [ ! -f "${ALPINE_ISO_FILE}" ]
