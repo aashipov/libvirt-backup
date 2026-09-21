@@ -110,6 +110,8 @@ closure() {
       --cloud-init meta-data=${BASE_DIR}/testbed-builder/${DISTRO}/meta-data,user-data=${BASE_DIR}/testbed-builder/${DISTRO}/user-data
       #--disk path="${SEED_ISO_FILE}",device=cdrom
 
+      printf '%s\n' "Follow logs at /var/log/cloud-init-output.log"
+
     unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE
 }
 
