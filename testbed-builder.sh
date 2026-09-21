@@ -110,11 +110,8 @@ closure() {
       --cloud-init meta-data=${BASE_DIR}/testbed-builder/${DISTRO}/meta-data,user-data=${BASE_DIR}/testbed-builder/${DISTRO}/user-data
       #--disk path="${SEED_ISO_FILE}",device=cdrom
 
-      printf '%s\n' "Check progress: virsh console ${DISTRO}-builder"
-      printf '%s\n' "Follow logs via SSH: sudo cat /var/log/cloud-init-output.log | tail"
-      printf '%s\n' "Generate administrator's SSH key: mkdir -p /home/administrator/.ssh/ && ssh-keygen -t rsa -b 4096 -C "dummy@dummy.org" -f /home/administrator/.ssh/id_rsa && ssh-copy-id 127.0.0.2"
-      printf '%s\n' "Turn off guest: virsh shutdown ${DISTRO}-builder"
-      printf '%s\n' "Copy ssh pair out: virt-copy-out -d ${DISTRO}-builder /home/administrator/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
+      printf '%s\n' "Check progress: \`virsh console ${DISTRO}-builder\` or follow logs via SSH: \`sudo cat /var/log/cloud-init-output.log | tail\`"
+      printf '%s\n' "Once it's done, turn the guest off: \`virsh shutdown ${DISTRO}-builder\` and proceed with \`testbed-configurator.sh\`"
 
     unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE
 }
