@@ -86,8 +86,7 @@ closure() {
     TARGET_VM_NAME="${DISTRO}-builder"
     TARGET_DISK_FILE="${BACKUP_DIR}/${DISTRO}-builder.qcow2"
     SEED_ISO_FILE="${BACKUP_DIR}/${DISTRO}"-seed.iso
-    #QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
-    QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2"
+    QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
     QCOW2_FILE="${BACKUP_DIR}/$(basename "${QCOW2_URL}")"
 
     download_qcow2
