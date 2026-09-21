@@ -71,6 +71,7 @@ write_files:
     content: |
       <network>
         <name>nested</name>
+        <uuid>a53a14a3-104b-4992-9503-682d8f72a864</uuid>
         <forward mode='nat'/>
         <bridge name='virbr1' stp='on' delay='0'/>
         <ip address='192.168.123.1' netmask='255.255.255.0'>
