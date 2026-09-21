@@ -29,6 +29,33 @@ build_seed_iso_file() {
     fi
 }
 
+download_qcow2() {
+    if [ ! -f "${QCOW2_FILE}" ]
+    then
+        curl -L -o "${QCOW2_FILE}" "${QCOW2_URL}"
+    fi
+}
+
+remove_vm() {
+    if virsh list --all | grep -q "${TARGET_VM_NAME}"
+    then
+        if virsh list --all | grep -q "${TARGET_VM_NAME}" | grep -q "running"
+        then
+            virsh destroy "${TARGET_VM_NAME}" || die "Failed to destroy ${TARGET_VM_NAME}"
+        fi
+        virsh undefine "${TARGET_VM_NAME}" || die "Failed to undefine ${TARGET_VM_NAME}"
+        rm -rf "${TARGET_DISK_FILE}"
+    fi
+}
+
+build_disk() {
+    if [ ! -f "${TARGET_DISK_FILE}" ]
+    then
+        qemu-img convert -O qcow2 -o compression_type=zstd -c "${QCOW2_FILE}" "${TARGET_DISK_FILE}" || die "Failed to convert ${QCOW2_FILE} to ${TARGET_DISK_FILE}"
+        qemu-img resize "${TARGET_DISK_FILE}" 10G
+    fi
+}
+
 # ------------------------------------------------------------
 #  Main function to prevent occasional environment pollution
 # ------------------------------------------------------------
@@ -57,29 +84,12 @@ closure() {
     QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2"
     QCOW2_FILE="${BACKUP_DIR}/$(basename "${QCOW2_URL}")"
 
-    if [ ! -f "${QCOW2_FILE}" ]
-    then
-        curl -L -o "${QCOW2_FILE}" "${QCOW2_URL}"
-    fi
-
-    if virsh list --all | grep -q "${TARGET_VM_NAME}"
-    then
-        if virsh list --all | grep -q "${TARGET_VM_NAME}" | grep -q "running"
-        then
-            virsh destroy "${TARGET_VM_NAME}" || die "Failed to destroy ${TARGET_VM_NAME}"
-        fi
-        virsh undefine "${TARGET_VM_NAME}" || die "Failed to undefine ${TARGET_VM_NAME}"
-        rm -rf "${TARGET_DISK_FILE}"
-    fi
-
-    if [ ! -f "${TARGET_DISK_FILE}" ]
-    then
-        qemu-img convert -O qcow2 -o compression_type=zstd -c "${QCOW2_FILE}" "${TARGET_DISK_FILE}" || die "Failed to convert ${QCOW2_FILE} to ${TARGET_DISK_FILE}"
-        qemu-img resize "${TARGET_DISK_FILE}" 10G
-    fi
+    download_qcow2
+    remove_vm
+    build_disk
 
     #build_seed_iso_file
-    
+
     virt-install \
       --name "${TARGET_VM_NAME}" \
       --memory 4096 \
