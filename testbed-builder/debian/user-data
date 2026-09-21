@@ -32,6 +32,8 @@ packages:
   - curl
   - mc
   - openssh-server
+  - dhcpcd
+  - resolvconf
   - virt-manager
   - weston
   - winpr3-utils
@@ -99,3 +101,7 @@ runcmd:
 
   # Ensure administrator owns their dotfiles
   - [ chown, -R, administrator:administrator, /home/administrator ]
+  
+  # Remove cloud-init traces
+  - [ apt-get, remove, -y, cloud-init ]
+  - [ rm, -rf, /etc/cloud, /var/lib/cloud ] 
