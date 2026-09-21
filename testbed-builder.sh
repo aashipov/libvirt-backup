@@ -56,6 +56,12 @@ build_disk() {
     fi
 }
 
+cpu_count() {
+    CPU_COUNT=1
+    CPU_COUNT=$(($(getconf _NPROCESSORS_ONLN) + 0))
+    printf '%d\n' ${CPU_COUNT}
+}
+
 # ------------------------------------------------------------
 #  Main function to prevent occasional environment pollution
 # ------------------------------------------------------------
@@ -80,8 +86,8 @@ closure() {
     TARGET_VM_NAME="${DISTRO}-builder"
     TARGET_DISK_FILE="${BACKUP_DIR}/${DISTRO}-builder.qcow2"
     SEED_ISO_FILE="${BACKUP_DIR}/${DISTRO}"-seed.iso
-    QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
-    #QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2"
+    #QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
+    QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2"
     QCOW2_FILE="${BACKUP_DIR}/$(basename "${QCOW2_URL}")"
 
     download_qcow2
@@ -93,13 +99,14 @@ closure() {
     virt-install \
       --name "${TARGET_VM_NAME}" \
       --memory 4096 \
-      --vcpus 8 \
+      --vcpus "$(cpu_count)" \
       --cpu host-passthrough \
       --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio \
       --network network=default,model=virtio \
       --graphics vnc,listen=0.0.0.0 \
       --osinfo detect=on,require=off \
       --import \
+      --noautoconsole \
       --cloud-init meta-data=${BASE_DIR}/testbed-builder/${DISTRO}/meta-data,user-data=${BASE_DIR}/testbed-builder/${DISTRO}/user-data
       #--disk path="${SEED_ISO_FILE}",device=cdrom
 
