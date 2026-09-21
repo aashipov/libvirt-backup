@@ -48,17 +48,38 @@ packages:
   - gvfs
   - gvfs-backends
 
+runcmd:
+# Ensure GID
+  - [ groupmod, -g, "10001", administrator ]
+
+# Enable & start core services
+  - [ systemctl, enable, --now, cron ]
+  - [ systemctl, enable, --now, libvirtd ]
+  - [ systemctl, enable, --now, xrdp ]
+
+# Autostart default libvirt network
+  - [ virsh, net-autostart, default ]
+  - [ virsh, net-start, default ]
+
+  # .xinit
+  - [ ln, -sf, /home/administrator/.xinitrc, /home/administrator/.xsession ]
+  - [ ln, -sf, /home/administrator/.xinitrc, /home/administrator/.Xclients ]
+  - [ ln, -sf, /home/administrator/.xinitrc, /home/administrator/startwm.sh ]
+
+  # Ensure administrator owns their dotfiles
+  - [ chown, -R, administrator:administrator, /home/administrator ]
+  - [ apt-get, remove, -y, cloud-init ]
+  - [ rm, -rf, /etc/cloud, /var/lib/cloud ]  
+
 write_files:
   # libvirt default URI for userspace
   - path: /home/administrator/.config/libvirt/libvirt.conf
-    owner: administrator:administrator
     permissions: '0644'
     content: |
       uri_default = "qemu:///system"
 
   # Openbox session for xrdp
   - path: /home/administrator/.xinitrc
-    owner: administrator:administrator
     permissions: '0755'
     content: |
       #!/bin/sh
@@ -81,27 +102,10 @@ write_files:
         </ip>
       </network>
 
-runcmd:
-# Ensure GID
-  - [ groupmod, -g, "10001", administrator ]
+  - path: /etc/systemd/network/99-ethernet.network
+    content: |
+      [Match]
+      Name=en*
 
-# Enable & start core services
-  - [ systemctl, enable, --now, cron ]
-  - [ systemctl, enable, --now, libvirtd ]
-  - [ systemctl, enable, --now, xrdp ]
-
-# Autostart default libvirt network
-  - [ virsh, net-autostart, default ]
-  - [ virsh, net-start, default ]
-
-  # .xinit
-  - [ ln, -sf, /home/administrator/.xinitrc, /home/administrator/.xsession ]
-  - [ ln, -sf, /home/administrator/.xinitrc, /home/administrator/.Xclients ]
-  - [ ln, -sf, /home/administrator/.xinitrc, /home/administrator/startwm.sh ]
-
-  # Ensure administrator owns their dotfiles
-  - [ chown, -R, administrator:administrator, /home/administrator ]
-  
-  # Remove cloud-init traces
-  - [ apt-get, remove, -y, cloud-init ]
-  - [ rm, -rf, /etc/cloud, /var/lib/cloud ] 
+      [Network]
+      DHCP=yes
