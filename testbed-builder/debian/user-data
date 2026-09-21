@@ -18,17 +18,7 @@ disable_root: false
 package_update: true
 package_upgrade: true
 
-apt:
-  sources_list: |
-    deb http://deb.debian.org/debian trixie main contrib non-free
-    deb-src http://deb.debian.org/debian trixie main contrib non-free
-    deb http://deb.debian.org/debian-security/ trixie-security main contrib non-free
-    deb-src http://deb.debian.org/debian-security/ trixie-security main contrib non-free
-    deb http://deb.debian.org/debian trixie-updates main contrib non-free
-    deb-src http://deb.debian.org/debian trixie-updates main contrib non-free
-
 packages:
-  # Base tooling
   - cron
   - git
   - rsync
@@ -41,7 +31,6 @@ packages:
   - tree
   - curl
   - mc
-  # GUI / RDP stack
   - virt-manager
   - weston
   - winpr3-utils
@@ -90,7 +79,7 @@ write_files:
       </network>
 
 runcmd:
-#   # Ensure GID
+# Ensure GID
   - [ groupmod, -g, "10001", administrator ]
 
 # Enable & start core services
@@ -114,7 +103,3 @@ runcmd:
 
   # Ensure administrator owns their dotfiles
   - [ chown, -R, administrator:administrator, /home/administrator ]
-
-  # Remove cloud-init traces (per guide, cloud-init is undesired on the guest)
-  - [ apt-get, remove, -y, cloud-init ]
-  - [ rm, -rf, /etc/cloud, /var/lib/cloud ]
