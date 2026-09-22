@@ -75,8 +75,11 @@ closure() {
     BASE_DIR="$(get_base_dir)"
     # Load library
     # shellcheck source=lib.sh
-    . "${BASE_DIR}/lib.sh"
-    [ "${?}" -ne 0 ] && printf 'Could not load lib.sh, exiting' && exit 1
+    if ! . "${BASE_DIR}/lib.sh"
+    then
+        printf 'Could not load lib.sh, exiting'
+        exit 1
+    fi
 
     # Do the job
     environment

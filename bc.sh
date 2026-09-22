@@ -28,8 +28,12 @@ closure() {
     # Define BASE_DIR
     BASE_DIR="$(get_base_dir)"
     # Load library
-    . "${BASE_DIR}/lib.sh"
-    [ "${?}" -ne 0 ] && printf 'Could not load lib.sh, exiting' && exit 1
+    # shellcheck source=lib.sh
+    if ! . "${BASE_DIR}/lib.sh"
+    then
+        printf 'Could not load lib.sh, exiting'
+        exit 1
+    fi
 
     # Do the job
     environment
