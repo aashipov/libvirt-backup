@@ -4,9 +4,6 @@
 #  testbed-builder.sh – Headful VM prototype generator
 # ------------------------------------------------------------
 
-# https://dev.to/tjuliu/automating-ubuntu-vm-creation-with-libvirt-kvmqemu-and-cloud-init-2inf
-# sudo pacman -S cloud-init cloud-guest-utils libisoburn
-
 # ------------------------------------------------------------
 # Script/base dir
 # ------------------------------------------------------------
@@ -19,13 +16,6 @@ get_base_dir() {
         # The script was sourced in a shell where $0 is not the script path
         # Fallback to the current working directory
         printf '%s\n' "$(pwd)"
-    fi
-}
-
-build_seed_iso_file() {
-    if [ ! -f "${SEED_ISO_FILE}" ]
-    then
-        xorriso -as mkisofs -output "${SEED_ISO_FILE}" -volid cidata -joliet -rock "${BASE_DIR}/testbed-builder/${DISTRO}/user-data" "${BASE_DIR}/testbed-builder/${DISTRO}/meta-data" || die "Failed to create a ${BACKUP_DIR}/${DISTRO}-seed.iso"
     fi
 }
 
@@ -62,6 +52,18 @@ cpu_count() {
     printf '%d\n' ${CPU_COUNT}
 }
 
+build_virt_install_cmd() {
+    CMD="virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --import --noautoconsole"
+    case "${DISTRO}" in
+        redos)
+            ;;
+        *)
+            CMD="${CMD} --cloud-init meta-data=${BASE_DIR}/testbed-builder/${DISTRO}/meta-data,user-data=${BASE_DIR}/testbed-builder/${DISTRO}/user-data"
+    esac
+    printf '%s\n' "${CMD}"
+    unset CMD
+}
+
 # ------------------------------------------------------------
 #  Main function to prevent occasional environment pollution
 # ------------------------------------------------------------
@@ -91,6 +93,9 @@ closure() {
         ubuntu)
             QCOW2_URL="https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
             ;;
+        redos)
+            QCOW2_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/redos-8-20260716.0-x86_64-post-cloud-init.qcow2"
+            ;;
            *) die "Distro ${DISTRO} is not supported at the moment" ;;
     esac
 
@@ -103,26 +108,12 @@ closure() {
     remove_vm
     build_disk
 
-    #build_seed_iso_file
+    $(build_virt_install_cmd)
 
-    virt-install \
-      --name "${TARGET_VM_NAME}" \
-      --memory 4096 \
-      --vcpus "$(cpu_count)" \
-      --cpu host-passthrough \
-      --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio \
-      --network network=default,model=virtio \
-      --graphics vnc,listen=0.0.0.0 \
-      --osinfo detect=on,require=off \
-      --import \
-      --noautoconsole \
-      --cloud-init meta-data=${BASE_DIR}/testbed-builder/${DISTRO}/meta-data,user-data=${BASE_DIR}/testbed-builder/${DISTRO}/user-data
-      #--disk path="${SEED_ISO_FILE}",device=cdrom
+    printf '%s\n' "Check progress: \`virsh console ${DISTRO}-builder\` or follow logs via SSH: \`sudo cat /var/log/cloud-init-output.log | tail\`"
+    printf '%s\n' "Once it's done, turn the guest off: \`virsh shutdown ${DISTRO}-builder\` and proceed with \`testbed-configurator.sh\`"
 
-      printf '%s\n' "Check progress: \`virsh console ${DISTRO}-builder\` or follow logs via SSH: \`sudo cat /var/log/cloud-init-output.log | tail\`"
-      printf '%s\n' "Once it's done, turn the guest off: \`virsh shutdown ${DISTRO}-builder\` and proceed with \`testbed-configurator.sh\`"
-
-    unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE
+    unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE CMD
 }
 
 closure "${@}"
