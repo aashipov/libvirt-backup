@@ -124,12 +124,12 @@ Right click to see Openbox menu
 
 ### cloud-init network configuration
 
-Find out interface name `networkctl list`. E.g., it returns `ens3` ethernet adapter.
+Find out interface name `networkctl list`. E.g., it returns `ens*` ethernet adapter.
 
 ```sh
-cat << 'EOF' | sudo tee /etc/systemd/network/ethernet.network
+cat << 'EOF' | sudo tee /etc/systemd/network/99-ethernet.network
 [Match]
-Name=ens3
+Name=en*
 
 [Network]
 DHCP=yes
