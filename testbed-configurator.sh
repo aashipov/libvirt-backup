@@ -11,6 +11,7 @@
 # virsh start debian-builder
 # virsh console debian-builder
 # ${HOME}/testbed-configurator.sh debian
+# virt-copy-out -d debian-builder /home/administrator/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa
 # ------------------------------------------------------------
 
 debian_privileged() {
@@ -37,6 +38,14 @@ rhel_privileged() {
     sudo dnf -y install cronie git rsync acl sudo qemu-kvm libvirt virt-install mc tree curl
     sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston #gvfs-sftp
     sudo dnf -y remove cloud-init
+    sudo dnf -y clean all
+    sudo systemctl enable --now crond
+}
+
+redos_privileged() {
+    sudo dnf -y upgrade
+    sudo dnf -y install cronie git rsync acl sudo qemu-kvm libvirt virt-install mc tree curl
+    sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston #gvfs-sftp
     sudo dnf -y clean all
     sudo systemctl enable --now crond
 }
@@ -129,6 +138,9 @@ closure() {
            ;;
         ubuntu)
             ubuntu_privileged
+            ;;
+        redos)
+            redos_privileged
             ;;
            *) die "Distro ${DISTRO} is not supported at the moment" ;;
     esac
