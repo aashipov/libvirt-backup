@@ -112,7 +112,7 @@ sudo systemctl enable --now cockpit
 export XDG_CURRENT_DESKTOP=openbox
 exec dbus-run-session -- openbox-session
 EOF
-cd ${HOME} && chmod +x .xinitrc && ln -s .xinitrc .xsession && ln -s .xinitrc .Xclients`
+cd ${HOME} && chmod +x .xinitrc && ln -s .xinitrc .xsession && ln -s .xinitrc .Xclients && ln -s .xinitrc startwm.sh`
 
 At this point you should be able to RDP the Openbox in guest vm via `mstsc.exe`, `xfreerdp`/`wlfreerdp`, `Remmina` (Note: modern distros include `xfreerdp3`/`wlfreerdp3`, so craft symlinks in `/usr/bin` by hand):
 
@@ -121,6 +121,20 @@ xfreerdp /w:1600 /h:900 +clipboard /u:<user> /p:<password> /v:<IP> /port:3389
 ```
 
 Right click to see Openbox menu
+
+### cloud-init network configuration
+
+Find out interface name `networkctl list`. E.g., it returns `ens*` ethernet adapter.
+
+```sh
+cat << 'EOF' | sudo tee /etc/systemd/network/99-ethernet.network
+[Match]
+Name=en*
+
+[Network]
+DHCP=yes
+EOF
+```
 
 ### Weston
 
