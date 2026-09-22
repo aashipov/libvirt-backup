@@ -10,7 +10,7 @@
 # virt-copy-in -d debian-builder testbed-configurator.sh /home/administrator/
 # virsh start debian-builder
 # virsh console debian-builder
-# ${HOME}/testbed-configurator.sh debian
+# "${HOME}/testbed-configurator.sh" debian
 # virt-copy-out -d debian-builder /home/administrator/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa
 # ------------------------------------------------------------
 
@@ -69,16 +69,16 @@ EOF
 }
 
 tune_xinitrc() {
-    cat << 'EOF' | tee ${HOME}/.xinitrc
+    cat << 'EOF' | tee "${HOME}/.xinitrc"
 #!/bin/sh
 export XDG_CURRENT_DESKTOP=openbox
 exec dbus-run-session -- openbox-session
 EOF
-cd ${HOME} && chmod +x .xinitrc && ln -s .xinitrc .xsession && ln -s .xinitrc .Xclients && ln -s .xinitrc startwm.sh
+cd "${HOME}" && chmod +x .xinitrc && ln -s .xinitrc .xsession && ln -s .xinitrc .Xclients && ln -s .xinitrc startwm.sh
 }
 
 configure_ssh() {
-    mkdir -p ${HOME}/.ssh/ && ssh-keygen -t rsa -b 4096 -C "dummy@dummy.org" -f ${HOME}/.ssh/id_rsa && chmod 0600 ${HOME}/.ssh/id_rsa && ssh-copy-id 127.0.0.2
+    mkdir -p "${HOME}/.ssh/" && ssh-keygen -t rsa -b 4096 -C "dummy@dummy.org" -f "${HOME}/.ssh/id_rsa" && chmod 0600 "${HOME}/.ssh/id_rsa" && ssh-copy-id 127.0.0.2
 }
 
 configure_vms() {
@@ -113,20 +113,18 @@ configure_vms() {
 
 configure_backup_dirs() {
     sudo mkdir -p /backup-vm/ /other_backup/
-    sudo setfacl -d -R -m u:${USER}:rwx /backup-vm/ /other_backup/
-    sudo chown -R ${USER}:${USER} /backup-vm/ /other_backup/
+    sudo setfacl -d -R -m u:"${USER}":rwx /backup-vm/ /other_backup/
+    sudo chown -R "${USER}":"${USER}" /backup-vm/ /other_backup/
 }
 
 closure() {
     set -e
     #set -x # Debug
 
-    DISTRO=debian
-    [ ! -z "${1}" ] && DISTRO="${1}"
-
     [ -f "${HOME}/configured" ] && printf '%s\n' "Already configured, exiting" && exit 0
 
-    [ ! -z "${1}" ] && DISTRO="${1}"
+    DISTRO=debian
+    [ -n "${1}" ] && DISTRO="${1}"
     case "${DISTRO}" in
         debian)
             debian_privileged

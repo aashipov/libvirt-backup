@@ -53,7 +53,7 @@ cpu_count() {
 }
 
 build_virt_install_cmd() {
-    CMD="virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --import --noautoconsole"
+    CMD="virt-install --name ${TARGET_VM_NAME} --memory 4096 --vcpus $(cpu_count) --cpu host-passthrough --disk path=${TARGET_DISK_FILE},format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --import --noautoconsole"
     case "${DISTRO}" in
         redos)
             ;;
@@ -83,7 +83,7 @@ closure() {
 
     DISTRO=debian
     QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
-    [ ! -z "${1}" ] && DISTRO="${1}"
+    [ -n "${1}" ] && DISTRO="${1}"
     case "${DISTRO}" in
         debian) ;;
         [[:upper:]]*) die "Distro name, lowercase" ;;
@@ -101,14 +101,14 @@ closure() {
 
     TARGET_VM_NAME="${DISTRO}-builder"
     TARGET_DISK_FILE="${BACKUP_DIR}/${DISTRO}-builder.qcow2"
-    SEED_ISO_FILE="${BACKUP_DIR}/${DISTRO}"-seed.iso
     QCOW2_FILE="${BACKUP_DIR}/$(basename "${QCOW2_URL}")"
 
     download_qcow2
     remove_vm
     build_disk
 
-    $(build_virt_install_cmd)
+    CMD="$(build_virt_install_cmd)"
+    ${CMD}
 
     printf '%s\n' "Check progress: \`virsh console ${DISTRO}-builder\` or follow logs via SSH: \`sudo cat /var/log/cloud-init-output.log | tail\`"
     printf '%s\n' "Once it's done, turn the guest off: \`virsh shutdown ${DISTRO}-builder\` and proceed with \`testbed-configurator.sh\`"
