@@ -88,6 +88,9 @@ closure() {
         alma)
            QCOW2_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-ext4-latest.x86_64.qcow2"
            ;;
+        ubuntu)
+            QCOW2_URL="https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
+            ;;
            *) die "Distro ${DISTRO} is not supported at the moment" ;;
     esac
 

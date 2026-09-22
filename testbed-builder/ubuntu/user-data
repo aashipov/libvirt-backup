@@ -1,0 +1,16 @@
+#cloud-config
+hostname: ubuntu
+
+users:
+  - name: administrator
+    uid: 10001
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: "ALL=(ALL) ALL"
+    lock_passwd: false
+    # administrator/administrator
+    # openssl passwd -6
+    passwd: $6$Pd1cp4lrjXAzHVRQ$eEXKWPBSEZbQu3Zo1tiAkq/5y/47kpW3X8.tunysYe1Kfz3eoyUzBAaAr9kPJkGgEb43ub9byu8nyqIcCvWGV1
+
+ssh_pwauth: true
+disable_root: false
