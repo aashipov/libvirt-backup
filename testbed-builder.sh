@@ -86,7 +86,7 @@ closure() {
         debian) ;;
         [[:upper:]]*) die "Distro name, lowercase" ;;
         alma)
-           QCOW2_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
+           QCOW2_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-ext4-latest.x86_64.qcow2"
            ;;
            *) die "Distro ${DISTRO} is not supported at the moment" ;;
     esac

@@ -10,7 +10,7 @@
 # virt-copy-in -d debian-builder testbed-configurator.sh /home/administrator/
 # virsh start debian-builder
 # virsh console debian-builder
-# Proceed with testbed-configurator.sh
+# ${HOME}/testbed-configurator.sh debian
 # ------------------------------------------------------------
 
 debian_privileged() {
