@@ -80,13 +80,20 @@ closure() {
     create_backup_dirs_and_log || die "Failed to create_backup_dirs_and_log"
 
     DISTRO=debian
+    QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
     [ ! -z "${1}" ] && DISTRO="${1}"
-    [ "${DISTRO}" != "debian" ] && die "Distro ${1} is not supported at the moment"
+    case "${DISTRO}" in
+        debian) ;;
+        [[:upper:]]*) die "Distro name, lowercase" ;;
+        alma)
+           QCOW2_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
+           ;;
+           *) die "Distro ${DISTRO} is not supported at the moment" ;;
+    esac
 
     TARGET_VM_NAME="${DISTRO}-builder"
     TARGET_DISK_FILE="${BACKUP_DIR}/${DISTRO}-builder.qcow2"
     SEED_ISO_FILE="${BACKUP_DIR}/${DISTRO}"-seed.iso
-    QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
     QCOW2_FILE="${BACKUP_DIR}/$(basename "${QCOW2_URL}")"
 
     download_qcow2

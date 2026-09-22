@@ -1,10 +1,10 @@
 #cloud-config
-hostname: debian
+hostname: alma
 
 users:
   - name: administrator
     uid: 10001
-    groups: [sudo]
+    groups: [wheel]
     shell: /bin/bash
     sudo: "ALL=(ALL) ALL"
     lock_passwd: false
