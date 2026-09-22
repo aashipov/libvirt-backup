@@ -14,7 +14,7 @@
 # ------------------------------------------------------------
 
 debian_privileged() {
-    cat << 'EOF' | sudo tee /etc/systemd/network/99-ethernet.network
+cat << 'EOF' | sudo tee /etc/systemd/network/99-ethernet.network
 [Match]
 Name=en*
 
@@ -39,6 +39,24 @@ rhel_privileged() {
     sudo dnf -y remove cloud-init
     sudo dnf -y clean all
     sudo systemctl enable --now crond
+}
+
+ubuntu_privileged() {
+cat << 'EOF' | sudo tee /etc/systemd/network/99-ethernet.network
+[Match]
+Name=en*
+
+[Network]
+DHCP=yes
+EOF
+    sudo apt-get update && sudo apt-get -y upgrade
+    sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server
+    sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-backends
+    sudo apt clean && sudo apt autoremove
+    sudo snap remove lxd
+    sudo apt-get remove -y snapd cloud-init modemmanager
+    sudo systemctl disable dbus
+    sudo systemctl enable --now cron
 }
 
 tune_xinitrc() {
@@ -109,6 +127,9 @@ closure() {
         alma)
             rhel_privileged
            ;;
+        ubuntu)
+            ubuntu_privileged
+            ;;
            *) die "Distro ${DISTRO} is not supported at the moment" ;;
     esac
 
