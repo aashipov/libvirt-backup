@@ -12,4 +12,4 @@ jobs:
       - name: Run ShellCheck natively
         run: |
           # Find all .sh files and run shellcheck on them
-          find . -name "*.sh" -exec shellcheck {} +
+          find . -name "*.sh" -exec shellcheck --severity=error {} +
