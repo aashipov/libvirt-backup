@@ -1,5 +1,5 @@
 #cloud-config
-hostname: alma
+hostname: unix
 
 users:
   - name: administrator

@@ -1,5 +1,28 @@
 # Headful Linux
 
+## cloud-init flavor (TL;DR)
+
+Linux distros (Debian, Alma, Ubuntu) provide rapid deployment from a cloud-init prototype
+
+```sh
+testbed-builder.sh debian
+```
+
+Authorize as `administrator/administrator` via `virsh console debian-builder`, wait for `cloud-init status` to report `done`
+
+On the host:
+
+```sh
+virsh shutdown debian-builder
+virt-copy-in -d debian-builder testbed-configurator.sh /home/administrator/
+virsh start debian-builder
+virsh console debian-builder
+```
+
+With the guest: `${HOME}/testbed-configurator.sh debian`, once it's off, extract SSH pair to host `virt-copy-out -d debian-builder /home/administrator/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa`
+
+## Manual flavor
+
 *nix desktop applications are designed for X Window System, a few - Wayland, most of - Xwayland compatible.
 
 With RDP & VNC - a graphical desktop-sharing systems - one can control a remote computer from another device (RDP lacks simultaneous access VNC got, but looks more production-ready).
@@ -14,27 +37,6 @@ Debian is fast, stable and open-licensed, makes a good Operating System for virt
 - Linux host: libvirt ≥ 7.2.0, QEMU ≥ 5.0, virt-manager or VirtualBox
 - Windows host: Windows 10 (Windows/Hyper-V Server 2016 Evaluation) or newer; Hyper-V with nested virtualization enabled (`Set-VMProcessor -VMName <VMName> -ExposeVirtualizationExtensions $true`)
 - FreeBSD host with bhyve
-
-## cloud-init flavor (TL;DR)
-
-```sh
-testbed-builder.sh debian
-```
-
-Authorize as `administrator/administrator` via `virsh console debian-builder`, wait for `cloud-init status` to report done
-
-On the host:
-
-```sh
-virsh shutdown debian-builder
-virt-copy-in -d debian-builder testbed-configurator.sh /home/administrator/
-virsh start debian-builder
-virsh console debian-builder
-```
-
-With the guest: `${HOME}/testbed-configurator.sh debian`, once it's off, extract SSH pair to host `virt-copy-out -d debian-builder /home/administrator/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa`
-
-## Manual flavor
 
 > [!NOTE]
 > RedHat, Inc recommend [XFS-backed storage](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/managing_file_systems/overview-of-available-file-systems), which is faster and can only grow. `ext4` can also shrink.

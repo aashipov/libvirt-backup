@@ -58,7 +58,7 @@ build_virt_install_cmd() {
         redos)
             ;;
         *)
-            CMD="${CMD} --cloud-init meta-data=${BASE_DIR}/testbed-builder/${DISTRO}/meta-data,user-data=${BASE_DIR}/testbed-builder/${DISTRO}/user-data"
+            CMD="${CMD} --cloud-init meta-data=${BASE_DIR}/testbed-builder/cloud-init/meta-data,user-data=${BASE_DIR}/testbed-builder/cloud-init/user-data"
     esac
     printf '%s\n' "${CMD}"
     unset CMD
