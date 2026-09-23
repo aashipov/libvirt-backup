@@ -138,7 +138,7 @@ cd ${HOME} && chmod +x .xinitrc && ln -s .xinitrc .xsession && ln -s .xinitrc .X
 At this point you should be able to RDP the Openbox in guest vm via `mstsc.exe`, `xfreerdp`/`wlfreerdp`, `Remmina` (Note: modern distros include `xfreerdp3`/`wlfreerdp3`, so craft symlinks in `/usr/bin` by hand):
 
 ```sh
-xfreerdp /w:1600 /h:900 +clipboard /u:<user> /p:<password> /v:<IP> /port:3389
+xfreerdp /w:1600 /h:900 +clipboard /d:local /u:administrator /p:administrator /v:unix /port:3389
 ```
 
 Right click to see Openbox menu
@@ -164,7 +164,7 @@ Deploy [weston-runner](./weston-runner) to guest, launch via SSH
 Use RDP client to connect to Weston at 3390 port:
 
 ```sh
-xfreerdp /w:1600 /h:900 +clipboard /u:<user> /p:<password> /v:<IP> /port:3390
+xfreerdp /w:1600 /h:900 +clipboard /d:local /u:administrator /p:administrator /v:unix /port:3390
 ```
 
 Weston got no menu, so use terminal `setsid virt-manager &` or [gui](./gui) wrapper to launch `virt-manager` and detach it from terminal window
