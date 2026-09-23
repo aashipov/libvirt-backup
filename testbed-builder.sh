@@ -96,6 +96,7 @@ closure() {
            ;;
         ubuntu)
             QCOW2_URL="https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
+            QCOW2_URL="https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img"
             ;;
         redos)
             QCOW2_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/redos-8-20260716.0-x86_64-post-cloud-init.qcow2"
