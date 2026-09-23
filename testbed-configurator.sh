@@ -46,8 +46,8 @@ EOF
     sudo apt-get update && sudo apt-get -y upgrade
     sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server systemd-resolved
     sudo apt-get install -y virt-manager weston winpr3-utils xrdp xorgxrdp openbox chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-backends
-    sudo apt clean && sudo apt autoremove
     sudo apt-get remove -y cloud-init
+    sudo apt clean && sudo apt -y autoremove
     sudo systemctl enable --now cron
 }
 
@@ -63,21 +63,25 @@ EOF
     sudo apt-get update && sudo apt-get -y upgrade
     sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server
     sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-backends
-    sudo apt clean && sudo apt autoremove
     sudo snap remove lxd
     sudo apt-get remove -y snapd cloud-init modemmanager
+    sudo apt clean && sudo apt -y autoremove
     sudo systemctl disable dbus
     sudo systemctl enable --now cron
 }
 
 astra_privileged() {
     export DEBIAN_FRONTEND=noninteractive
-    sudo apt-get update && sudo apt-get -y upgrade
+    sudo apt-get update
     sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server
     sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox chromium firefox gvfs gvfs-backends xterm nautilus geany gvfs gvfs-backends
-    sudo apt clean && sudo apt autoremove
+    sudo apt-get remove -y cloud-init
+    sudo apt clean && sudo apt -y autoremove
     sudo systemctl enable --now cron
-    sudo ln -s $(which xterm) /usr/bin/x-terminal-emulator
+    if [ ! -e /usr/bin/x-terminal-emulator ]
+    then
+        sudo ln -s $(which xterm) /usr/bin/x-terminal-emulator
+    fi
 }
 
 tune_xinitrc() {
@@ -114,14 +118,9 @@ configure_vms() {
     then
         curl -L -o "${ALPINE_ISO_FILE}" "${ALPINE_ISO_URL}"
     fi
-    if [ "${DISTRO}" = "astra" ]
-    then
-        qemu-img convert -O qcow2 -c generic_alpine*.qcow2 prototype.qcow2
-        qemu-img create -f qcow2 blank-prototype.qcow2 256M
-    else
-        qemu-img convert -O qcow2 -c -o compression_type=zstd generic_alpine*.qcow2 prototype.qcow2
-        qemu-img create -f qcow2 -o compression_type=zstd blank-prototype.qcow2 256M
-    fi
+
+    qemu-img convert -O qcow2 -c -o compression_type=zstd generic_alpine*.qcow2 prototype.qcow2
+    qemu-img create -f qcow2 -o compression_type=zstd blank-prototype.qcow2 256M
 
     for item in a b c; do
       sudo cp prototype.qcow2 /var/lib/libvirt/images/"$item".qcow2
@@ -131,23 +130,14 @@ configure_vms() {
     sudo chmod 0755 /var/lib/libvirt/images
 
     for item in a b c; do
-        if [ "${DISTRO}" != "astra" ]
-        then
-            virt-install --name "$item" --ram 768 --vcpus 2 \
-              --disk path=/var/lib/libvirt/images/"$item".qcow2,format=qcow2,bus=virtio \
-              --disk path=/var/lib/libvirt/images/"$item$item".qcow2,format=qcow2,bus=virtio \
-              --network network=default,model=virtio \
-              --graphics vnc,listen=0.0.0.0 \
-              --osinfo detect=on,require=off \
-              --import --noautoconsole --noreboot
-        else
-            virt-install --name "$item" --ram 768 --vcpus 2 \
-              --disk path=/var/lib/libvirt/images/"$item".qcow2,format=qcow2,bus=virtio \
-              --disk path=/var/lib/libvirt/images/"$item$item".qcow2,format=qcow2,bus=virtio \
-              --network network=default,model=virtio \
-              --graphics vnc,listen=0.0.0.0 \
-              --import --noautoconsole --noreboot
-        fi
+
+        virt-install --name "$item" --ram 768 --vcpus 2 \
+            --disk path=/var/lib/libvirt/images/"$item".qcow2,format=qcow2,bus=virtio \
+            --disk path=/var/lib/libvirt/images/"$item$item".qcow2,format=qcow2,bus=virtio \
+            --network network=default,model=virtio \
+            --graphics vnc,listen=0.0.0.0 \
+            --osinfo detect=on,require=off \
+            --import --noautoconsole --noreboot
     done
     unset ALPINE_ISO_URL ALPINE_ISO_FILE
 }
@@ -189,6 +179,11 @@ closure() {
     esac
 
     sudo groupmod -g "10001" "${USER}"
+    if [ "${DISTRO}" = "astra" ]
+    then
+        sudo usermod -aG libvirt-admin "${USER}"
+        sudo usermod -aG kvm "${USER}"
+    fi
     sudo usermod -aG libvirt "${USER}"
     sudo systemctl enable --now libvirtd xrdp
 

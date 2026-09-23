@@ -2,7 +2,7 @@
 
 ## cloud-init flavor (TL;DR)
 
-Linux distros (Debian, Alma, Ubuntu) provide rapid deployment from a cloud-init prototype
+Linux distros (Debian, Alma, Ubuntu, Astra) provide rapid deployment from a cloud-init prototype
 
 ```sh
 testbed-builder.sh debian
