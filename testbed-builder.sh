@@ -101,6 +101,9 @@ closure() {
         redos)
             QCOW2_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/redos-8-20260716.0-x86_64-post-cloud-init.qcow2"
             ;;
+        astra)
+            QCOW2_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/alce-2.12.46.6-17.04.2023_15.09-post-cloud-init.qcow2"
+            ;;
            *) die "Distro ${DISTRO} is not supported at the moment" ;;
     esac
 

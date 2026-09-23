@@ -2,10 +2,10 @@
 
 # ------------------------------------------------------------
 # testbed-configurator.sh – Post-cloud-init configurator, as unprivileged administrator
-# 
+#
 # cloud-init does not handle complex configuration well, it's simpler than ansible though
 # This script performs post cloud-init prototype configuration
-# 
+#
 # virsh shutdown debian-builder
 # virt-copy-in -d debian-builder testbed-configurator.sh /home/administrator/
 # virsh start debian-builder
@@ -13,23 +13,6 @@
 # "${HOME}/testbed-configurator.sh" debian
 # virt-copy-out -d debian-builder /home/administrator/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa
 # ------------------------------------------------------------
-
-debian_privileged() {
-cat << 'EOF' | sudo tee /etc/systemd/network/99-ethernet.network
-[Match]
-Name=en*
-
-[Network]
-DHCP=yes
-EOF
-    export DEBIAN_FRONTEND=noninteractive
-    sudo apt-get update && sudo apt-get -y upgrade
-    sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server systemd-resolved
-    sudo apt-get install -y virt-manager weston winpr3-utils xrdp xorgxrdp openbox chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-backends
-    sudo apt clean && sudo apt autoremove
-    sudo apt-get remove -y cloud-init
-    sudo systemctl enable --now cron
-}
 
 rhel_privileged() {
     sudo dnf -y upgrade
@@ -51,6 +34,23 @@ redos_privileged() {
     sudo systemctl enable --now crond
 }
 
+debian_privileged() {
+cat << 'EOF' | sudo tee /etc/systemd/network/99-ethernet.network
+[Match]
+Name=en*
+
+[Network]
+DHCP=yes
+EOF
+    export DEBIAN_FRONTEND=noninteractive
+    sudo apt-get update && sudo apt-get -y upgrade
+    sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server systemd-resolved
+    sudo apt-get install -y virt-manager weston winpr3-utils xrdp xorgxrdp openbox chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-backends
+    sudo apt clean && sudo apt autoremove
+    sudo apt-get remove -y cloud-init
+    sudo systemctl enable --now cron
+}
+
 ubuntu_privileged() {
 cat << 'EOF' | sudo tee /etc/systemd/network/99-ethernet.network
 [Match]
@@ -70,13 +70,36 @@ EOF
     sudo systemctl enable --now cron
 }
 
+astra_privileged() {
+    export DEBIAN_FRONTEND=noninteractive
+    sudo apt-get update && sudo apt-get -y upgrade
+    sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server
+    sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox chromium firefox gvfs gvfs-backends xterm nautilus geany gvfs gvfs-backends
+    sudo apt clean && sudo apt autoremove
+    sudo systemctl enable --now cron
+    sudo ln -s $(which xterm) /usr/bin/x-terminal-emulator
+}
+
 tune_xinitrc() {
     cat << 'EOF' | tee "${HOME}/.xinitrc"
 #!/bin/sh
 export XDG_CURRENT_DESKTOP=openbox
 exec dbus-run-session -- openbox-session
 EOF
-cd "${HOME}" && chmod +x .xinitrc && ln -s .xinitrc .xsession && ln -s .xinitrc .Xclients && ln -s .xinitrc startwm.sh
+    cd "${HOME}"
+    chmod +x .xinitrc
+    if [ ! -e "${HOME}/.xsession" ]
+    then
+        ln -s .xinitrc .xsession
+    fi
+    if [ ! -e "${HOME}/.Xclients" ]
+    then
+        ln -s .xinitrc .Xclients
+    fi
+    if [ ! -e "${HOME}/startwm.sh" ]
+    then
+        ln -s .xinitrc startwm.sh
+    fi
 }
 
 configure_ssh() {
@@ -91,8 +114,14 @@ configure_vms() {
     then
         curl -L -o "${ALPINE_ISO_FILE}" "${ALPINE_ISO_URL}"
     fi
-    qemu-img convert -O qcow2 -c -o compression_type=zstd generic_alpine*.qcow2 prototype.qcow2
-    qemu-img create -f qcow2 -o compression_type=zstd blank-prototype.qcow2 256M
+    if [ "${DISTRO}" = "astra" ]
+    then
+        qemu-img convert -O qcow2 -c generic_alpine*.qcow2 prototype.qcow2
+        qemu-img create -f qcow2 blank-prototype.qcow2 256M
+    else
+        qemu-img convert -O qcow2 -c -o compression_type=zstd generic_alpine*.qcow2 prototype.qcow2
+        qemu-img create -f qcow2 -o compression_type=zstd blank-prototype.qcow2 256M
+    fi
 
     for item in a b c; do
       sudo cp prototype.qcow2 /var/lib/libvirt/images/"$item".qcow2
@@ -102,13 +131,23 @@ configure_vms() {
     sudo chmod 0755 /var/lib/libvirt/images
 
     for item in a b c; do
-      virt-install --name "$item" --ram 768 --vcpus 2 \
-        --disk path=/var/lib/libvirt/images/"$item".qcow2,format=qcow2,bus=virtio \
-        --disk path=/var/lib/libvirt/images/"$item$item".qcow2,format=qcow2,bus=virtio \
-        --network network=default,model=virtio \
-        --graphics vnc,listen=0.0.0.0 \
-        --osinfo detect=on,require=off \
-        --import --noautoconsole --noreboot
+        if [ "${DISTRO}" != "astra" ]
+        then
+            virt-install --name "$item" --ram 768 --vcpus 2 \
+              --disk path=/var/lib/libvirt/images/"$item".qcow2,format=qcow2,bus=virtio \
+              --disk path=/var/lib/libvirt/images/"$item$item".qcow2,format=qcow2,bus=virtio \
+              --network network=default,model=virtio \
+              --graphics vnc,listen=0.0.0.0 \
+              --osinfo detect=on,require=off \
+              --import --noautoconsole --noreboot
+        else
+            virt-install --name "$item" --ram 768 --vcpus 2 \
+              --disk path=/var/lib/libvirt/images/"$item".qcow2,format=qcow2,bus=virtio \
+              --disk path=/var/lib/libvirt/images/"$item$item".qcow2,format=qcow2,bus=virtio \
+              --network network=default,model=virtio \
+              --graphics vnc,listen=0.0.0.0 \
+              --import --noautoconsole --noreboot
+        fi
     done
     unset ALPINE_ISO_URL ALPINE_ISO_FILE
 }
@@ -141,6 +180,10 @@ closure() {
             ;;
         redos)
             redos_privileged
+            ;;
+        astra)
+            astra_privileged
+            sudo virsh net-edit default
             ;;
            *) die "Distro ${DISTRO} is not supported at the moment" ;;
     esac
