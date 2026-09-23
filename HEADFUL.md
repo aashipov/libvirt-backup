@@ -188,7 +188,7 @@ EOF
 
 ### SSH connectivity
 
-Host: create alias `unix` for VM gray IP in `/etc/hosts` or in ssh config
+Host: install the Libvirt NSS plugin (`sudo apt install libnss-libvirt`, `sudo dnf install libvirt-nss`, ...). Edit `/etc/nsswitch.conf`, append `libvirt libvirt_guest` on the left of `dns`, line starting with `hosts:`
 
 Host: generate SSH key for rsync & access: `mkdir -p ${HOME}/.ssh/unix/ && ssh-keygen -t rsa -b 4096 -C "dummy@dummy.org" -f ${HOME}/.ssh/unix/id_rsa`. Deploy the pair to guest's `${HOME}/.ssh/`.
 
