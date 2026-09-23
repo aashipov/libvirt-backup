@@ -74,13 +74,13 @@ astra_privileged() {
     export DEBIAN_FRONTEND=noninteractive
     sudo apt-get update
     sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server
-    sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox chromium firefox gvfs gvfs-backends xterm nautilus geany gvfs gvfs-backends
+    sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox chromium firefox gvfs gvfs-backends mate-terminal nautilus geany gvfs gvfs-backends
     sudo apt-get remove -y cloud-init
     sudo apt clean && sudo apt -y autoremove
     sudo systemctl enable --now cron
-    if [ ! -e /usr/bin/x-terminal-emulator ]
+    if [ ! -e /usr/bin/xfce4-terminal ]
     then
-        sudo ln -s $(which xterm) /usr/bin/x-terminal-emulator
+        sudo ln -s /usr/bin/mate-terminal /usr/bin/xfce4-terminal
     fi
 }
 
@@ -111,12 +111,12 @@ configure_ssh() {
 }
 
 configure_vms() {
-    cd /tmp/
-    ALPINE_ISO_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
-    ALPINE_ISO_FILE="/tmp/$(basename ${ALPINE_ISO_URL})"
-    if [ ! -f "${ALPINE_ISO_FILE}" ]
+    cd "${HOME}"
+    ALPINE_QCOW2_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
+    ALPINE_QCOW2_FILE="${HOME}/$(basename ${ALPINE_QCOW2_URL})"
+    if [ ! -f "${ALPINE_QCOW2_FILE}" ]
     then
-        curl -L -o "${ALPINE_ISO_FILE}" "${ALPINE_ISO_URL}"
+        curl -L -o "${ALPINE_QCOW2_FILE}" "${ALPINE_QCOW2_URL}"
     fi
 
     qemu-img convert -O qcow2 -c -o compression_type=zstd generic_alpine*.qcow2 prototype.qcow2
@@ -139,7 +139,7 @@ configure_vms() {
             --osinfo detect=on,require=off \
             --import --noautoconsole --noreboot
     done
-    unset ALPINE_ISO_URL ALPINE_ISO_FILE
+    unset ALPINE_QCOW2_URL ALPINE_QCOW2_FILE
 }
 
 configure_backup_dirs() {

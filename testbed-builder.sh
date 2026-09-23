@@ -26,6 +26,13 @@ download_qcow2() {
     fi
 }
 
+download_alpine_qcow2() {
+    if [ ! -f "${ALPINE_QCOW2_FILE}" ]
+    then
+        curl -L -o "${ALPINE_QCOW2_FILE}" "${ALPINE_QCOW2_URL}"
+    fi
+}
+
 remove_vm() {
     if virsh list --all | grep -q "${TARGET_VM_NAME}"
     then
@@ -102,6 +109,7 @@ closure() {
             QCOW2_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/redos-8-20260716.0-x86_64-post-cloud-init.qcow2"
             ;;
         astra)
+            QCOW2_URL="https://registry.astralinux.ru/artifactory/mg-generic/alse/cloudinit/alse-1.7.11-base-cloudinit-mg16.5.0-amd64.qcow2"
             QCOW2_URL="https://registry.astralinux.ru/artifactory/mg-generic/alse/cloudinit/alse-1.8.6-base-cloudinit-mg16.5.0-amd64.qcow2"
             ;;
            *) die "Distro ${DISTRO} is not supported at the moment" ;;
@@ -118,10 +126,14 @@ closure() {
     CMD="$(build_virt_install_cmd)"
     ${CMD}
 
-    printf '%s\n' "Check progress: \`virsh console ${DISTRO}-builder\` or follow logs via SSH: \`sudo cat /var/log/cloud-init-output.log | tail\`"
-    printf '%s\n' "Once it's done, turn the guest off: \`virsh shutdown ${DISTRO}-builder\` and proceed with \`testbed-configurator.sh\`"
+    ALPINE_QCOW2_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
+    ALPINE_QCOW2_FILE="${BACKUP_DIR}/$(basename ${ALPINE_QCOW2_URL})"
+    download_alpine_qcow2
 
-    unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE CMD
+    printf '%s\n' "Check progress: \`virsh console ${DISTRO}-builder\` or follow logs via SSH: \`sudo cat /var/log/cloud-init-output.log | tail\`"
+    printf '%s\n' "Once it's done, proceed with \`testbed-configurator.sh\`: \`cd ${BASE_DIR} && virsh shutdown ${DISTRO}-builder && sleep 30s && virt-copy-in -d ${DISTRO}-builder testbed-configurator.sh /home/administrator/ && virt-copy-in -d ${DISTRO}-builder ${ALPINE_QCOW2_FILE} /home/administrator/ && virsh start ${DISTRO}-builder && virsh console ${DISTRO}-builder\`, authenticate & launch \`"${HOME}/testbed-configurator.sh" ${DISTRO}\`"
+
+    unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE CMD ALPINE_QCOW2_URL ALPINE_QCOW2_FILE
 }
 
 closure "${@}"
