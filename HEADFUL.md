@@ -145,20 +145,6 @@ xfreerdp /w:1600 /h:900 +clipboard /d:local /u:administrator /p:administrator /v
 
 Right click to see Openbox menu
 
-### cloud-init network configuration
-
-Find out interface name `networkctl list`. E.g., it returns `ens*` ethernet adapter.
-
-```sh
-cat << 'EOF' | sudo tee /etc/systemd/network/99-ethernet.network
-[Match]
-Name=en*
-
-[Network]
-DHCP=yes
-EOF
-```
-
 ### Weston
 
 Deploy [weston-runner](./weston-runner) to guest, launch via SSH
