@@ -11,7 +11,7 @@
 ## Conventions
 
 - **closure pattern**: every entry-point script wraps its logic in a `closure()` function (not `main`) to isolate the environment.
-- **No root** / **No sudo/doas ** : `block_root()` checks `id -u` at startup; `sudo` and `doas` are overridden to abort.
+- **No root** / **No sudo/doas ** : `block_root()` checks `id -u` at startup; `sudo` and `doas` are overridden to abort (except `testbed-configurator.sh`).
 - **Lock file**: `${BACKUP_DIR}/running` prevents concurrent `bc.sh` runs. "Stale lock" would complicate things without bringing much value.
 - **`.env.template` is the schema**: `check_mandatory_variables_set` greps variable names from it and ensures each is set and non-blank.
 - **Offline VMs**: disks are `qemu-img convert`'ed with (`QEMU_IMG_CONVERT_WITH_COMPRESSION=1`) or without (`QEMU_IMG_CONVERT_WITH_COMPRESSION=0`) compression;

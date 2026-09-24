@@ -114,7 +114,7 @@ configure_ssh() {
 configure_vms() {
     cd "${HOME}"
     ALPINE_QCOW2_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
-    ALPINE_QCOW2_FILE="${HOME}/$(basename ${ALPINE_QCOW2_URL})"
+    ALPINE_QCOW2_FILE="${HOME}/$(basename "${ALPINE_QCOW2_URL}")"
     if [ ! -f "${ALPINE_QCOW2_FILE}" ]
     then
         curl -L -o "${ALPINE_QCOW2_FILE}" "${ALPINE_QCOW2_URL}"

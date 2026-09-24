@@ -36,7 +36,7 @@ download_alpine_qcow2() {
 remove_vm() {
     if virsh list --all | grep -q "${TARGET_VM_NAME}"
     then
-        if virsh list --all | grep -q "${TARGET_VM_NAME}" | grep -q "running"
+        if virsh list --name --state-running | grep -q "${TARGET_VM_NAME}"
         then
             virsh destroy "${TARGET_VM_NAME}" || die "Failed to destroy ${TARGET_VM_NAME}"
         fi
@@ -57,18 +57,6 @@ cpu_count() {
     CPU_COUNT=1
     CPU_COUNT=$(($(getconf _NPROCESSORS_ONLN) + 0))
     printf '%d\n' ${CPU_COUNT}
-}
-
-build_virt_install_cmd() {
-    CMD="virt-install --name ${TARGET_VM_NAME} --memory 4096 --vcpus $(cpu_count) --cpu host-passthrough --disk path=${TARGET_DISK_FILE},format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --import --noautoconsole"
-    case "${DISTRO}" in
-        redos)
-            ;;
-        *)
-            CMD="${CMD} --cloud-init meta-data=${BASE_DIR}/testbed-builder/cloud-init/meta-data,user-data=${BASE_DIR}/testbed-builder/cloud-init/user-data"
-    esac
-    printf '%s\n' "${CMD}"
-    unset CMD
 }
 
 # ------------------------------------------------------------
@@ -123,17 +111,19 @@ closure() {
     remove_vm
     build_disk
 
-    CMD="$(build_virt_install_cmd)"
-    ${CMD}
+    CLOUD_INIT_ARGS=""
+    [ "${DISTRO}" != "redos" ] && CLOUD_INIT_ARGS="--cloud-init meta-data=${BASE_DIR}/testbed-builder/cloud-init/meta-data,user-data=${BASE_DIR}/testbed-builder/cloud-init/user-data"
+    virt-install --name ${TARGET_VM_NAME} --memory 4096 --vcpus $(cpu_count) --cpu host-passthrough --disk path=${TARGET_DISK_FILE},format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --import --noautoconsole \
+    ${CLOUD_INIT_ARGS}
 
     ALPINE_QCOW2_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
-    ALPINE_QCOW2_FILE="${BACKUP_DIR}/$(basename ${ALPINE_QCOW2_URL})"
+    ALPINE_QCOW2_FILE="${BACKUP_DIR}/$(basename "${ALPINE_QCOW2_URL}")"
     download_alpine_qcow2
 
     printf '%s\n' "Check progress: \`virsh console ${DISTRO}-builder\` or follow logs via SSH: \`sudo cat /var/log/cloud-init-output.log | tail\`"
     printf '%s\n' "Once it's done, proceed with \`testbed-configurator.sh\`: \`cd ${BASE_DIR} && virsh shutdown ${DISTRO}-builder && sleep 30s && virt-copy-in -d ${DISTRO}-builder testbed-configurator.sh /home/administrator/ && virt-copy-in -d ${DISTRO}-builder ${ALPINE_QCOW2_FILE} /home/administrator/ && virsh start ${DISTRO}-builder && virsh console ${DISTRO}-builder\`, authenticate & launch \`"./testbed-configurator.sh" ${DISTRO}\`"
 
-    unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE CMD ALPINE_QCOW2_URL ALPINE_QCOW2_FILE
+    unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE CLOUD_INIT_ARGS ALPINE_QCOW2_URL ALPINE_QCOW2_FILE
 }
 
 closure "${@}"
