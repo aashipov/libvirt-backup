@@ -4,22 +4,15 @@
 
 Linux distros (Debian, Alma, Ubuntu, Astra) provide rapid deployment from a cloud-init prototype
 
+Credentials `administrator/administrator` 
+
 ```sh
 testbed-builder.sh debian
 ```
 
-Authorize as `administrator/administrator` via `virsh console debian-builder`, wait for `cloud-init status` to report `done`
+Follow script instructions
 
-On the host:
-
-```sh
-virsh shutdown debian-builder
-virt-copy-in -d debian-builder testbed-configurator.sh /home/administrator/
-virsh start debian-builder
-virsh console debian-builder
-```
-
-With the guest: `${HOME}/testbed-configurator.sh debian`, once it's off, extract SSH pair to host `virt-copy-out -d debian-builder /home/administrator/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa`
+Once it's done, extract SSH pair to host `virt-copy-out -d debian-builder /home/administrator/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa`
 
 ## Manual flavor
 
