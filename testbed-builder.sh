@@ -131,7 +131,7 @@ closure() {
     download_alpine_qcow2
 
     printf '%s\n' "Check progress: \`virsh console ${DISTRO}-builder\` or follow logs via SSH: \`sudo cat /var/log/cloud-init-output.log | tail\`"
-    printf '%s\n' "Once it's done, proceed with \`testbed-configurator.sh\`: \`cd ${BASE_DIR} && virsh shutdown ${DISTRO}-builder && sleep 30s && virt-copy-in -d ${DISTRO}-builder testbed-configurator.sh /home/administrator/ && virt-copy-in -d ${DISTRO}-builder ${ALPINE_QCOW2_FILE} /home/administrator/ && virsh start ${DISTRO}-builder && virsh console ${DISTRO}-builder\`, authenticate & launch \`"${HOME}/testbed-configurator.sh" ${DISTRO}\`"
+    printf '%s\n' "Once it's done, proceed with \`testbed-configurator.sh\`: \`cd ${BASE_DIR} && virsh shutdown ${DISTRO}-builder && sleep 30s && virt-copy-in -d ${DISTRO}-builder testbed-configurator.sh /home/administrator/ && virt-copy-in -d ${DISTRO}-builder ${ALPINE_QCOW2_FILE} /home/administrator/ && virsh start ${DISTRO}-builder && virsh console ${DISTRO}-builder\`, authenticate & launch \`"./testbed-configurator.sh" ${DISTRO}\`"
 
     unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE CMD ALPINE_QCOW2_URL ALPINE_QCOW2_FILE
 }

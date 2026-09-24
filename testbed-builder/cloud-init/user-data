@@ -14,11 +14,3 @@ users:
 
 ssh_pwauth: true
 disable_root: false
-
-locale: C
-
-write_files:
-  - path: /etc/locale.conf
-    append: true
-    content: |
-      LC_ALL="C"

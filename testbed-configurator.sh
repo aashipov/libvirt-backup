@@ -82,6 +82,7 @@ astra_privileged() {
     then
         sudo ln -s /usr/bin/mate-terminal /usr/bin/xfce4-terminal
     fi
+    sudo update-locale LANG=C
 }
 
 tune_xinitrc() {
