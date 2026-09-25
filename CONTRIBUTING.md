@@ -33,15 +33,13 @@ Perform a thorough, line-by-line and file-by-file review of the project in the c
 
 **Constraints:**
 
-* **Ignore these directories:** .git, .github
+* **Ignore these directories:** .git, .github, .zed
 * **Ignore these files:** .gitignore, CONTRIBUTING.md, gui, HEADFUL.md, LICENSE, openbox-rc.xml, SECURITY.md, TEST.md, weston-runner
 * **Rules:** You have full read permissions to analyze the code line by line, but you must not modify any files.
 
 **Goal:**
-Identify scripting bugs, security flaws (like injection or unquoted variables), performance bottlenecks, and edge-case failures.
+Identify scripting bugs, security flaws (like injection or unquoted variables), and edge-case failures.
 
 For every issue found, specify the file name, line numbers, a clear explanation of the Shell best practice violated, and a concrete example of the optimized code.
-
-You may compact context, dump data to markdown files.
 
 Dump review report to a 'libvirt-backup_review_report.md' file.
