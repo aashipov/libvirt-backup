@@ -156,28 +156,35 @@ closure() {
     [ -f "${HOME}/configured" ] && printf '%s\n' "Already configured, exiting" && exit 0
 
     DISTRO=debian
-    [ -n "${1}" ] && DISTRO="${1}"
-    case "${DISTRO}" in
-        debian)
+    if [ -e "/etc/os-release" ]
+    then
+        if grep -q "Debian" "/etc/os-release"
+        then
             debian_privileged
             sudo virsh net-edit default
-            ;;
-        [[:upper:]]*) die "Distro name, lowercase" ;;
-        alma)
-            rhel_privileged
-           ;;
-        ubuntu)
+        fi
+        if grep -q "Ubuntu" "/etc/os-release"
+        then
+            DISTRO=ubuntu
             ubuntu_privileged
-            ;;
-        redos)
+        fi
+        if grep -q "AlmaLinux" "/etc/os-release"
+        then
+            DISTRO=alma
+            rhel_privileged
+        fi
+        if grep -q "RED" "/etc/os-release"
+        then
+            DISTRO=redos
             redos_privileged
-            ;;
-        astra)
+        fi
+        if grep -q "Astra" "/etc/os-release"
+        then
+            DISTRO=astra
             astra_privileged
             sudo virsh net-edit default
-            ;;
-           *) die "Distro ${DISTRO} is not supported at the moment" ;;
-    esac
+        fi
+    fi
 
     sudo groupmod -g "10001" "${USER}"
     if [ "${DISTRO}" = "astra" ]
