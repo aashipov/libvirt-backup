@@ -173,7 +173,7 @@ closure() {
             DISTRO=alma
             rhel_privileged
         fi
-        if grep -q "RED" "/etc/os-release"
+        if grep -q "RED " "/etc/os-release"
         then
             DISTRO=redos
             redos_privileged
