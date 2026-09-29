@@ -34,12 +34,18 @@ download_alpine_qcow2() {
 }
 
 remove_vm() {
-    if virsh list --all | grep -q "${TARGET_VM_NAME}"
+    if virsh list --all | grep -q "\b${TARGET_VM_NAME}\b"
     then
         if virsh list --name --state-running | grep -q "${TARGET_VM_NAME}"
         then
             virsh destroy "${TARGET_VM_NAME}" || die "Failed to destroy ${TARGET_VM_NAME}"
         fi
+        while virsh list --name --state-running | grep -q "\b${TARGET_VM_NAME}\b"
+        do
+            echo "${TARGET_VM_NAME} is still running. Waiting..."
+            sleep 5
+        done
+        echo "${TARGET_VM_NAME} has shut down."
         virsh undefine "${TARGET_VM_NAME}" || die "Failed to undefine ${TARGET_VM_NAME}"
         rm -rf "${TARGET_DISK_FILE}"
     fi
