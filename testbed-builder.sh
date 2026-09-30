@@ -113,8 +113,8 @@ closure() {
     TGT_FILE="${BACKUP_DIR}/$(basename "${SRC_URL}")"
     [ ! -e "${TGT_FILE}" ] && curl -L -o "${TGT_FILE}" "${SRC_URL}"
 
-    printf '%s\n' "Check progress: \`virsh console ${TARGET_VM_NAME}\` or \`virt-manager --connect qemu:///system --show-domain-console ${TARGET_VM_NAME}\` or follow logs via SSH: \`sudo cat /var/log/cloud-init-output.log | tail\`"
-    printf '%s\n' "Once it's done, proceed with \`testbed-configurator.sh\`: \`cd ${BASE_DIR} && virsh shutdown ${TARGET_VM_NAME} && sleep 30s && virt-copy-in -d ${TARGET_VM_NAME} testbed-configurator.sh /home/administrator/ && virt-copy-in -d ${TARGET_VM_NAME} ${TGT_FILE} /home/administrator/ && virsh start ${TARGET_VM_NAME} && virsh console ${TARGET_VM_NAME}\`, authenticate & launch \`"./testbed-configurator.sh"\`"
+    printf '%s\n' "Launch: \`setsid virt-manager --connect qemu:///system --show-domain-console ${TARGET_VM_NAME}\`, wait for \`cloud-init status\` 'done'"
+    printf '%s\n' "Next: \`cd ${BASE_DIR} && virsh shutdown ${TARGET_VM_NAME} && sleep 30s && virt-copy-in -d ${TARGET_VM_NAME} testbed-configurator.sh /home/administrator/ && virt-copy-in -d ${TARGET_VM_NAME} ${TGT_FILE} /home/administrator/ && virsh start ${TARGET_VM_NAME} && setsid virt-manager --connect qemu:///system --show-domain-console ${TARGET_VM_NAME}\`, authenticate & launch \`"./testbed-configurator.sh"\`"
 
     unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS
 }
