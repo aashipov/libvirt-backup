@@ -19,20 +19,6 @@ get_base_dir() {
     fi
 }
 
-download_qcow2() {
-    if [ ! -f "${QCOW2_FILE}" ]
-    then
-        curl -L -o "${QCOW2_FILE}" "${QCOW2_URL}"
-    fi
-}
-
-download_alpine_qcow2() {
-    if [ ! -f "${ALPINE_QCOW2_FILE}" ]
-    then
-        curl -L -o "${ALPINE_QCOW2_FILE}" "${ALPINE_QCOW2_URL}"
-    fi
-}
-
 remove_vm() {
     if virsh list --all | grep -q "\b${TARGET_VM_NAME}\b"
     then
@@ -113,7 +99,8 @@ closure() {
     TARGET_DISK_FILE="${BACKUP_DIR}/${DISTRO}-builder.qcow2"
     QCOW2_FILE="${BACKUP_DIR}/$(basename "${QCOW2_URL}")"
 
-    download_qcow2
+    [ ! -e "${QCOW2_FILE}" ] && curl -L -o "${QCOW2_FILE}" "${QCOW2_URL}"
+    
     remove_vm
     build_disk
 
@@ -122,14 +109,14 @@ closure() {
     virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --import --noautoconsole \
     ${CLOUD_INIT_ARGS}
 
-    ALPINE_QCOW2_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
-    ALPINE_QCOW2_FILE="${BACKUP_DIR}/$(basename "${ALPINE_QCOW2_URL}")"
-    download_alpine_qcow2
+    QCOW2_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
+    QCOW2_FILE="${BACKUP_DIR}/$(basename "${QCOW2_URL}")"
+    [ ! -e "${QCOW2_FILE}" ] && curl -L -o "${QCOW2_FILE}" "${QCOW2_URL}"
 
-    printf '%s\n' "Check progress: \`virsh console ${DISTRO}-builder\` or follow logs via SSH: \`sudo cat /var/log/cloud-init-output.log | tail\`"
-    printf '%s\n' "Once it's done, proceed with \`testbed-configurator.sh\`: \`cd ${BASE_DIR} && virsh shutdown ${DISTRO}-builder && sleep 30s && virt-copy-in -d ${DISTRO}-builder testbed-configurator.sh /home/administrator/ && virt-copy-in -d ${DISTRO}-builder ${ALPINE_QCOW2_FILE} /home/administrator/ && virsh start ${DISTRO}-builder && virsh console ${DISTRO}-builder\`, authenticate & launch \`"./testbed-configurator.sh"\`"
+    printf '%s\n' "Check progress: \`virsh console ${TARGET_VM_NAME}\` or \`virt-manager --connect qemu:///system --show-domain-console ${TARGET_VM_NAME}\` or follow logs via SSH: \`sudo cat /var/log/cloud-init-output.log | tail\`"
+    printf '%s\n' "Once it's done, proceed with \`testbed-configurator.sh\`: \`cd ${BASE_DIR} && virsh shutdown ${TARGET_VM_NAME} && sleep 30s && virt-copy-in -d ${TARGET_VM_NAME} testbed-configurator.sh /home/administrator/ && virt-copy-in -d ${TARGET_VM_NAME} ${QCOW2_FILE} /home/administrator/ && virsh start ${TARGET_VM_NAME} && virsh console ${TARGET_VM_NAME}\`, authenticate & launch \`"./testbed-configurator.sh"\`"
 
-    unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE CLOUD_INIT_ARGS ALPINE_QCOW2_URL ALPINE_QCOW2_FILE
+    unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE CLOUD_INIT_ARGS
 }
 
 closure "${@}"
