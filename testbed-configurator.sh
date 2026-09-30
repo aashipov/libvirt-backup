@@ -205,7 +205,6 @@ closure() {
     configure_ssh
 
     touch "${HOME}/configured"
-    printf '%s\n' "Copy ssh pair out: virt-copy-out -d ${DISTRO}-builder ${HOME}/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
     sudo poweroff
     unset DISTRO
 }

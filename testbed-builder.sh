@@ -115,6 +115,7 @@ closure() {
 
     printf '%s\n' "Launch: \`setsid virt-manager --connect qemu:///system --show-domain-console ${TARGET_VM_NAME}\`, wait for \`cloud-init status\` 'done'"
     printf '%s\n' "Next: \`cd ${BASE_DIR} && virsh shutdown ${TARGET_VM_NAME} && sleep 30s && virt-copy-in -d ${TARGET_VM_NAME} testbed-configurator.sh /home/administrator/ && virt-copy-in -d ${TARGET_VM_NAME} ${TGT_FILE} /home/administrator/ && virsh start ${TARGET_VM_NAME} && setsid virt-manager --connect qemu:///system --show-domain-console ${TARGET_VM_NAME}\`, authenticate & launch \`"./testbed-configurator.sh"\`"
+    printf '%s\n' "Next, copy ssh pair out: \`virt-copy-out -d ${TARGET_VM_NAME} /home/administrator/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa\`"
 
     unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS
 }
