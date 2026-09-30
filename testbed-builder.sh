@@ -40,7 +40,7 @@ remove_vm() {
 build_disk() {
     if [ ! -f "${TARGET_DISK_FILE}" ]
     then
-        qemu-img convert -O qcow2 -o compression_type=zstd -c "${QCOW2_FILE}" "${TARGET_DISK_FILE}" || die "Failed to convert ${QCOW2_FILE} to ${TARGET_DISK_FILE}"
+        qemu-img convert -O qcow2 -o compression_type=zstd -c "${TGT_FILE}" "${TARGET_DISK_FILE}" || die "Failed to convert ${TGT_FILE} to ${TARGET_DISK_FILE}"
         qemu-img resize "${TARGET_DISK_FILE}" 10G
     fi
 }
@@ -73,33 +73,33 @@ closure() {
     create_backup_dirs_and_log || die "Failed to create_backup_dirs_and_log"
 
     DISTRO=debian
-    QCOW2_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
+    SRC_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
     [ -n "${1}" ] && DISTRO="${1}"
     case "${DISTRO}" in
         debian) ;;
         [[:upper:]]*) die "Distro name, lowercase" ;;
         alma)
-           QCOW2_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-ext4-latest.x86_64.qcow2"
+           SRC_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-ext4-latest.x86_64.qcow2"
            ;;
         ubuntu)
-            QCOW2_URL="https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
-            QCOW2_URL="https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img"
+            SRC_URL="https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
+            SRC_URL="https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img"
             ;;
         redos)
-            QCOW2_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/redos-8-20260716.0-x86_64-post-cloud-init.qcow2"
+            SRC_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/redos-8-20260716.0-x86_64-post-cloud-init.qcow2"
             ;;
         astra)
-            QCOW2_URL="https://registry.astralinux.ru/artifactory/mg-generic/alse/cloudinit/alse-1.7.11-base-cloudinit-mg16.5.0-amd64.qcow2"
-            QCOW2_URL="https://registry.astralinux.ru/artifactory/mg-generic/alse/cloudinit/alse-1.8.6-base-cloudinit-mg16.5.0-amd64.qcow2"
+            SRC_URL="https://registry.astralinux.ru/artifactory/mg-generic/alse/cloudinit/alse-1.7.11-base-cloudinit-mg16.5.0-amd64.qcow2"
+            SRC_URL="https://registry.astralinux.ru/artifactory/mg-generic/alse/cloudinit/alse-1.8.6-base-cloudinit-mg16.5.0-amd64.qcow2"
             ;;
            *) die "Distro ${DISTRO} is not supported at the moment" ;;
     esac
 
     TARGET_VM_NAME="${DISTRO}-builder"
     TARGET_DISK_FILE="${BACKUP_DIR}/${DISTRO}-builder.qcow2"
-    QCOW2_FILE="${BACKUP_DIR}/$(basename "${QCOW2_URL}")"
+    TGT_FILE="${BACKUP_DIR}/$(basename "${SRC_URL}")"
 
-    [ ! -e "${QCOW2_FILE}" ] && curl -L -o "${QCOW2_FILE}" "${QCOW2_URL}"
+    [ ! -e "${TGT_FILE}" ] && curl -L -o "${TGT_FILE}" "${SRC_URL}"
     
     remove_vm
     build_disk
@@ -109,14 +109,14 @@ closure() {
     virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --import --noautoconsole \
     ${CLOUD_INIT_ARGS}
 
-    QCOW2_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
-    QCOW2_FILE="${BACKUP_DIR}/$(basename "${QCOW2_URL}")"
-    [ ! -e "${QCOW2_FILE}" ] && curl -L -o "${QCOW2_FILE}" "${QCOW2_URL}"
+    SRC_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
+    TGT_FILE="${BACKUP_DIR}/$(basename "${SRC_URL}")"
+    [ ! -e "${TGT_FILE}" ] && curl -L -o "${TGT_FILE}" "${SRC_URL}"
 
     printf '%s\n' "Check progress: \`virsh console ${TARGET_VM_NAME}\` or \`virt-manager --connect qemu:///system --show-domain-console ${TARGET_VM_NAME}\` or follow logs via SSH: \`sudo cat /var/log/cloud-init-output.log | tail\`"
-    printf '%s\n' "Once it's done, proceed with \`testbed-configurator.sh\`: \`cd ${BASE_DIR} && virsh shutdown ${TARGET_VM_NAME} && sleep 30s && virt-copy-in -d ${TARGET_VM_NAME} testbed-configurator.sh /home/administrator/ && virt-copy-in -d ${TARGET_VM_NAME} ${QCOW2_FILE} /home/administrator/ && virsh start ${TARGET_VM_NAME} && virsh console ${TARGET_VM_NAME}\`, authenticate & launch \`"./testbed-configurator.sh"\`"
+    printf '%s\n' "Once it's done, proceed with \`testbed-configurator.sh\`: \`cd ${BASE_DIR} && virsh shutdown ${TARGET_VM_NAME} && sleep 30s && virt-copy-in -d ${TARGET_VM_NAME} testbed-configurator.sh /home/administrator/ && virt-copy-in -d ${TARGET_VM_NAME} ${TGT_FILE} /home/administrator/ && virsh start ${TARGET_VM_NAME} && virsh console ${TARGET_VM_NAME}\`, authenticate & launch \`"./testbed-configurator.sh"\`"
 
-    unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE QCOW2_URL QCOW2_FILE CLOUD_INIT_ARGS
+    unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS
 }
 
 closure "${@}"
