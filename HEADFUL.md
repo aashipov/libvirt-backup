@@ -16,9 +16,9 @@ Once it's done, extract SSH pair to host `virt-copy-out -d debian-builder /home/
 
 ## Manual flavor
 
-*nix desktop applications are designed for X Window System, a few - Wayland, most of - Xwayland compatible.
+Both RDP & VNC are graphical desktop-sharing systems. With those one can control a remote computer from another device (RDP lacks simultaneous access VNC got, but looks more production-ready). 
 
-With RDP & VNC - a graphical desktop-sharing systems - one can control a remote computer from another device (RDP lacks simultaneous access VNC got, but looks more production-ready).
+[xrdp](https://github.com/neutrinolabs/xrdp) with [xorgxrdp](https://github.com/neutrinolabs/xorgxrdp) have been around for decades, are compatible to the majority of Window Managers. Recent GNOME & KDE versions advertize RDP support.
 
 Debian is fast, stable and open-licensed, makes a good Operating System for virtualization host & guests. Ubuntu is slower, but may work as well. Expect the very basic things like kernel upgrade to break the system (Ubuntu adds complexity of its own and inherits Debian testing, which is more error-prone than Debian stable + backports). Other distros may work as well
 
