@@ -42,7 +42,7 @@ Favor [Debian installer](https://cdimage.debian.org/debian-cd/current/amd64/iso-
 Create a disk
 
 ```sh
-qemu-img create -f qcow2 -o compression_type=zstd debian.qcow2 1T
+qemu-img create -f qcow2 -o compression_type=zstd debian.qcow2 32G
 ```
 
 Create a VM, 4G memory, attach the disk as VirtIO, attach DVD ISO, follow the installer (e.g., pick a package manager network mirror; install SSH server & standard system utilities)
