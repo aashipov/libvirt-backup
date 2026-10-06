@@ -37,7 +37,7 @@ Debian is fast, stable and open-licensed, makes a good Operating System for virt
 
 ## Prototype image (Linux host)
 
-Favor [Debian installer](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/), as [Live](https://www.debian.org/CD/live/) images bring a lot of irrelevant packages.
+Favor [Debian installer](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/), as [Live](https://www.debian.org/CD/live/) images bring a lot of packages irrelevant for this project, but necessary for a headful session. No X Window System or Wayland can run `cloud-init` deployed instance though.
 
 Create a disk
 
