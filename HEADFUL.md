@@ -18,7 +18,9 @@ Once it's done, extract SSH pair to host `virt-copy-out -d debian-builder /home/
 
 Both RDP & VNC are graphical desktop-sharing systems. With those one can control a remote computer from another device (RDP lacks simultaneous access VNC got, but looks more production-ready). 
 
-[xrdp](https://github.com/neutrinolabs/xrdp) with [xorgxrdp](https://github.com/neutrinolabs/xorgxrdp) have been around for decades, are compatible to the majority of Window Managers. Recent GNOME & KDE versions advertize RDP support. [lamco-rdp-server](https://github.com/lamco-admin/lamco-rdp-server) looks promising for wlroots-driven compositors like sway or labwc
+[xrdp](https://github.com/neutrinolabs/xrdp) with [xorgxrdp](https://github.com/neutrinolabs/xorgxrdp) have been around for decades, are compatible to the majority of Window Managers and some of Desktop Environments (Xfce, KDE, Trinity, MATE).
+
+Recent GNOME & KDE versions advertize RDP support, which requires a headful set-up. [lamco-rdp-server](https://github.com/lamco-admin/lamco-rdp-server) looks promising for wlroots-driven compositors like sway or labwc
 
 Debian is fast, stable and open-licensed, makes a good Operating System for virtualization host & guests. Ubuntu is slower, but may work as well. Expect the very basic things like kernel upgrade to break the system (Ubuntu adds complexity of its own and inherits Debian testing, which is more error-prone than Debian stable + backports). Other distros may work as well
 
