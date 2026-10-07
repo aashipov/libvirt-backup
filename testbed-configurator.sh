@@ -44,11 +44,12 @@ DHCP=yes
 EOF
     export DEBIAN_FRONTEND=noninteractive
     sudo apt-get update && sudo apt-get -y upgrade
-    sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server systemd-resolved
+    sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server systemd-resolved qemu-guest-agent
     sudo apt-get install -y virt-manager weston winpr3-utils xrdp xorgxrdp openbox chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-backends
     sudo apt-get remove -y cloud-init
     sudo apt clean && sudo apt -y autoremove
     sudo systemctl enable --now cron
+    sudo systemctl enable --now qemu-guest-agent
 }
 
 ubuntu_privileged() {
@@ -61,13 +62,17 @@ DHCP=yes
 EOF
     export DEBIAN_FRONTEND=noninteractive
     sudo apt-get update && sudo apt-get -y upgrade
-    sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server
+    sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server qemu-guest-agent
     sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-backends
-    sudo snap remove lxd
+    if $(which snap > /dev/null 2>&1)
+    then
+        sudo snap remove lxd
+    fi
     sudo apt-get remove -y snapd cloud-init modemmanager
     sudo apt clean && sudo apt -y autoremove
     sudo systemctl disable dbus
     sudo systemctl enable --now cron
+    sudo systemctl enable --now qemu-guest-agent
 }
 
 astra_privileged() {

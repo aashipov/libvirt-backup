@@ -100,13 +100,13 @@ closure() {
     TGT_FILE="${BACKUP_DIR}/$(basename "${SRC_URL}")"
 
     [ ! -e "${TGT_FILE}" ] && curl -L -o "${TGT_FILE}" "${SRC_URL}"
-    
+
     remove_vm
     build_disk
 
     CLOUD_INIT_ARGS=""
     [ "${DISTRO}" != "redos" ] && CLOUD_INIT_ARGS="--cloud-init meta-data="${BASE_DIR}"/testbed-builder/cloud-init/meta-data,user-data="${BASE_DIR}"/testbed-builder/cloud-init/user-data"
-    virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --import --noautoconsole \
+    virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
     ${CLOUD_INIT_ARGS}
 
     SRC_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
