@@ -105,7 +105,7 @@ closure() {
     build_disk
 
     CLOUD_INIT_ARGS=""
-    [ "${DISTRO}" != "redos" ] && CLOUD_INIT_ARGS="--cloud-init meta-data="${BASE_DIR}"/testbed-builder/cloud-init/meta-data,user-data="${BASE_DIR}"/testbed-builder/cloud-init/user-data"
+    [ "${DISTRO}" != "redos" ] && CLOUD_INIT_ARGS="--cloud-init meta-data="${BASE_DIR}"/cloud-init/meta-data,user-data="${BASE_DIR}"/cloud-init/user-data"
     virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
     ${CLOUD_INIT_ARGS}
 
