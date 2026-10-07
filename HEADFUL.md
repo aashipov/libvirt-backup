@@ -7,7 +7,7 @@ Linux distros (Debian, Alma, Ubuntu, Astra) provide rapid deployment from a clou
 Credentials `administrator/administrator` 
 
 ```sh
-testbed-builder.sh debian
+testbed-builder.sh
 ```
 
 Follow script instructions
