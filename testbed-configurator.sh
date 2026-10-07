@@ -24,7 +24,6 @@ rhel_privileged() {
     sudo dnf -y remove cloud-init
     sudo dnf -y clean all
     sudo systemctl enable --now crond
-    sudo systemctl enable --now qemu-guest-agent
 }
 
 redos_privileged() {
@@ -33,7 +32,6 @@ redos_privileged() {
     sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston #gvfs-sftp
     sudo dnf -y clean all
     sudo systemctl enable --now crond
-    sudo systemctl enable --now qemu-guest-agent
 }
 
 debian_privileged() {
@@ -51,7 +49,6 @@ EOF
     sudo apt-get remove -y cloud-init
     sudo apt clean && sudo apt -y autoremove
     sudo systemctl enable --now cron
-    sudo systemctl enable --now qemu-guest-agent
 }
 
 ubuntu_privileged() {
@@ -74,7 +71,6 @@ EOF
     sudo apt clean && sudo apt -y autoremove
     sudo systemctl disable dbus
     sudo systemctl enable --now cron
-    sudo systemctl enable --now qemu-guest-agent
 }
 
 astra_privileged() {
@@ -85,7 +81,6 @@ astra_privileged() {
     sudo apt-get remove -y cloud-init
     sudo apt clean && sudo apt -y autoremove
     sudo systemctl enable --now cron
-    sudo systemctl enable --now qemu-guest-agent
     if [ ! -e /usr/bin/xfce4-terminal ]
     then
         sudo ln -s /usr/bin/mate-terminal /usr/bin/xfce4-terminal
@@ -201,7 +196,7 @@ closure() {
         sudo usermod -aG kvm "${USER}"
     fi
     sudo usermod -aG libvirt "${USER}"
-    sudo systemctl enable --now libvirtd xrdp
+    sudo systemctl enable --now libvirtd xrdp qemu-guest-agent
 
     configure_backup_dirs
 
