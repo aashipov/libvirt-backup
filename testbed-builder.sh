@@ -101,6 +101,11 @@ closure() {
 
     [ ! -e "${TGT_FILE}" ] && curl -L -o "${TGT_FILE}" "${SRC_URL}"
 
+    if ! $(qemu-img check "${TGT_FILE}" > /dev/null 2>&1)
+    then
+        die "Bad file ${TGT_FILE}: remove and re-run"
+    fi
+
     remove_vm
     build_disk
 
