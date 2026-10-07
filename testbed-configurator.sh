@@ -19,11 +19,12 @@ rhel_privileged() {
     sudo dnf -y config-manager --enable crb
     sudo dnf -y install epel-release
     sudo dnf -y config-manager --disable epel-cisco-openh264
-    sudo dnf -y install cronie git rsync acl sudo qemu-kvm libvirt virt-install mc tree curl
+    sudo dnf -y install cronie git rsync acl sudo qemu-kvm libvirt virt-install mc tree curl qemu-guest-agent
     sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston #gvfs-sftp
     sudo dnf -y remove cloud-init
     sudo dnf -y clean all
     sudo systemctl enable --now crond
+    sudo systemctl enable --now qemu-guest-agent
 }
 
 redos_privileged() {
