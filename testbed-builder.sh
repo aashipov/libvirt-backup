@@ -79,7 +79,8 @@ closure() {
         debian) ;;
         [[:upper:]]*) die "Distro name, lowercase" ;;
         alma)
-           SRC_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-ext4-latest.x86_64.qcow2"
+            SRC_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-ext4-latest.x86_64.qcow2"
+            SRC_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
            ;;
         ubuntu)
             SRC_URL="https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
