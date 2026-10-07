@@ -5,7 +5,7 @@
 # ------------------------------------------------------------
 # winpr-makecert from freerdp, symlink winpr-makecert3 to winpr-makecert
 # Win + K closes the window, Ctrl-Alt-Backspace exit
-# `setsid mousepad &` from the terminal unties from terminal
+# `setsid --fork mousepad &` from the terminal unties from terminal
 
 generate_ini() {
     WESTON_INI="${CONFIG_DIR}/weston.ini"

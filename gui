@@ -8,4 +8,4 @@
 # ./gui `which mousepad` $HOME/.profile
 # ./gui virt-manager --connect qemu:///system --show-domain-console unix
 
-setsid "${@}" > "${HOME}/gui-$(basename "${1}").log" 2>&1 &
+setsid --fork "${@}" > "${HOME}/gui-$(basename "${1}").log" 2>&1 &

@@ -148,7 +148,7 @@ Use RDP client to connect to Weston at 3390 port:
 xfreerdp /w:1600 /h:900 +clipboard /d:local /u:administrator /p:administrator /v:unix /port:3390
 ```
 
-Weston got no menu, so use terminal `setsid virt-manager &` or [gui](./gui) wrapper to launch `virt-manager` and detach it from terminal window
+Weston got no menu, so use terminal `setsid --fork virt-manager &` or [gui](./gui) wrapper to launch `virt-manager` and detach it from terminal window
 
 ### libvirtd & virsh configuration
 
