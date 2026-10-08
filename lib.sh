@@ -16,27 +16,31 @@ readonly LIB_SH_LOADED
 # ------------------------------------------------------------
 
 log_internal() {
-    if [ -n "${BACKUP_LOG_FILE:-}" ] && [ -f "${BACKUP_LOG_FILE}" ]
+    if [ -n "${BACKUP_LOG_FILE:-}" ] && [ -e "${BACKUP_LOG_FILE}" ]
     then
-        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${1}" | tee -a "${BACKUP_LOG_FILE}"
+        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${@}" | tee -a "${BACKUP_LOG_FILE}"
     else
         # BACKUP_LOG_FILE not set yet (e.g. missing .env) — stdout only
-        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${1}"
+        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${@}"
     fi
 }
 
 log() {
-    log_internal "${1}"
+    log_internal "${@}"
 }
 
 die() {
-    log_internal "${1}"
-    exit 1
+    EXIT_CODE_TRAP=${?}
+    log_internal "${@}"
+    exit ${EXIT_CODE_TRAP}
+    unset EXIT_CODE_TRAP
 }
 
 fail_internal() {
+    EXIT_CODE_TRAP=${?}
     printf '%s\n' "${@}"
-    exit 1
+    exit ${EXIT_CODE_TRAP}
+    unset EXIT_CODE_TRAP
 }
 
 is_writable() {
@@ -294,7 +298,7 @@ get_disk_actual_free_space() {
     # BACKUP_DIR is set up the call stack
     DF_OUTPUT="$(df --portability --block-size=1 "${BACKUP_DIR}")" || die "Failed to calculate free disk space in ${BACKUP_DIR}"
     DISK_ACTUAL_FREE_SPACE=0
-    DISK_ACTUAL_FREE_SPACE="$(printf '%s\n' "${DF_OUTPUT}" | awk -v target="Available" 'NR==1 { for(i=1;i<=NF;i++) if($i==target) col=i } NR==2 { print $col }')" 
+    DISK_ACTUAL_FREE_SPACE="$(printf '%s\n' "${DF_OUTPUT}" | awk -v target="Available" 'NR==1 { for(i=1;i<=NF;i++) if($i==target) col=i } NR==2 { print $col }')"
     printf '%d\n' "${DISK_ACTUAL_FREE_SPACE}"
     unset DF_OUTPUT DISK_ACTUAL_FREE_SPACE
 }
