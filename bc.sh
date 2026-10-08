@@ -38,15 +38,14 @@ closure() {
     # Do the job
     environment
 
+    create_backup_dirs_and_log
+    check_running
+    create_running
+
     # Cleanup on interrupt
     trap cleanup_on_exit INT TERM
     # Release the lock on normal exit
     trap rm_running EXIT
-
-    create_backup_dirs_and_log # at this point log file must be available
-
-    check_running
-    create_running
 
     create_current_backup_dir
     clean_obsolete_backups
