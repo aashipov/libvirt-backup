@@ -49,6 +49,7 @@ EOF
     sudo apt-get remove -y cloud-init
     sudo apt clean && sudo apt -y autoremove
     sudo systemctl enable --now cron
+    sudo virsh net-edit default
 }
 
 ubuntu_privileged() {
@@ -86,6 +87,9 @@ astra_privileged() {
         sudo ln -s /usr/bin/mate-terminal /usr/bin/xfce4-terminal
     fi
     sudo update-locale LANG=C
+    sudo usermod -aG libvirt-admin "${USER}"
+    sudo usermod -aG kvm "${USER}"
+    sudo virsh net-edit default
 }
 
 tune_xinitrc() {
@@ -164,7 +168,6 @@ closure() {
         if grep -q "Debian" "/etc/os-release"
         then
             debian_privileged
-            sudo virsh net-edit default
         fi
         if grep -q "Ubuntu" "/etc/os-release"
         then
@@ -185,16 +188,10 @@ closure() {
         then
             DISTRO=astra
             astra_privileged
-            sudo virsh net-edit default
         fi
     fi
 
     sudo groupmod -g "10001" "${USER}"
-    if [ "${DISTRO}" = "astra" ]
-    then
-        sudo usermod -aG libvirt-admin "${USER}"
-        sudo usermod -aG kvm "${USER}"
-    fi
     sudo usermod -aG libvirt "${USER}"
     sudo systemctl enable --now libvirtd xrdp qemu-guest-agent
 
