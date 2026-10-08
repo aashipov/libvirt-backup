@@ -1,6 +1,6 @@
 # Architecture Overview
 
-`libvirt-backup` is a POSIX-compliant shell utility designed to create of QEMU/KVM virtual machine disks and their corresponding configuration metadata (XML files). 
+`libvirt-backup` is a POSIX-compliant shell utility designed to create of QEMU/KVM virtual machine disks and their corresponding configuration metadata (XML files).
 
 ## Core Objectives
 
@@ -10,6 +10,7 @@
 
 ## Conventions
 
+- [POSIX.1-2024](https://pubs.opengroup.org/onlinepubs/9799919799/) conformance
 - **closure pattern**: every entry-point script wraps its logic in a `closure()` function (not `main`) to isolate the environment.
 - **No root** / **No sudo/doas ** : `block_root()` checks `id -u` at startup; `sudo` and `doas` are overridden to abort (except `testbed-configurator.sh`).
 - **Lock file**: `${BACKUP_DIR}/running` prevents concurrent `bc.sh` runs. "Stale lock" would complicate things without bringing much value.
@@ -22,7 +23,32 @@
 - Do not suggest **CI improvements** (GitHub Actions do not play well with QEMU/KVM, dedicated public testbed will add running cost)
 - `TOCTOU race on lock file` is not an issue
 - `debug.sh leaks the full environment` is not an issue (no secrets to store)
-- [POSIX.1-2024](https://pubs.opengroup.org/onlinepubs/9799919799/) conformance
+- following snippet illustrates external command call:
+
+```sh
+#!/bin/sh
+
+log() {
+    printf 'OK, %s\n' "${@}"
+}
+
+die() {
+    EXIT_CODE_TRAP=${?}
+    printf 'Error, %s\n' "${@}"
+    exit ${EXIT_CODE_TRAP}
+    unset EXIT_CODE_TRAP
+}
+
+closure() {
+    set -e
+    SINK="initial"
+    SINK=$(ls /tm 2>&1) || die "${SINK}"
+    log "${SINK}"
+    unset SINK
+}
+
+closure
+```
 
 ## Workflow
 
