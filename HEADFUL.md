@@ -12,8 +12,6 @@ testbed-builder.sh
 
 Follow script instructions
 
-Once it's done, extract SSH pair to host `virt-copy-out -d debian-builder /home/administrator/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa`
-
 ## Manual flavor
 
 Both RDP & VNC are graphical desktop-sharing systems. With those one can control a remote computer from another device (RDP lacks simultaneous access VNC got, but looks more production-ready). 
