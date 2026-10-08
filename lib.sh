@@ -46,7 +46,10 @@ fail_internal() {
 }
 
 is_writable() {
-    [ ! -w "${1}" ] && die "${1} is not writable"
+    if [ ! -w "${1}" ]
+    then
+        die "${1} is not writable"
+    fi
 }
 
 # ------------------------------------------------------------
@@ -317,7 +320,10 @@ create_current_backup_dir() {
 # ------------------------------------------------------------
 check_running() {
     # if marker/lock file ${RUNNING_FILE} exists
-    [ -f "${RUNNING_FILE}" ] && die "Another copy of this file may be running. Stop it, remove ${RUNNING_FILE} and repeat. Exiting"
+    if [ -e "${RUNNING_FILE}" ]
+    then
+        die "Another copy of this file may be running. Stop it, remove ${RUNNING_FILE} and repeat. Exiting"
+    fi
 }
 
 create_running() {
