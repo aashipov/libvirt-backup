@@ -34,6 +34,7 @@ log() {
 
 die() {
     EXIT_CODE_TRAP=${?}
+    [ "${EXIT_CODE_TRAP}" -eq 0 ] && EXIT_CODE_TRAP=1
     printf 'Error, %s\n' "${@}"
     exit ${EXIT_CODE_TRAP}
     unset EXIT_CODE_TRAP
