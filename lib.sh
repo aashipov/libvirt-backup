@@ -126,6 +126,13 @@ check_path() {
     # 1. Blank or unset
     [ -z "${VAR_VALUE}" ] && die "${VAR_PTR} is blank"
 
+    # 1.1 Newline
+    case "${VAR_VALUE}" in
+        *'\n'*) die "${VAR_VALUE} contains a newline!" ;;
+        *) ;;
+    esac
+
+
     # 2. Refers to the user’s home directory
     if [ "${VAR_VALUE}" = "${USERS_HOME}" ] || [ "${VAR_VALUE}" = "${USERS_HOME}/" ]
     then
