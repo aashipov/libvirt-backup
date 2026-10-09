@@ -51,12 +51,19 @@ closure() {
     # Define BASE_DIR
     BASE_DIR="$(get_base_dir)"
     # Load library
-    # shellcheck source=lib.sh
-    if ! . "${BASE_DIR}/lib.sh"
+    LIB_SH="${BASE_DIR}/lib.sh"
+    if [ ! -e "${LIB_SH}" ]
     then
-        printf 'Could not load lib.sh, exiting'
+        printf "${LIB_SH} does not exist, exiting\n"
         exit 1
     fi
+    # shellcheck source=lib.sh
+    if ! . "${LIB_SH}"
+    then
+        printf "Could not load ${LIB_SH}, exiting\n"
+        exit 1
+    fi
+    unset LIB_SH
 
     # Do the job
     cd "${BASE_DIR}"
