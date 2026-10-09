@@ -165,6 +165,11 @@ check_path() {
         *) die "${VAR_PTR} is not an absolute path (${VAR_VALUE})";;
     esac
 
+    # 7.1 No trailing slash
+    case "${VAR_VALUE}" in
+        */) die "${VAR_PTR} must not end with '/' (${VAR_VALUE})";;
+    esac
+
     # 8. Unsafe characters – allow only alphanum, '/', '_', '.', '-'
     if ! printf '%s\n' "${VAR_VALUE}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/][ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/0123456789._-]+$'
     then
