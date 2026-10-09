@@ -21,6 +21,6 @@ You will get an initial response within a few days. Please keep reports confiden
 
 ## Out of scope
 
-- Misconfigured `.env` permissions on your host or a [headful testbed](./HEADFUL.md)
+- Misconfigured `.env` permissions on your host or a [headless testbed](./HEADLESS.md)
 - libvirt/QEMU/rsync vulnerabilities — report upstream
 - Attacks requiring local shell access as the running user (the tool deliberately runs unprivileged)

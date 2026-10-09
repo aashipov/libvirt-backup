@@ -1,4 +1,4 @@
-# Headful Linux
+# Headless Linux
 
 ## cloud-init flavor (TL;DR)
 

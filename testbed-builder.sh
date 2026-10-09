@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # ------------------------------------------------------------
-#  testbed-builder.sh – Headful VM prototype generator
+#  testbed-builder.sh – Headless VM prototype generator
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------

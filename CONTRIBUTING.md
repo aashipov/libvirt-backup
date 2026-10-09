@@ -12,14 +12,14 @@
 
 # 'Performance' baseline
 
-[HEADFUL.md](./HEADFUL.md) suggests XFS-formatted disk to store VM zstd-compressed qcow2 files. XFS outperforms ext4 in computation & disk intensive tasks like `vscode` compilation (Windows Server 2012R2 or newer). zstd-compressed image displays lower CPU load than its zlib-compressed clone
+[HEADLESS.md](./HEADLESS.md) suggests XFS-formatted disk to store VM zstd-compressed qcow2 files. XFS outperforms ext4 in computation & disk intensive tasks like `vscode` compilation (Windows Server 2012R2 or newer). zstd-compressed image displays lower CPU load than its zlib-compressed clone
 
 # Pull requests (for contributors & collaborators)
 
 ### Before you start
 
 - Search for existing discussions and PRs first - duplicates will likely be closed without questions.
-- Configure a VM for semi-automated tests (check [HEADFUL.md](./HEADFUL.md), [TEST.md](./TEST.md))
+- Configure a VM for semi-automated tests (check [HEADLESS.md](./HEADLESS.md), [TEST.md](./TEST.md))
 
 ### Preparing your PR
 
@@ -34,7 +34,7 @@ Perform a thorough, line-by-line and file-by-file review of the project in the c
 **Constraints:**
 
 * **Ignore these directories:** .git, .github, .zed
-* **Ignore these files:** .gitignore, CONTRIBUTING.md, gui, HEADFUL.md, LICENSE, openbox-rc.xml, SECURITY.md, TEST.md, weston-runner
+* **Ignore these files:** .gitignore, CONTRIBUTING.md, gui, HEADLESS.md, LICENSE, openbox-rc.xml, SECURITY.md, TEST.md, weston-runner
 * **Rules:** You have full read permissions to analyze the code line by line, but you must not modify any files.
 
 **Goal:**

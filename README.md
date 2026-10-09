@@ -4,9 +4,9 @@ A `cron`-compatible command-line tool to create `QEMU/KVM/libvirt` (compressed) 
 
 ## Provisioning & Setup
 
-QEMU/KVM/libvirt `file`-backed disks tend to grow big, they perform `better` when deployed to `xfs`-formatted block device. For details refer to [HEADFUL.md](./HEADFUL.md).
+QEMU/KVM/libvirt `file`-backed disks tend to grow big, they perform `better` when deployed to `xfs`-formatted block device. For details refer to [HEADLESS.md](./HEADLESS.md).
 
-Check [HEADFUL.md](./HEADFUL.md), [TEST.md](./TEST.md) for configuration cookbook
+Check [HEADLESS.md](./HEADLESS.md), [TEST.md](./TEST.md) for configuration cookbook
 
 The project is a collection of shell-scripts, no compilation is required
 
