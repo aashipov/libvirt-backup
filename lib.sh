@@ -376,11 +376,15 @@ get_vm_disk_names_and_absolute_paths() {
 # ------------------------------------------------------------
 #  Extract actual-size in bytes from `qemu-img info --force-share --output=json ...`
 # ------------------------------------------------------------
-get_disk_actual_size() {
-    ACTUAL_SIZE=0
-    ACTUAL_SIZE=$(qemu-img info --force-share --output=json "${1}" | awk -F'[: ,]+' '$2 == "\"actual-size\"" {v=$3} END {print v}' || die "Failed to get ${1} actual-size")
+get_vm_disk_actual_size() {
+    ACTUAL_JSON="$(qemu-img info --force-share --output=json "${1}")" || die "Failed to get ${1} actual-size"
+    ACTUAL_SIZE=$(printf '%s\n' "${ACTUAL_JSON}" | awk -F'[: ,]+' '$2 == "\"actual-size\"" {v=$3} END {print v}')
+    if ! printf '%d\n' "${ACTUAL_SIZE}" | grep -qE '^[0123456789]+$'
+    then
+        die "Could not parse actual-size for ${1}"
+    fi
     printf '%d\n' "${ACTUAL_SIZE}"
-    unset ACTUAL_SIZE
+    unset ACTUAL_JSON ACTUAL_SIZE
 }
 
 # ------------------------------------------------------------
@@ -563,7 +567,7 @@ check_available_disk_space() {
         DISK_FILE_ABSOLUTE_PATH=""
         while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
         do
-            DISK_ACTUAL_SIZE=$(get_disk_actual_size "${DISK_FILE_ABSOLUTE_PATH}")
+            DISK_ACTUAL_SIZE=$(get_vm_disk_actual_size "${DISK_FILE_ABSOLUTE_PATH}")
             ALL_DISKS_ACTUAL_SIZE=$((ALL_DISKS_ACTUAL_SIZE+DISK_ACTUAL_SIZE))
             unset DISK_ACTUAL_SIZE
         done < "${VM_DISKS_FILE}"
