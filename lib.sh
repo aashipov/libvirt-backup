@@ -275,10 +275,10 @@ check_mandatory_variables_set() {
 
     for VM_NAME in ${VM_NAMES_TO_BACK_UP}
     do
-        case "${VM_NAME}" in
-            ''|*[!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-]*)
-            die "Invalid VM name in VM_NAMES_TO_BACK_UP (${VM_NAME})";;
-        esac
+        if ! printf '%s\n' "${VM_NAME}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz][ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-]*$'
+        then
+            die "Check if ${VM_NAME} in VM_NAMES_TO_BACK_UP is a typo"
+        fi
     done
     unset VM_NAME
 }
