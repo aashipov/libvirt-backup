@@ -272,6 +272,15 @@ check_mandatory_variables_set() {
     then
         die "QEMU_IMG_CONVERT_WITH_COMPRESSION must be 0 or 1, got '${QEMU_IMG_CONVERT_WITH_COMPRESSION}'"
     fi
+
+    for VM_NAME in ${VM_NAMES_TO_BACK_UP}
+    do
+        case "${VM_NAME}" in
+            ''|*[!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-]*)
+            die "Invalid VM name in VM_NAMES_TO_BACK_UP (${VM_NAME})";;
+        esac
+    done
+    unset VM_NAME
 }
 
 # ------------------------------------------------------------
