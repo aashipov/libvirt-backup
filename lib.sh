@@ -262,6 +262,16 @@ check_mandatory_variables_set() {
     then
         die "DAYS_TO_KEEP_BACKUPS must be of the form '+N' (older than N days), got '${DAYS_TO_KEEP_BACKUPS}'"
     fi
+
+    if ! printf '%s\n' "${BACKUP_TIMEOUT_SECONDS}" | grep -qE '^[0123456789]+$'
+    then
+        die "BACKUP_TIMEOUT_SECONDS must be a plain number of seconds, got '${BACKUP_TIMEOUT_SECONDS}'"
+    fi
+
+    if ! printf '%s\n' "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" | grep -qE '^[01]$'
+    then
+        die "QEMU_IMG_CONVERT_WITH_COMPRESSION must be 0 or 1, got '${QEMU_IMG_CONVERT_WITH_COMPRESSION}'"
+    fi
 }
 
 # ------------------------------------------------------------
