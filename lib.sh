@@ -583,12 +583,17 @@ check_available_disk_space() {
         unset VM_BACKUP_DIR VM_DISKS_FILE DISK_NAME DISK_FILE_ABSOLUTE_PATH
     done
     DISK_ACTUAL_FREE_SPACE=$(get_disk_actual_free_space)
-    if [ "${DISK_ACTUAL_FREE_SPACE}" -lt "${ALL_DISKS_ACTUAL_SIZE}" ]
+    REQUIRED_SPACE="${ALL_DISKS_ACTUAL_SIZE}"
+    if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" = "1" ]
     then
-        die "Insufficient disk space in ${BACKUP_DIR}"
+        REQUIRED_SPACE=$((ALL_DISKS_ACTUAL_SIZE * 2))
+    fi
+    if [ "${DISK_ACTUAL_FREE_SPACE}" -lt "${REQUIRED_SPACE}" ]
+    then
+        die "Insufficient disk space in ${BACKUP_DIR}: need ${REQUIRED_SPACE} bytes, have ${DISK_ACTUAL_FREE_SPACE}"
     fi
     log "Check available disk space finish"
-    unset ALL_DISKS_ACTUAL_SIZE DISK_ACTUAL_FREE_SPACE
+    unset ALL_DISKS_ACTUAL_SIZE DISK_ACTUAL_FREE_SPACE REQUIRED_SPACE
 }
 
 # ------------------------------------------------------------
