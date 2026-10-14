@@ -671,6 +671,14 @@ clean_obsolete_backups() {
 #  Pushes backups to remote server
 # ------------------------------------------------------------
 push_backups_to_another_server() {
+    if [ -z "${ANOTHER_SERVER_IP}" ]
+    then
+        die "Blank ANOTHER_SERVER_IP"
+    fi
+    if ! printf '%s\n' "${ANOTHER_SERVER_IP}" | grep -E -o '\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b'
+    then
+        die "ANOTHER_SERVER_IP is not a valid IP v4 (${ANOTHER_SERVER_IP})"
+    fi
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} start"
     rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" "${BACKUP_DIR}/" "${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" || die "Push failed"
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} finish"
