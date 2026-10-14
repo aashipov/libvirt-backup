@@ -14,6 +14,35 @@
 # virt-copy-out -d debian-builder /home/administrator/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa
 # ------------------------------------------------------------
 
+adjust_default_network() {
+    DEFAULT_NETWORK_NAME=default
+    if virsh net-list | grep -q "default"
+    then
+        sudo virsh net-destroy "${DEFAULT_NETWORK_NAME}"
+    fi
+    if virsh net-list --all | grep -q "default"
+    then
+        sudo virsh net-undefine "${DEFAULT_NETWORK_NAME}"
+    fi
+    NETWORK_XML=/tmp/network.xml
+cat << 'EOF' > /tmp/network.xml
+<network>
+  <name>default</name>
+  <forward mode='nat'/>
+  <bridge name='virbr0' stp='on' delay='0'/>
+  <ip address='192.168.123.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.123.2' end='192.168.123.254'/>
+    </dhcp>
+  </ip>
+</network>
+EOF
+    sudo virsh net-define "${NETWORK_XML}"
+    sudo virsh net-start "${DEFAULT_NETWORK_NAME}"
+    sudo virsh net-autostart "${DEFAULT_NETWORK_NAME}"
+    unset DEFAULT_NETWORK_NAME NETWORK_XML
+}
+
 rhel_privileged() {
     sudo dnf -y upgrade
     sudo dnf -y config-manager --enable crb
@@ -49,7 +78,6 @@ EOF
     sudo apt-get remove -y cloud-init
     sudo apt clean && sudo apt -y autoremove
     sudo systemctl enable --now cron
-    sudo virsh net-edit default
 }
 
 ubuntu_privileged() {
@@ -89,7 +117,6 @@ astra_privileged() {
     sudo update-locale LANG=C
     sudo usermod -aG libvirt-admin "${USER}"
     sudo usermod -aG kvm "${USER}"
-    sudo virsh net-edit default
 }
 
 tune_xinitrc() {
@@ -194,6 +221,11 @@ closure() {
     sudo groupmod -g "10001" "${USER}"
     sudo usermod -aG libvirt "${USER}"
     sudo systemctl enable --now libvirtd xrdp qemu-guest-agent
+
+    if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "ubuntu" ]
+    then
+        adjust_default_network
+    fi
 
     configure_backup_dirs
 
