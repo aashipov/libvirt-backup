@@ -676,6 +676,12 @@ clean_obsolete_backups() {
 # ------------------------------------------------------------
 push_backups_to_another_server() {
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} start"
-    rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" "${BACKUP_DIR}/" "${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" || die "Push failed"
+    BACKUP_VM_DIRS="$(find "${BACKUP_DIR}" -mindepth 2 -maxdepth 2 -type d 2>/dev/null | wc -l)"
+    if [ "${BACKUP_VM_DIRS}" -eq 0 ]
+    then
+        log "Refusing to rsync --delete: no per-VM backup directories found in ${BACKUP_DIR}"
+    else
+        rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" "${BACKUP_DIR}/" "${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" || die "Push failed"
+    fi
     log "Push ${BACKUP_DIR} to ${ANOTHER_SERVER_IP}:${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} finish"
 }
