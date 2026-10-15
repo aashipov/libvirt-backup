@@ -138,7 +138,7 @@ closure() {
     printf '%s\n' "./testbed-configurator.sh"
     printf '%s\n' "Copy ssh pair out"
     printf '%s\n' "virt-copy-out -d ${TARGET_VM_NAME} /home/administrator/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
-    printf '%s\n' "Rename and attach ${TARGET_DISK_FILE} to the unix VM"
+    printf '%s\n' "Rename ${TARGET_DISK_FILE} and attach to the unix VM"
 
     unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS
 }
