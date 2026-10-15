@@ -44,6 +44,20 @@ EOF
     unset DEFAULT_NETWORK_NAME NETWORK_XML
 }
 
+configure_libvirt() {
+    sudo groupmod -g "10001" "${USER}"
+    sudo usermod -aG libvirt "${USER}"
+    sudo systemctl enable --now libvirtd
+
+    mkdir -p "${HOME}/.config/libvirt/"
+    printf '%s\n' "uri_default = \"qemu:///system\"" > "${HOME}/.config/libvirt/libvirt.conf"
+    if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "ubuntu" ]
+    then
+        adjust_default_network
+    fi
+    virsh net-autostart default
+}
+
 rhel_privileged() {
     sudo dnf -y upgrade
     sudo dnf -y config-manager --enable crb
@@ -60,6 +74,16 @@ redos_privileged() {
     sudo dnf -y upgrade
     sudo dnf -y install cronie git rsync acl sudo qemu-kvm libvirt virt-install mc tree curl qemu-guest-agent
     sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston #gvfs-sftp
+    sudo dnf -y clean all
+    sudo systemctl enable --now crond
+}
+
+fedora_privileged() {
+    sudo dnf -y upgrade
+    sudo dnf -y config-manager disable fedora-cisco-openh264
+    sudo dnf -y install cronie git rsync acl sudo qemu-kvm libvirt virt-install mc tree curl qemu-guest-agent
+    sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston
+    sudo dnf -y remove cloud-init
     sudo dnf -y clean all
     sudo systemctl enable --now crond
 }
@@ -217,22 +241,16 @@ closure() {
             DISTRO=astra
             astra_privileged
         fi
+        if grep -q "Fedora" "/etc/os-release"
+        then
+            DISTRO=fedora
+            fedora_privileged
+        fi
     fi
 
+    sudo systemctl enable --now xrdp qemu-guest-agent
+    configure_libvirt
     configure_backup_dirs
-
-    sudo groupmod -g "10001" "${USER}"
-    sudo usermod -aG libvirt "${USER}"
-    sudo systemctl enable --now libvirtd xrdp qemu-guest-agent
-
-    mkdir -p "${HOME}/.config/libvirt/"
-    printf '%s\n' "uri_default = \"qemu:///system\"" > "${HOME}/.config/libvirt/libvirt.conf"
-    if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "ubuntu" ]
-    then
-        adjust_default_network
-    fi
-    virsh net-autostart default
-
     tune_xinitrc
     configure_vms
     configure_ssh

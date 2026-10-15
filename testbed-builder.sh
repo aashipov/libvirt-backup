@@ -100,6 +100,9 @@ closure() {
             SRC_URL="https://registry.astralinux.ru/artifactory/mg-generic/alse/cloudinit/alse-1.7.11-base-cloudinit-mg16.5.0-amd64.qcow2"
             SRC_URL="https://registry.astralinux.ru/artifactory/mg-generic/alse/cloudinit/alse-1.8.6-base-cloudinit-mg16.5.0-amd64.qcow2"
             ;;
+        fedora)
+            SRC_URL="https://download.fedoraproject.org/pub/fedora/linux/releases/44/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-44-1.7.x86_64.qcow2"
+            ;;
            *) die "Distro ${DISTRO} is not supported at the moment" ;;
     esac
 
