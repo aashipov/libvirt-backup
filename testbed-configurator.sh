@@ -18,11 +18,12 @@ adjust_default_network() {
     DEFAULT_NETWORK_NAME=default
     if virsh net-list | grep -q "default"
     then
-        sudo virsh net-destroy "${DEFAULT_NETWORK_NAME}"
+        virsh net-destroy "${DEFAULT_NETWORK_NAME}"
     fi
     if virsh net-list --all | grep -q "default"
     then
-        sudo virsh net-undefine "${DEFAULT_NETWORK_NAME}"
+        virsh net-undefine "${DEFAULT_NETWORK_NAME}"
+        sleep 5
     fi
     NETWORK_XML=/tmp/network.xml
 cat << 'EOF' > /tmp/network.xml
@@ -37,9 +38,9 @@ cat << 'EOF' > /tmp/network.xml
   </ip>
 </network>
 EOF
-    sudo virsh net-define "${NETWORK_XML}"
-    sudo virsh net-start "${DEFAULT_NETWORK_NAME}"
-    sudo virsh net-autostart "${DEFAULT_NETWORK_NAME}"
+    virsh net-define "${NETWORK_XML}"
+    virsh net-start "${DEFAULT_NETWORK_NAME}"
+    rm "${NETWORK_XML}"
     unset DEFAULT_NETWORK_NAME NETWORK_XML
 }
 
@@ -218,20 +219,20 @@ closure() {
         fi
     fi
 
+    configure_backup_dirs
+
     sudo groupmod -g "10001" "${USER}"
     sudo usermod -aG libvirt "${USER}"
     sudo systemctl enable --now libvirtd xrdp qemu-guest-agent
 
+    mkdir -p "${HOME}/.config/libvirt/"
+    printf '%s\n' "uri_default = \"qemu:///system\"" > "${HOME}/.config/libvirt/libvirt.conf"
     if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "ubuntu" ]
     then
         adjust_default_network
     fi
+    virsh net-autostart default
 
-    configure_backup_dirs
-
-    mkdir -p "${HOME}/.config/libvirt/"
-    printf '%s\n' "uri_default = \"qemu:///system\"" > "${HOME}/.config/libvirt/libvirt.conf"
-    sudo virsh net-autostart default
     tune_xinitrc
     configure_vms
     configure_ssh
