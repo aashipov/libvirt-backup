@@ -69,6 +69,10 @@ closure() {
     cd "${BASE_DIR}"
     check_dot_env_file
     environment
+    if ! printf '%s\n' "${TEST_APP_NAME}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz][ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-]+$'
+    then
+        fail_internal "TEST_APP_NAME contains unsafe characters ${TEST_APP_NAME} — only latin letters and '-' are allowed"
+    fi
     ssh "${TEST_HOSTNAME}" "rm -rf ${TEST_APP_NAME}" || fail_internal "Failed to remove ${TEST_APP_NAME} via SSH"
     deploy_src
     ssh "${TEST_HOSTNAME}" "${TEST_APP_NAME}/debug.sh" || fail_internal "./debug.sh via SSH failed"
