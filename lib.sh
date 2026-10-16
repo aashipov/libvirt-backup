@@ -637,7 +637,7 @@ kill_backup_jobs() {
     do
         if virsh domstate "${VM_NAME_TO_BACK_UP}" | grep -q "running"
         then
-           virsh domjobabort "${VM_NAME_TO_BACK_UP}"
+           virsh domjobabort "${VM_NAME_TO_BACK_UP}" || true
            log "${VM_NAME_TO_BACK_UP} backup job killed"
         else
             log "${VM_NAME_TO_BACK_UP} is not running, skipping"

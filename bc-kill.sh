@@ -44,6 +44,7 @@ closure() {
 
     # Do the job
     environment
+    pkill -x bc.sh || true
     kill_backup_jobs
     rm_running
 }

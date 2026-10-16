@@ -18,7 +18,6 @@
 - **Offline VMs**: disks are `qemu-img convert`'ed with (`QEMU_IMG_CONVERT_WITH_COMPRESSION=1`) or without (`QEMU_IMG_CONVERT_WITH_COMPRESSION=0`) compression;
 - **running VMs** use libvirt's push-based backup (`virsh backup-begin` + polling `virsh domjobinfo`), `QEMU_IMG_CONVERT_WITH_COMPRESSION=1` will produce a `*.qcow2-shrunk` images (same `qemu-img convert -O qcow2 -c <src> <tgt>`).
 - for now we skip **paused/suspended** VMs
-- **Kill sequence** (manual): `pkill -x bc.sh ; ./bc-kill.sh`
 - **Output & logs**: no need in log levels, prefer `printf` over `echo`
 - Do not suggest **CI improvements** (GitHub Actions do not play well with QEMU/KVM, dedicated public testbed will add running cost)
 - `TOCTOU race on lock file` is not an issue
@@ -59,7 +58,7 @@ Preflight configuration check (`dry-run`) `./debug.sh` (once per configuration r
 
 Main script `bc.sh` - backup coordinator — sequential, blocking live backups via `virsh backup-begin` (for running VMs) or `qemu-img convert ...` (for shut off ones)
 
-Kill sequence for a running backup job `pkill -x bc.sh ; ./bc-kill.sh`
+Kill sequence for a running backup job `./bc-kill.sh`
 
 (Optional) `./rc.sh` - replication & obsolete clean up coordinator
 

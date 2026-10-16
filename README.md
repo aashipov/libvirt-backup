@@ -20,3 +20,23 @@ Configuration is stored in `.env` file. Craft one from a template `cp .env.templ
 
 - store space-separated list of VM you wish to back up to `VM_NAMES_TO_BACK_UP`
 - (optional) if you plan to replicate backups to another server/file store via rsync, configure `ANOTHER_SERVER_IP` and establish passwordless SSH connection to it
+
+## Workflow
+
+Initiate backup (with console or via `cron`):
+
+```sh
+./bc.sh
+```
+
+Abort backup:
+
+```sh
+./bc-kill.sh
+```
+
+(Optional) push backups to `ANOTHER_SERVER_IP`:
+
+```sh
+./rc.sh
+```
