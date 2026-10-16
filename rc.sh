@@ -47,6 +47,8 @@ closure() {
     check_rsync
     create_backup_dirs_and_log
     check_running
+    create_running
+    trap rm_running EXIT
     clean_obsolete_backups
     push_backups_to_another_server
 }
