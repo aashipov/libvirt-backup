@@ -51,7 +51,7 @@ configure_libvirt() {
 
     mkdir -p "${HOME}/.config/libvirt/"
     printf '%s\n' "uri_default = \"qemu:///system\"" > "${HOME}/.config/libvirt/libvirt.conf"
-    if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "ubuntu" ]
+    if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "astra" ]
     then
         adjust_default_network
     fi
@@ -170,6 +170,24 @@ configure_ssh() {
     mkdir -p "${HOME}/.ssh/" && ssh-keygen -t rsa -b 4096 -C "dummy@dummy.org" -f "${HOME}/.ssh/id_rsa" && chmod 0600 "${HOME}/.ssh/id_rsa" && ssh-copy-id 127.0.0.2
 }
 
+download() {
+    if [ ! -e "${TGT_FILE}" ]
+    then
+        printf 'Downloading %s to %s\n' "${SRC_URL}" "${TGT_FILE}"
+        if ! curl -fL --retry 3 -o "${TGT_FILE}.part" "${SRC_URL}"
+        then
+            rm -f "${TGT_FILE}.part"
+            die "Failed to download ${SRC_URL}"
+        fi
+        mv "${TGT_FILE}.part" "${TGT_FILE}"
+    fi
+
+    if ! $(qemu-img check "${TGT_FILE}" > /dev/null 2>&1)
+    then
+        die "Bad file ${TGT_FILE}: remove and re-run"
+    fi
+}
+
 configure_vms() {
     cd "${HOME}" || true
     for item in a b c
@@ -178,15 +196,14 @@ configure_vms() {
         virsh undefine "${item}" 2>/dev/null || true
     done
 
-    ALPINE_QCOW2_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
-    ALPINE_QCOW2_FILE="${HOME}/$(basename "${ALPINE_QCOW2_URL}")"
-    if [ ! -f "${ALPINE_QCOW2_FILE}" ]
-    then
-        curl -fL --retry 3 -o "${ALPINE_QCOW2_FILE}.part" "${ALPINE_QCOW2_URL}" || return 1
-        mv "${ALPINE_QCOW2_FILE}.part" "${ALPINE_QCOW2_FILE}"
-    fi
+    ALPINE_SRC_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/alpine-3.24.2-x86_64-cloudinit-r2.qcow2"
+    ALPINE_TGT_FILE="${HOME}/$(basename "${ALPINE_SRC_URL}")"
+    SRC_URL="${ALPINE_SRC_URL}"
+    TGT_FILE="${ALPINE_TGT_FILE}"
+    download
 
-    qemu-img convert -O qcow2 -c -o compression_type=zstd generic_alpine*.qcow2 prototype.qcow2
+    qemu-img convert -O qcow2 -c -o compression_type=zstd "${TGT_FILE}" prototype.qcow2
+    unset ALPINE_SRC_URL ALPINE_TGT_FILE SRC_URL TGT_FILE
     qemu-img create -f qcow2 -o compression_type=zstd blank-prototype.qcow2 256M
 
     for item in a b c; do
@@ -206,7 +223,6 @@ configure_vms() {
             --osinfo detect=on,require=off \
             --import --noautoconsole --noreboot
     done
-    unset ALPINE_QCOW2_URL ALPINE_QCOW2_FILE
 }
 
 configure_backup_dirs() {

@@ -51,6 +51,24 @@ cpu_count() {
     printf '%d\n' ${CPU_COUNT}
 }
 
+download() {
+    if [ ! -e "${TGT_FILE}" ]
+    then
+        printf 'Downloading %s to %s\n' "${SRC_URL}" "${TGT_FILE}"
+        if ! curl -fL --retry 3 -o "${TGT_FILE}.part" "${SRC_URL}"
+        then
+            rm -f "${TGT_FILE}.part"
+            die "Failed to download ${SRC_URL}"
+        fi
+        mv "${TGT_FILE}.part" "${TGT_FILE}"
+    fi
+
+    if ! $(qemu-img check "${TGT_FILE}" > /dev/null 2>&1)
+    then
+        die "Bad file ${TGT_FILE}: remove and re-run"
+    fi
+}
+
 # ------------------------------------------------------------
 #  Main function to prevent occasional environment pollution
 # ------------------------------------------------------------
@@ -79,12 +97,16 @@ closure() {
     environment
     create_backup_dirs_and_log || die "Failed to create_backup_dirs_and_log"
 
+    ALPINE_SRC_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/alpine-3.24.2-x86_64-cloudinit-r2.qcow2"
+    ALPINE_TGT_FILE="${BACKUP_DIR}/$(basename "${ALPINE_SRC_URL}")"
+    SRC_URL="${ALPINE_SRC_URL}"
+    TGT_FILE="${ALPINE_TGT_FILE}"
+    download
+
     DISTRO=debian
     SRC_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
     [ -n "${1}" ] && DISTRO="${1}"
     case "${DISTRO}" in
-        debian) ;;
-        [[:upper:]]*) die "Distro name, lowercase" ;;
         alma)
             SRC_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-ext4-latest.x86_64.qcow2"
             SRC_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
@@ -103,27 +125,15 @@ closure() {
         fedora)
             SRC_URL="https://download.fedoraproject.org/pub/fedora/linux/releases/44/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-44-1.7.x86_64.qcow2"
             ;;
-           *) die "Distro ${DISTRO} is not supported at the moment" ;;
+        debian) ;;
+        [[:upper:]]*) die "Distro name, lowercase" ;;
+        *) die "Distro ${DISTRO} is not supported at the moment" ;;
     esac
 
     TARGET_VM_NAME="${DISTRO}-builder"
     TARGET_DISK_FILE="${BACKUP_DIR}/${DISTRO}-builder.qcow2"
     TGT_FILE="${BACKUP_DIR}/$(basename "${SRC_URL}")"
-
-    if [ ! -e "${TGT_FILE}" ]
-    then
-        if ! curl -fL --retry 3 -o "${TGT_FILE}.part" "${SRC_URL}"
-        then
-            rm -f "${TGT_FILE}.part"
-            die "Failed to download ${SRC_URL}"
-        fi
-        mv "${TGT_FILE}.part" "${TGT_FILE}"
-    fi
-
-    if ! $(qemu-img check "${TGT_FILE}" > /dev/null 2>&1)
-    then
-        die "Bad file ${TGT_FILE}: remove and re-run"
-    fi
+    download
 
     remove_vm
     build_disk
@@ -133,14 +143,10 @@ closure() {
     virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
     ${CLOUD_INIT_ARGS}
 
-    SRC_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
-    TGT_FILE="${BACKUP_DIR}/$(basename "${SRC_URL}")"
-    [ ! -e "${TGT_FILE}" ] && curl -L -o "${TGT_FILE}" "${SRC_URL}"
-
     printf '%s\n' "Connect to ${TARGET_VM_NAME} under cloud-init"
     printf '%s\n' "setsid --fork virt-manager --connect qemu:///system --show-domain-console ${TARGET_VM_NAME}"
     printf '%s\n' "wait for \`cloud-init status\` 'done'"
-    printf '%s\n' "cd ${BASE_DIR} && virsh shutdown ${TARGET_VM_NAME} ; sleep 30s && virt-copy-in -d ${TARGET_VM_NAME} testbed-configurator.sh /home/admin/ && virt-copy-in -d ${TARGET_VM_NAME} ${TGT_FILE} /home/admin/ && virsh start ${TARGET_VM_NAME}"
+    printf '%s\n' "cd ${BASE_DIR} && virsh shutdown ${TARGET_VM_NAME} ; sleep 30s && virt-copy-in -d ${TARGET_VM_NAME} testbed-configurator.sh /home/admin/ && virt-copy-in -d ${TARGET_VM_NAME} ${ALPINE_TGT_FILE} /home/admin/ && virsh start ${TARGET_VM_NAME}"
     printf '%s\n' "Connect via virt-manager"
     printf '%s\n' "setsid --fork virt-manager --connect qemu:///system --show-domain-console ${TARGET_VM_NAME}"
     printf '%s\n' "or via SSH"
@@ -151,7 +157,7 @@ closure() {
     printf '%s\n' "virt-copy-out -d ${TARGET_VM_NAME} /home/admin/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
     printf '%s\n' "Rename ${TARGET_DISK_FILE} and attach to the unix VM"
 
-    unset BASE_DIR DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS
+    unset BASE_DIR ALPINE_SRC_URL ALPINE_TGT_FILE DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS
 }
 
 closure "${@}"
