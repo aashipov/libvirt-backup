@@ -171,12 +171,19 @@ configure_ssh() {
 }
 
 configure_vms() {
-    cd "${HOME}"
+    cd "${HOME}" || true
+    for item in a b c
+    do
+        virsh destroy "${item}" 2>/dev/null || true
+        virsh undefine "${item}" 2>/dev/null || true
+    done
+
     ALPINE_QCOW2_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/generic_alpine-3.24.1-x86_64-bios-tiny-r0.qcow2"
     ALPINE_QCOW2_FILE="${HOME}/$(basename "${ALPINE_QCOW2_URL}")"
     if [ ! -f "${ALPINE_QCOW2_FILE}" ]
     then
-        curl -L -o "${ALPINE_QCOW2_FILE}" "${ALPINE_QCOW2_URL}"
+        curl -fL --retry 3 -o "${ALPINE_QCOW2_FILE}.part" "${ALPINE_QCOW2_URL}" || return 1
+        mv "${ALPINE_QCOW2_FILE}.part" "${ALPINE_QCOW2_FILE}"
     fi
 
     qemu-img convert -O qcow2 -c -o compression_type=zstd generic_alpine*.qcow2 prototype.qcow2
