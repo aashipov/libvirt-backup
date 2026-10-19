@@ -4,7 +4,7 @@
 
 Linux distros (Debian, Alma, Ubuntu, Astra) provide rapid deployment from a cloud-init prototype
 
-Credentials `administrator/administrator` 
+Credentials `admin/admin` 
 
 ```sh
 testbed-builder.sh
@@ -96,14 +96,14 @@ systemctl enable --now cron
 > `sudo dnf install -y virt-manager weston xrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb gvfs-sftp
 `
 
-Add an unprivileged user `administrator` to `sudo` and `libvirt` groups:
+Add an unprivileged user `admin` to `sudo` and `libvirt` groups:
 
 ```sh
-/usr/sbin/usermod -aG sudo administrator && /usr/sbin/usermod -aG libvirt administrator
+/usr/sbin/usermod -aG sudo admin && /usr/sbin/usermod -aG libvirt admin
 ```
 
 > [!NOTE]
-> RHEL-descendants: `/usr/sbin/usermod -aG libvirt administrator`
+> RHEL-descendants: `/usr/sbin/usermod -aG libvirt admin`
 
 Exit `su -` and SSH session, re-login.
 
@@ -133,7 +133,7 @@ cd ${HOME} && chmod +x .xinitrc && ln -s .xinitrc .xsession && ln -s .xinitrc .X
 At this point you should be able to RDP the Openbox in guest vm via `mstsc.exe`, `xfreerdp`/`wlfreerdp`, `Remmina` (Note: modern distros include `xfreerdp3`/`wlfreerdp3`, so craft symlinks in `/usr/bin` by hand):
 
 ```sh
-xfreerdp /w:1600 /h:900 +clipboard /d:local /u:administrator /p:administrator /v:unix /port:3389
+xfreerdp /w:1600 /h:900 +clipboard /d:local /u:admin /p:admin /v:unix /port:3389
 ```
 
 Right click to see Openbox menu
@@ -145,7 +145,7 @@ Deploy [weston-runner](./weston-runner) to guest, launch via SSH
 Use RDP client to connect to Weston at 3390 port:
 
 ```sh
-xfreerdp /w:1600 /h:900 +clipboard /d:local /u:administrator /p:administrator /v:unix /port:3390
+xfreerdp /w:1600 /h:900 +clipboard /d:local /u:admin /p:admin /v:unix /port:3390
 ```
 
 Weston got no menu, so use terminal `setsid --fork virt-manager &` or [gui](./gui) wrapper to launch `virt-manager` and detach it from terminal window
@@ -179,7 +179,7 @@ Host:
 cat << 'EOF' | tee -a ${HOME}/.ssh/config
 Host unix
     HostName unix
-    User administrator
+    User admin
     IdentityFile ~/.ssh/unix/id_rsa
     IdentitiesOnly yes
 EOF
@@ -188,7 +188,7 @@ EOF
 Host:
 
 ```sh
-ssh-copy-id -i ~/.ssh/unix/id_rsa administrator@unix
+ssh-copy-id -i ~/.ssh/unix/id_rsa admin@unix
 ```
 
 Guest: `ssh-copy-id 127.0.0.2`, verify paswordless login `ssh 127.0.0.2`

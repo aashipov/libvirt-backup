@@ -2,15 +2,15 @@
 hostname: unix
 
 users:
-  - name: administrator
+  - name: admin
     uid: 10001
     groups: [wheel]
     shell: /bin/bash
     sudo: "ALL=(ALL) ALL"
     lock_passwd: false
-    # administrator/administrator
+    # admin/admin
     # openssl passwd -6
-    passwd: $6$Pd1cp4lrjXAzHVRQ$eEXKWPBSEZbQu3Zo1tiAkq/5y/47kpW3X8.tunysYe1Kfz3eoyUzBAaAr9kPJkGgEb43ub9byu8nyqIcCvWGV1
+    passwd: $6$tZGNcFEHiZIuAiNK$UNVIyD/4ko/ydt.18DWa7iChYk/9lD8CC4olhVGEHR.GoeUGhQWSXlx2RgfXIOCJU6wiJG7DMUriq6QyDO7w50
 
 ssh_pwauth: true
 disable_root: false
