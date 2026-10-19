@@ -110,7 +110,15 @@ closure() {
     TARGET_DISK_FILE="${BACKUP_DIR}/${DISTRO}-builder.qcow2"
     TGT_FILE="${BACKUP_DIR}/$(basename "${SRC_URL}")"
 
-    [ ! -e "${TGT_FILE}" ] && curl -L -o "${TGT_FILE}" "${SRC_URL}"
+    if [ ! -e "${TGT_FILE}" ]
+    then
+        if ! curl -fL --retry 3 -o "${TGT_FILE}.part" "${SRC_URL}"
+        then
+            rm -f "${TGT_FILE}.part"
+            die "Failed to download ${SRC_URL}"
+        fi
+        mv "${TGT_FILE}.part" "${TGT_FILE}"
+    fi
 
     if ! $(qemu-img check "${TGT_FILE}" > /dev/null 2>&1)
     then
