@@ -196,6 +196,7 @@ configure_vms() {
         virsh undefine "${item}" 2>/dev/null || true
     done
 
+    # keep in sync with testbed-builder.sh
     ALPINE_SRC_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/alpine-3.24.2-x86_64-cloudinit-r2.qcow2"
     ALPINE_TGT_FILE="${HOME}/$(basename "${ALPINE_SRC_URL}")"
     SRC_URL="${ALPINE_SRC_URL}"
