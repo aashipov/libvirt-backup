@@ -95,12 +95,14 @@ closure() {
     # Do the job
     cd "${BASE_DIR}"
 
-    printf '\nQEMU_IMG_CONVERT_WITH_COMPRESSION=0\n' | tee -a "${BASE_DIR}/.env"
+    printf '\nQEMU_IMG_CONVERT_WITH_COMPRESSION=0\n' >> "${BASE_DIR}/.env"
     environment
+    log "QEMU_IMG_CONVERT_WITH_COMPRESSION=0"
     happy_path
 
-    printf '\nQEMU_IMG_CONVERT_WITH_COMPRESSION=1\n' | tee -a "${BASE_DIR}/.env"
+    printf '\nQEMU_IMG_CONVERT_WITH_COMPRESSION=1\n' >> "${BASE_DIR}/.env"
     environment
+    log "QEMU_IMG_CONVERT_WITH_COMPRESSION=1"
     happy_path
 
     unset BASE_DIR

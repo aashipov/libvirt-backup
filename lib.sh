@@ -18,10 +18,10 @@ readonly LIB_SH_LOADED
 log_internal() {
     if [ -n "${BACKUP_LOG_FILE:-}" ] && [ -e "${BACKUP_LOG_FILE}" ]
     then
-        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${@}" | tee -a "${BACKUP_LOG_FILE}"
+        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${*}" | tee -a "${BACKUP_LOG_FILE}"
     else
         # BACKUP_LOG_FILE not set yet (e.g. missing .env) — stdout only
-        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${@}"
+        printf '%s - %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${*}"
     fi
 }
 
@@ -32,7 +32,7 @@ log() {
 die() {
     EXIT_CODE_TRAP=${?}
     [ "${EXIT_CODE_TRAP}" -eq 0 ] && EXIT_CODE_TRAP=1
-    log_internal "${@}"
+    log_internal "${*}"
     exit ${EXIT_CODE_TRAP}
     unset EXIT_CODE_TRAP
 }
@@ -40,7 +40,7 @@ die() {
 fail_internal() {
     EXIT_CODE_TRAP=${?}
     [ "${EXIT_CODE_TRAP}" -eq 0 ] && EXIT_CODE_TRAP=1
-    printf '%s\n' "${@}"
+    printf '%s\n' "${*}"
     exit ${EXIT_CODE_TRAP}
     unset EXIT_CODE_TRAP
 }

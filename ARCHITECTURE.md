@@ -28,13 +28,13 @@
 #!/bin/sh
 
 log() {
-    printf 'OK, %s\n' "${@}"
+    printf 'OK, %s\n' "${*}"
 }
 
 die() {
     EXIT_CODE_TRAP=${?}
     [ "${EXIT_CODE_TRAP}" -eq 0 ] && EXIT_CODE_TRAP=1
-    printf 'Error, %s\n' "${@}"
+    printf 'Error, %s\n' "${*}"
     exit ${EXIT_CODE_TRAP}
     unset EXIT_CODE_TRAP
 }
