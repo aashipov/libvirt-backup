@@ -117,7 +117,7 @@ EOF
     sudo apt-get update && sudo apt-get -y upgrade
     sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server qemu-guest-agent
     sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-backends
-    if $(which snap > /dev/null 2>&1)
+    if which snap > /dev/null 2>&1
     then
         sudo snap remove lxd
     fi

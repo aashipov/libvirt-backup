@@ -63,7 +63,7 @@ download() {
         mv "${TGT_FILE}.part" "${TGT_FILE}"
     fi
 
-    if ! $(qemu-img check "${TGT_FILE}" > /dev/null 2>&1)
+    if ! qemu-img check "${TGT_FILE}" > /dev/null 2>&1
     then
         die "Bad file ${TGT_FILE}: remove and re-run"
     fi
