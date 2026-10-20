@@ -5,7 +5,7 @@ users:
   - name: admin
     uid: 10001
     groups: [wheel]
-    shell: /bin/bash
+    shell: /bin/sh
     sudo: "ALL=(ALL) ALL"
     lock_passwd: false
     # admin/admin
