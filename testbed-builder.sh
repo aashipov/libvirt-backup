@@ -153,6 +153,7 @@ closure() {
     printf '%s\n' "ssh admin@${TARGET_VM_NAME}"
     printf '%s\n' "authenticate admin/admin & launch"
     printf '%s\n' "./testbed-configurator.sh"
+    printf '%s\n' "If anything fails, check network connection, log-out and re-login"
     printf '%s\n' "Copy ssh pair out"
     printf '%s\n' "virt-copy-out -d ${TARGET_VM_NAME} /home/admin/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
     printf '%s\n' "Rename ${TARGET_DISK_FILE} and attach to the unix VM"
