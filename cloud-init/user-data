@@ -3,8 +3,9 @@ hostname: unix
 
 users:
   - name: admin
+    #no_user_group: true # uncomment for ubuntu  
     uid: 10001
-    groups: [wheel]
+    groups: [sudo, wheel] # sudo debian/ubuntu, wheel the rest
     shell: /bin/sh
     sudo: "ALL=(ALL) ALL"
     lock_passwd: false
