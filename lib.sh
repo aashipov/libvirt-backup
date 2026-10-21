@@ -620,7 +620,7 @@ backup_vms() {
 #  Validate *.qcow2 files in "${CURRENT_BACKUP_DIR}"
 # ------------------------------------------------------------
 validate_backups() {
-    BACKUPS_TO_CHECK_FILE="${CURRENT_BACKUP_DIR}/.backups-to-check.txt"
+    BACKUPS_TO_CHECK_FILE="$(mktemp)" || die "Failed to create a BACKUPS_TO_CHECK_FILE"
     find "${CURRENT_BACKUP_DIR}" -type f \( -name '*.qcow2' -o -name '*.qcow2-shrunk' \) > "${BACKUPS_TO_CHECK_FILE}" || die "Failed to list backups in ${CURRENT_BACKUP_DIR}"
     while IFS= read -r line
     do
