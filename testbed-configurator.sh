@@ -222,6 +222,7 @@ configure_vms() {
             --network network=default,model=virtio \
             --graphics vnc,listen=0.0.0.0 \
             --osinfo detect=on,require=off \
+            --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 \
             --import --noautoconsole --noreboot
     done
 }
