@@ -245,28 +245,23 @@ closure() {
         if grep -q "Debian" "/etc/os-release"
         then
             debian_privileged
-        fi
-        if grep -q "Ubuntu" "/etc/os-release"
+        elif grep -q "Ubuntu" "/etc/os-release"
         then
             DISTRO=ubuntu
             ubuntu_privileged
-        fi
-        if grep -q "AlmaLinux" "/etc/os-release"
+        elif grep -q "AlmaLinux" "/etc/os-release"
         then
             DISTRO=alma
             rhel_privileged
-        fi
-        if grep -q "RED " "/etc/os-release"
+        elif grep -q "RED " "/etc/os-release"
         then
             DISTRO=redos
             redos_privileged
-        fi
-        if grep -q "Astra" "/etc/os-release"
+        elif grep -q "Astra" "/etc/os-release"
         then
             DISTRO=astra
             astra_privileged
-        fi
-        if grep -q "Fedora" "/etc/os-release"
+        elif grep -q "Fedora" "/etc/os-release"
         then
             DISTRO=fedora
             fedora_privileged
