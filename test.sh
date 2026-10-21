@@ -35,7 +35,7 @@ start_vms() {
     start_vm a
     start_vm c
     virsh suspend c
-    sleep 10
+    sleep 30
     virsh list --all
 }
 
@@ -48,7 +48,7 @@ stop_vms() {
     virsh resume c
     virsh destroy c
     virsh shutdown a
-    sleep 10
+    sleep 30
     virsh list --all
 }
 
