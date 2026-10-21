@@ -102,6 +102,9 @@ closure() {
     SRC_URL="${ALPINE_SRC_URL}"
     TGT_FILE="${ALPINE_TGT_FILE}"
     download
+    virt-customize -a "${ALPINE_TGT_FILE}" \
+      --install qemu-guest-agent \
+      --run-command 'rc-update add qemu-guest-agent default'
 
     DISTRO=debian
     SRC_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
