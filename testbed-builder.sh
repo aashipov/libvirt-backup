@@ -97,7 +97,7 @@ closure() {
     environment
     create_backup_dirs_and_log || die "Failed to create_backup_dirs_and_log"
 
-    ALPINE_SRC_URL="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/alpine-3.24.2-x86_64-cloudinit-r2.qcow2"
+    ALPINE_SRC_URL="https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/cloud/alpine-3.23.6-x86_64-bios-tiny-r0.qcow2"
     ALPINE_TGT_FILE="${BACKUP_DIR}/$(basename "${ALPINE_SRC_URL}")"
     SRC_URL="${ALPINE_SRC_URL}"
     TGT_FILE="${ALPINE_TGT_FILE}"
