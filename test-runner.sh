@@ -23,14 +23,14 @@ get_base_dir() {
 # Check .env presence
 # ------------------------------------------------------------
 check_dot_env_file() {
-    if [ ! -f ".env" ]
+    if [ ! -f "${BASE_DIR}/.env" ]
     then
-        cp .env.template .env
+        cp "${BASE_DIR}/.env.template" "${BASE_DIR}/.env"
     fi
-    if ! grep -q 'TEST_' ".env"
+    if ! grep -q '^TEST_HOSTNAME=' "${BASE_DIR}/.env"
     then
         printf '\n' >> .env
-        cat .test.env.template >> .env
+        cat "${BASE_DIR}/.test.env.template" >> "${BASE_DIR}/.env"
     fi
 }
 
