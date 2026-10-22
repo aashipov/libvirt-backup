@@ -38,11 +38,13 @@ remove_vm() {
 }
 
 build_disk() {
+    TARGET_DISK_CAPACITY="10G"
     if [ ! -f "${TARGET_DISK_FILE}" ]
     then
         qemu-img convert -O qcow2 -o compression_type=zstd -c "${TGT_FILE}" "${TARGET_DISK_FILE}" || die "Failed to convert ${TGT_FILE} to ${TARGET_DISK_FILE}"
-        qemu-img resize "${TARGET_DISK_FILE}" 10G
+        qemu-img resize "${TARGET_DISK_FILE}" "${TARGET_DISK_CAPACITY}" || die "Failed to resize ${TARGET_DISK_FILE} to ${TARGET_DISK_CAPACITY}"
     fi
+    unset TARGET_DISK_CAPACITY
 }
 
 cpu_count() {
