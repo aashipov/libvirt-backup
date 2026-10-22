@@ -71,6 +71,18 @@ download() {
     fi
 }
 
+prime_alpine() {
+    SRC_URL="${ALPINE_SRC_URL}"
+    TGT_FILE="${ALPINE_TGT_FILE}"
+    ALPINE_TGT_FILE_PRIMED="${ALPINE_TGT_FILE}.primed"
+    if [ ! -e "${ALPINE_TGT_FILE_PRIMED}" ]
+    then
+        download
+        virt-customize -a "${ALPINE_TGT_FILE}" --install qemu-guest-agent --run-command 'rc-update add qemu-guest-agent default'
+        touch "${ALPINE_TGT_FILE_PRIMED}"
+    fi
+}
+
 # ------------------------------------------------------------
 #  Main function to prevent occasional environment pollution
 # ------------------------------------------------------------
@@ -101,12 +113,7 @@ closure() {
 
     ALPINE_SRC_URL="https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/cloud/alpine-3.23.6-x86_64-bios-tiny-r0.qcow2"
     ALPINE_TGT_FILE="${BACKUP_DIR}/$(basename "${ALPINE_SRC_URL}")"
-    SRC_URL="${ALPINE_SRC_URL}"
-    TGT_FILE="${ALPINE_TGT_FILE}"
-    download
-    virt-customize -a "${ALPINE_TGT_FILE}" \
-      --install qemu-guest-agent \
-      --run-command 'rc-update add qemu-guest-agent default'
+    prime_alpine
 
     DISTRO=debian
     SRC_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
