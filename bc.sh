@@ -50,7 +50,7 @@ closure() {
     create_running
 
     # Cleanup on interrupt
-    trap cleanup_on_exit INT TERM
+    trap cleanup_on_exit INT TERM HUP QUIT
     # Release the lock on normal exit
     trap rm_running EXIT
 

@@ -48,9 +48,9 @@ build_disk() {
 }
 
 cpu_count() {
-    CPU_COUNT=1
     CPU_COUNT=$(($(getconf _NPROCESSORS_ONLN) + 0))
-    printf '%d\n' ${CPU_COUNT}
+    printf '%d\n' "${CPU_COUNT}"
+    unset CPU_COUNT
 }
 
 download() {
@@ -163,7 +163,7 @@ closure() {
     printf '%s\n' "virt-copy-out -d ${TARGET_VM_NAME} /home/admin/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
     printf '%s\n' "Rename ${TARGET_DISK_FILE} and attach to the unix VM"
 
-    unset BASE_DIR ALPINE_SRC_URL ALPINE_TGT_FILE DISTRO TARGET_VM_NAME TARGET_DISK_FILE SEED_ISO_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS
+    unset BASE_DIR ALPINE_SRC_URL ALPINE_TGT_FILE DISTRO TARGET_VM_NAME TARGET_DISK_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS
 }
 
 closure "${@}"
