@@ -45,9 +45,9 @@ backup_and_sync() {
 }
 
 stop_vms() {
-    virsh resume c
-    virsh destroy c
-    virsh shutdown a
+    virsh resume c 2>/dev/null || true
+    virsh destroy c 2>/dev/null || true
+    virsh shutdown a 2>/dev/null || true
     sleep 30
     virsh list --all
 }
