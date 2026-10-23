@@ -4,7 +4,7 @@
 
 Linux distros (Debian, Alma, Ubuntu, Astra) provide rapid deployment from a cloud-init prototype
 
-Credentials `admin/admin` 
+Credentials `admin/admin`
 
 ```sh
 testbed-builder.sh
@@ -14,7 +14,7 @@ Follow script instructions
 
 ## Manual flavor
 
-Both RDP & VNC are graphical desktop-sharing systems. With those one can control a remote computer from another device (RDP lacks simultaneous access VNC got, but looks more production-ready). 
+Both RDP & VNC are graphical desktop-sharing systems. With those one can control a remote computer from another device (RDP lacks simultaneous access VNC got, but looks more production-ready).
 
 [xrdp](https://github.com/neutrinolabs/xrdp) with [xorgxrdp](https://github.com/neutrinolabs/xorgxrdp) have been around for decades, are compatible to the majority of Window Managers and some of Desktop Environments (Xfce, KDE, Trinity, MATE).
 
@@ -30,6 +30,14 @@ Debian is fast, stable and open-licensed, makes a good Operating System for virt
 - Linux host: libvirt ≥ 7.2.0, QEMU ≥ 5.0, virt-manager or VirtualBox
 - Windows host: Windows 10 (Windows/Hyper-V Server 2016 Evaluation) or newer; Hyper-V with nested virtualization enabled (`Set-VMProcessor -VMName <VMName> -ExposeVirtualizationExtensions $true`)
 - FreeBSD host with bhyve
+- Linux host with Windows 10+ guest: `virsh edit <vmname>`:
+
+```xml
+<cpu mode='host-passthrough' check='none'>
+  <feature policy='require' name='vmx'/>  <!-- Use 'svm' if your host is AMD -->
+  <feature policy='disable' name='hypervisor'/>
+</cpu>
+```
 
 > [!NOTE]
 > RedHat, Inc recommend [XFS-backed storage](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/managing_file_systems/overview-of-available-file-systems), which is faster and can only grow. `ext4` can also shrink.
