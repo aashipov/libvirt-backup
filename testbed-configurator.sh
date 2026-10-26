@@ -167,7 +167,12 @@ EOF
 }
 
 configure_ssh() {
-    mkdir -p "${HOME}/.ssh/" && ssh-keygen -t rsa -b 4096 -C "dummy@dummy.org" -f "${HOME}/.ssh/id_rsa" && chmod 0600 "${HOME}/.ssh/id_rsa" && ssh-copy-id 127.0.0.2
+    if [ -e "${HOME}/.ssh/id_rsa" ]
+    then
+        printf '%s\n' "Found ${HOME}/.ssh/id_rsa. To regenerate, remove and repeat"
+    else
+       mkdir -p "${HOME}/.ssh/" && ssh-keygen -t rsa -b 4096 -C "dummy@dummy.org" -f "${HOME}/.ssh/id_rsa" && chmod 0600 "${HOME}/.ssh/id_rsa" && ssh-copy-id 127.0.0.2
+    fi
 }
 
 download() {
