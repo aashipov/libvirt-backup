@@ -6,7 +6,7 @@
 >
 > AI-generated code is allowed. What is **not** allowed is submitting code you do not understand. You are 100% responsible for every line, however it was produced.
 > 
-> Local/cloud models will produce a lot of `belles-lettres` / `fluff` / `good intentions` / `Salon Blödsinn`.
+> Local/cloud models got no experience of their own. 'A priory' they produce a lot of `belles-lettres` / `fluff` / `good intentions` / `Salon Blödsinn`, in some cases introduce critical errors.
 > 
 > Check relevance & [TEST.md](./TEST.md) conformance before commiting those.
 
