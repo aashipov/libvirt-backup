@@ -30,7 +30,7 @@ Debian is fast, stable and open-licensed, makes a good Operating System for virt
 - Linux host: libvirt ≥ 7.2.0, QEMU ≥ 5.0, virt-manager or VirtualBox
 - Windows host: Windows 10 (Windows/Hyper-V Server 2016 Evaluation) or newer; Hyper-V with nested virtualization enabled (`Set-VMProcessor -VMName <VMName> -ExposeVirtualizationExtensions $true`)
 - FreeBSD host with bhyve
-- Linux host with Windows 10+ guest: `virsh edit <vmname>`:
+- Linux host, Windows 10/Server 2019+ guest, rather a headless Linux than WSL: `virsh edit <vmname>`:
 
 ```xml
 <cpu mode='host-passthrough' check='none'>
