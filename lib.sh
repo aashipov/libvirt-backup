@@ -593,7 +593,11 @@ check_available_disk_space() {
         done < "${VM_DISKS_FILE}"
         unset VM_BACKUP_DIR VM_DISKS_FILE DISK_NAME DISK_FILE_ABSOLUTE_PATH
     done
-    DISK_ACTUAL_FREE_SPACE=$(get_disk_actual_free_space)
+    DISK_ACTUAL_FREE_SPACE=$(get_disk_actual_free_space) || die  "Failed to get free disk space in ${BACKUP_DIR}"
+    if ! printf '%s\n' "${DISK_ACTUAL_FREE_SPACE}" | grep -qE '^[0123456789]+$'
+    then
+        die "DISK_ACTUAL_FREE_SPACE must be a number, got '${DISK_ACTUAL_FREE_SPACE}'"
+    fi
     REQUIRED_SPACE="${ALL_DISKS_ACTUAL_SIZE}"
     if [ "${QEMU_IMG_CONVERT_WITH_COMPRESSION}" = "1" ]
     then
