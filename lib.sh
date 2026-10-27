@@ -338,11 +338,11 @@ get_disk_actual_free_space() {
     # BACKUP_DIR is set up the call stack
     DF_OUTPUT="$(df --portability --block-size=1 "${BACKUP_DIR}")" || die "Failed to calculate free disk space in ${BACKUP_DIR}"
     DISK_ACTUAL_FREE_SPACE="$(printf '%s\n' "${DF_OUTPUT}" | awk -v target="Available" 'NR==1 { for(i=1;i<=NF;i++) if($i==target) col=i } NR==2 { print $col }')"
-    if ! printf '%d\n' "${DISK_ACTUAL_FREE_SPACE}" | grep -qE '^[0123456789]+$'
+    if ! printf '%s\n' "${DISK_ACTUAL_FREE_SPACE}" | grep -qE '^[0123456789]+$'
     then
         die "Could not parse free disk space for ${BACKUP_DIR}"
     fi
-    printf '%d\n' "${DISK_ACTUAL_FREE_SPACE}"
+    printf '%s\n' "${DISK_ACTUAL_FREE_SPACE}"
     unset DF_OUTPUT DISK_ACTUAL_FREE_SPACE
 }
 
@@ -395,11 +395,11 @@ get_vm_disk_names_and_absolute_paths() {
 get_vm_disk_actual_size() {
     ACTUAL_JSON="$(qemu-img info --force-share --output=json "${1}")" || die "Failed to get ${1} actual-size"
     ACTUAL_SIZE=$(printf '%s\n' "${ACTUAL_JSON}" | awk -F'[: ,]+' '$2 == "\"actual-size\"" {v=$3} END {print v}')
-    if ! printf '%d\n' "${ACTUAL_SIZE}" | grep -qE '^[0123456789]+$'
+    if ! printf '%s\n' "${ACTUAL_SIZE}" | grep -qE '^[0123456789]+$'
     then
         die "Could not parse actual-size for ${1}"
     fi
-    printf '%d\n' "${ACTUAL_SIZE}"
+    printf '%s\n' "${ACTUAL_SIZE}"
     unset ACTUAL_JSON ACTUAL_SIZE
 }
 
