@@ -173,7 +173,7 @@ check_path() {
     # 8. Unsafe characters – allow only alphanum, '/', '_', '.', '-'
     if ! printf '%s\n' "${VAR_VALUE}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/][ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/0123456789._-]+$'
     then
-        die "${VAR_PTR} contains unsafe characters (${VAR_VALUE}) — only alphanumeric, '/', '_', '.', and '-' are allowed"
+        die "${VAR_PTR} contains unsafe characters (${VAR_VALUE}) — only alphabetic followed by alphanumeric, '/', '_', '.', and '-' are allowed"
     fi
 
     # 9. Value made only of slashes
@@ -242,7 +242,7 @@ check_mandatory_variables_set() {
         then
             die "Mandatory variable ${VAR_PTR} is not defined or blank"
         fi
-        if [ "${VAR_PTR}" = "BACKUP_DIR" ] || [ "${VAR_PTR}" = "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" ]
+        if [ "${VAR_PTR}" = "BACKUP_DIR" ] || [ "${VAR_PTR}" = "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" ] || [ "${VAR_PTR}" = "BACKUP_LOG_FILE" ] || [ "${VAR_PTR}" = "RUNNING_FILE" ]
         then
             check_path "${VAR_PTR}" "${VAR_VALUE}"
         fi
