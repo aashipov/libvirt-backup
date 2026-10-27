@@ -253,7 +253,7 @@ check_mandatory_variables_set() {
         set +f
     fi
     # Clean up variables to mimic local scoping
-    unset MANDATORY_VARIABLES_NAMES VAR_PTR VAR_VALUE HAD_F
+    unset MANDATORY_VARIABLES_NAMES VAR_PTR HAD_F
 
     # DAYS_TO_KEEP_BACKUPS feeds `find -mtime`: a leading '+' is mandatory for
     # the 'older than N days' semantic (a bare number would match a 24h window,
