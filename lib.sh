@@ -670,14 +670,16 @@ cleanup_on_exit() {
 # ------------------------------------------------------------
 clean_obsolete_backups() {
     log "Clean obsolete backups start"
+    [ -L "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}" ] && die "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR} is a symlink, refusing to operate"
     if [ -d "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}" ]
     then
-        find "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" -type d -depth -mindepth 1 -mtime "${DAYS_TO_KEEP_BACKUPS}" -exec rm -rf {} \;
+        find "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}" -xdev -type d -depth -mindepth 1 -mtime "${DAYS_TO_KEEP_BACKUPS}" -exec rm -rf {} \;
     fi
 
+    [ -L "${BACKUP_DIR}" ] && die "${BACKUP_DIR} is a symlink, refusing to operate"
     if [ -d "${BACKUP_DIR}" ]
     then
-        find "${BACKUP_DIR}/" -type d -depth -mindepth 1 -mtime "${DAYS_TO_KEEP_BACKUPS}" -exec rm -rf {} \;
+        find "${BACKUP_DIR}" -xdev -type d -depth -mindepth 1 -mtime "${DAYS_TO_KEEP_BACKUPS}" -exec rm -rf {} \;
     fi
     log "Clean obsolete backups finish"
 }
