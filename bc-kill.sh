@@ -44,7 +44,7 @@ closure() {
 
     # Do the job
     environment
-    pgrep -f bc.sh | xargs kill -9 || true
+    pgrep -f bc.sh | xargs kill -KILL || true
     kill_backup_jobs
     rm_running
 }
