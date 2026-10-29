@@ -69,6 +69,7 @@ closure() {
     cd "${BASE_DIR}"
     check_dot_env_file
     environment
+    check_mandatory_variables_set ".test.env.template"
     if ! printf '%s\n' "${TEST_APP_NAME}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz][ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-]+$'
     then
         fail_internal "TEST_APP_NAME contains unsafe characters ${TEST_APP_NAME} — only latin letters and '-' are allowed"

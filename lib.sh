@@ -212,10 +212,15 @@ check_rsync() {
 #  Check if all of the mandatory variables are set in the environment
 # ------------------------------------------------------------
 check_mandatory_variables_set() {
-    # .env.template is a single source of truth for mandatory variables
-    MANDATORY_VARIABLES_NAMES="$(awk -F= '!/^#/ && !/^$/ {print $1}' "${BASE_DIR}/.env.template")" || die "Failed to extract variables names from ${BASE_DIR}/.env.template"
+    # SOURCE_OF_TRUTH_FILE_NAME is a single source of truth for mandatory variables
+    SOURCE_OF_TRUTH_FILE_NAME=".env.template"
+    if [ -n "${1}" ]
+    then
+        SOURCE_OF_TRUTH_FILE_NAME="${1}"
+    fi
+    MANDATORY_VARIABLES_NAMES="$(awk -F= '!/^#/ && !/^$/ {print $1}' "${BASE_DIR}/${SOURCE_OF_TRUTH_FILE_NAME}")" || die "Failed to extract variables names from ${BASE_DIR}/${SOURCE_OF_TRUTH_FILE_NAME}"
 
-    # set -f prevents pathname expansion of names read from .env.template
+    # set -f prevents pathname expansion of names read from SOURCE_OF_TRUTH_FILE_NAME
     # Save and restore the previous state instead of blindly unsetting it.
     case "${-}" in
         *f*)
@@ -228,13 +233,13 @@ check_mandatory_variables_set() {
     esac
     for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
     do
-        # Names from .env.template are interpolated via eval below, so they
+        # Names from SOURCE_OF_TRUTH_FILE_NAME are interpolated via eval below, so they
         # must be valid shell identifiers before being used.
         # Explicit enumeration avoids locale-dependent bracket ranges
         # (e.g. [A-Z] does not reliably mean ASCII A-Z in UTF-8 locales).
         if ! printf '%s\n' "${VAR_PTR}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZ][ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_]+$'
         then
-            die "Invalid variable name in .env.template: ${VAR_PTR}"
+            die "Invalid variable name in ${SOURCE_OF_TRUTH_FILE_NAME}: ${VAR_PTR}"
         fi
         VAR_VALUE=""
         VAR_VALUE="$(env | awk -v VAR_PTR="${VAR_PTR}" -F '=' '$1==VAR_PTR { print $2}')"
