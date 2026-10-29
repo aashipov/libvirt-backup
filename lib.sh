@@ -394,10 +394,16 @@ get_vm_disk_names_and_absolute_paths() {
 # ------------------------------------------------------------
 get_vm_disk_actual_size() {
     ACTUAL_JSON="$(qemu-img info --force-share --output=json "${1}")" || die "Failed to get ${1} actual-size"
-    ACTUAL_SIZE=$(printf '%s\n' "${ACTUAL_JSON}" | awk -F'[: ,]+' '$2 == "\"actual-size\"" {v=$3} END {print v}')
-    if ! printf '%s\n' "${ACTUAL_SIZE}" | grep -qE '^[0123456789]+$'
+    ACTUAL_SIZE=$(printf '%s\n' "${ACTUAL_JSON}" |
+        awk 'match($0, /"actual-size"[[:space:]]*:[[:space:]]*[0-9]+/) {
+                   s = substr($0, RSTART, RLENGTH)
+                   gsub(/[^0-9]/, "", s)
+                   v = s
+               }
+               END { print v }')
+    if ! printf '%s\n' "${ACTUAL_SIZE}" | grep -qE '^[123456789][0123456789]+$'
     then
-        die "Could not parse actual-size for ${1}"
+        die "Incorrect ${1} actual-size ${ACTUAL_SIZE}"
     fi
     printf '%s\n' "${ACTUAL_SIZE}"
     unset ACTUAL_JSON ACTUAL_SIZE
