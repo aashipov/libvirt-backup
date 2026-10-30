@@ -51,14 +51,14 @@ configure_persistence() {
     _conf_dir=$(dirname "${CONF_FILE}")
 
     printf '\n% Configuring persistent setting in %s...\n' "${CONF_FILE}"
-    mkdir -p "${_conf_dir}"
+    sudo mkdir -p "${_conf_dir}"
 
     # Using POSIX safe grep matching instead of bash specific flags
     if [ -e "$CONF_FILE" ] && grep -F "${_conf_line}" "${CONF_FILE}" >/dev/null 2>&1
     then
         printf 'Configuration line already present in %s.\n' "${CONF_FILE}"
     else
-        printf "${_conf_line}\n" | sudo tee -a "${CONF_FILE}"
+        printf '%s\n' "${_conf_line}" | sudo tee -a "${CONF_FILE}"
         printf 'Successfully appended configuration to %s.\n' "${CONF_FILE}"
     fi
 }
