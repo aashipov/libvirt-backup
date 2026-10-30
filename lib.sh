@@ -188,10 +188,9 @@ check_path() {
 # ------------------------------------------------------------
 check_libvirt() {
     virsh version >/dev/null 2>&1 || die "Cannot reach libvirt (is libvirtd running?)"
-    if [ ! -f "$HOME/.config/libvirt/libvirt.conf" ] || ! grep -q '^uri_default *= *"qemu:///system"' "$HOME/.config/libvirt/libvirt.conf"
-    then
-        export LIBVIRT_DEFAULT_URI="qemu:///system"
-    fi
+    # Bypass the user's personal libvirt.conf
+    export LIBVIRT_DEFAULT_URI="qemu:///system"
+    virsh --connect qemu:///system version >/dev/null 2>&1 || die "Cannot reach libvirt at qemu:///system"
 }
 
 # ------------------------------------------------------------
