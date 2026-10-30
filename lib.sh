@@ -173,7 +173,7 @@ check_path() {
     # 8. Unsafe characters – allow only alphanum, '/', '_', '.', '-'
     if ! printf '%s\n' "${VAR_VALUE}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/][ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/0123456789._-]+$'
     then
-        die "${VAR_PTR} contains unsafe characters (${VAR_VALUE}) — only alphabetic followed by alphanumeric, '/', '_', '.', and '-' are allowed"
+        die "${VAR_PTR} contains unsafe characters (${VAR_VALUE}) — only alphabetic and '/' followed by alphanumeric, '/', '_', '.', and '-' are allowed"
     fi
 
     # 9. Value made only of slashes
