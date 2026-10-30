@@ -539,18 +539,19 @@ backup_vm() {
     # single VM
     VM_STATE=""
     VM_STATE="$(virsh domstate "${VM_NAME}")" || die "Failed to get ${VM_NAME} state"
-    if printf '%s\n' "${VM_STATE}" | grep -q "running"
-    then
-        log "${VM_NAME} is running, will use a live backup job"
-        online_backup
-    elif printf '%s\n' "${VM_STATE}" | grep -q "paused"
-    then
-        log "${VM_NAME} is paused, skipping"
-        return 0
-    else
-        log "${VM_NAME} is not running, will use an offline backup"
-        offline_backup
-    fi
+    case "${VM_STATE}" in
+        running)
+            log "${VM_NAME} is running, will use a live backup job"
+            online_backup
+            ;;
+        "shut off")
+            log "${VM_NAME} is not running, will use an offline backup"
+            offline_backup
+            ;;
+        *)
+            log "${VM_NAME} state ${VM_STATE} is not supported"
+            ;;
+    esac
     unset VM_NAME VM_BACKUP_DIR VM_STATE
 }
 
