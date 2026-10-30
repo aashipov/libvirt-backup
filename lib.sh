@@ -151,7 +151,7 @@ check_path() {
 
     # 5. Path traversal via '..'
     case "${VAR_VALUE}" in
-        *..*) die "${VAR_PTR} contains '..' — path traversal is not allowed (${VAR_VALUE})";;
+        */../*) die "${VAR_PTR} contains '..' — path traversal is not allowed (${VAR_VALUE})";;
     esac
 
     # 6. Multiple slashes in a row
