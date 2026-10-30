@@ -388,8 +388,10 @@ get_vm_disk_names_and_absolute_paths() {
     # Filter on the Device column ('disk') to skip cdrom and avoid false
     # positives from source paths containing the word 'disk'
     DISK_FILES=""
-    DISK_FILES="$(virsh domblklist --details "${1}" | awk '$2 == "disk" && $4 != "-" {print $3 "|" $4}')"
-    [ -z "${DISK_FILES}" ] && die "Could not parse disk list for ${1}"
+    DISK_FILES="$(virsh domblklist --details "${1}" | awk '$1 == "file" && $2 == "disk" && $4 != "-" && $4 != "" { print $3 "|" $4 }')"
+    [ -z "${DISK_FILES}" ] && die "No file-backed disks found for ${1}"
+    SKIPPED="$(virsh domblklist --details "${1}" | awk '$2 == "disk" && $1 != "file" { print $3 " (type " $1 ")" }')"
+    [ -n "${SKIPPED}" ] && log "Skipping non-file disks of ${1}: ${SKIPPED}"
     printf '%s\n' "${DISK_FILES}"
     unset DISK_FILES
 }
