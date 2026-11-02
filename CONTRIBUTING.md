@@ -12,7 +12,7 @@
 
 # 'Performance' baseline
 
-[HEADLESS.md](./HEADLESS.md) suggests XFS-formatted disk to store VM zstd-compressed qcow2 files. XFS outperforms ext4 in computation & disk intensive tasks like `vscode` compilation (Windows Server 2012R2 or newer). zstd-compressed image displays lower CPU load than its zlib-compressed clone
+[HEADLESS.md](./HEADLESS.md) suggests XFS-formatted disk to store VM zstd-compressed qcow2 files. XFS outperforms ext4 in computation & disk intensive tasks like `vscode` compilation (Windows Server 2012R2 or newer). zstd-compressed image displays lower CPU load than its zlib-compressed clone. Linux guest VM XFS-formatted disk placed on XFS-formatted host HDD performs faster as well, the difference is less noticeable though
 
 # Pull requests (for contributors & collaborators)
 
