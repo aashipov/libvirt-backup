@@ -38,7 +38,7 @@ remove_vm() {
 }
 
 build_disk() {
-    TARGET_DISK_CAPACITY="10G"
+    TARGET_DISK_CAPACITY="32G"
     if [ ! -f "${TARGET_DISK_FILE}" ]
     then
         qemu-img convert -O qcow2 -o compression_type=zstd -c "${TGT_FILE}" "${TARGET_DISK_FILE}" || die "Failed to convert ${TGT_FILE} to ${TARGET_DISK_FILE}"
