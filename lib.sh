@@ -119,68 +119,71 @@ BASE_DIR="$(get_base_dir)"
 #   - shell metacharacters (backticks, parentheses, braces, brackets)
 # ------------------------------------------------------------
 check_path() {
-    VAR_PTR="${1}"
-    VAR_VALUE="${2}"
-    USERS_HOME="${HOME}"
+    (
+    _VAR_PTR_CP="${1}"
+    _VAR_VALUE_CP="${2}"
+    _USERS_HOME_CP="${HOME}"
 
     # 1. Blank or unset
-    [ -z "${VAR_VALUE}" ] && die "${VAR_PTR} is blank"
+    [ -z "${_VAR_VALUE_CP}" ] && die "${_VAR_PTR_CP} is blank"
 
     # 1.1 Newline
-    case "${VAR_VALUE}" in
-        *'\n'*) die "${VAR_VALUE} contains a newline!" ;;
+    case "${_VAR_VALUE_CP}" in
+        *'\n'*) die "${_VAR_VALUE_CP} contains a newline!" ;;
         *) ;;
     esac
 
 
     # 2. Refers to the user’s home directory
-    if [ "${VAR_VALUE}" = "${USERS_HOME}" ] || [ "${VAR_VALUE}" = "${USERS_HOME}/" ]
+    if [ "${_VAR_VALUE_CP}" = "${_USERS_HOME_CP}" ] || [ "${_VAR_VALUE_CP}" = "${_USERS_HOME_CP}/" ]
     then
-        die "${VAR_PTR} refers user's home directory"
+        die "${_VAR_PTR_CP} refers user's home directory"
     fi
 
     # 3. Unexpanded variable expansion (contains a literal '$')
-    case "${VAR_VALUE}" in
-        *\$*) die "${VAR_PTR} contains an unexpanded variable expansion (${VAR_VALUE})";;
+    case "${_VAR_VALUE_CP}" in
+        *\$*) die "${_VAR_PTR_CP} contains an unexpanded variable expansion (${_VAR_VALUE_CP})";;
     esac
 
     # 4. Tilde shorthand
-    case "${VAR_VALUE}" in
-        *~*) die "${VAR_PTR} contains a tilde '~' — use an absolute path (${VAR_VALUE})";;
+    case "${_VAR_VALUE_CP}" in
+        *~*) die "${_VAR_PTR_CP} contains a tilde '~' — use an absolute path (${_VAR_VALUE_CP})";;
     esac
 
     # 5. Path traversal via '..'
-    case "${VAR_VALUE}" in
-        */../*) die "${VAR_PTR} contains '..' — path traversal is not allowed (${VAR_VALUE})";;
+    case "${_VAR_VALUE_CP}" in
+        */../*) die "${_VAR_PTR_CP} contains '..' — path traversal is not allowed (${_VAR_VALUE_CP})";;
     esac
 
     # 6. Multiple slashes in a row
-    case "${VAR_VALUE}" in
-        *//*) die "${VAR_PTR} contains multiple slashes in a row (${VAR_VALUE})";;
+    case "${_VAR_VALUE_CP}" in
+        *//*) die "${_VAR_PTR_CP} contains multiple slashes in a row (${_VAR_VALUE_CP})";;
     esac
 
     # 7. Must start with a slash (absolute path)
-    case "${VAR_VALUE}" in
+    case "${_VAR_VALUE_CP}" in
         /*) ;;
-        *) die "${VAR_PTR} is not an absolute path (${VAR_VALUE})";;
+        *) die "${_VAR_PTR_CP} is not an absolute path (${_VAR_VALUE_CP})";;
     esac
 
     # 7.1 No trailing slash
-    case "${VAR_VALUE}" in
-        */) die "${VAR_PTR} must not end with '/' (${VAR_VALUE})";;
+    case "${_VAR_VALUE_CP}" in
+        */) die "${_VAR_PTR_CP} must not end with '/' (${_VAR_VALUE_CP})";;
     esac
 
     # 8. Unsafe characters – allow only alphanum, '/', '_', '.', '-'
-    if ! printf '%s\n' "${VAR_VALUE}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/][ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/0123456789._-]+$'
+    if ! printf '%s\n' "${_VAR_VALUE_CP}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/][ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/0123456789._-]+$'
     then
-        die "${VAR_PTR} contains unsafe characters (${VAR_VALUE}) — only alphabetic and '/' followed by alphanumeric, '/', '_', '.', and '-' are allowed"
+        die "${_VAR_PTR_CP} contains unsafe characters (${_VAR_VALUE_CP}) — only alphabetic and '/' followed by alphanumeric, '/', '_', '.', and '-' are allowed"
     fi
 
     # 9. Value made only of slashes
-    case "$VAR_VALUE" in
+    case "${_VAR_VALUE_CP}" in
         *[!/]*) ;;
-        *) die "$VAR_PTR contains only slashes ($VAR_VALUE)";;
+        *) die "${_VAR_PTR_CP} contains only slashes ($_VAR_VALUE_CP)";;
     esac
+    unset _VAR_PTR_CP _VAR_PTR_CP _USERS_HOME_CP
+    )
 }
 
 # ------------------------------------------------------------
@@ -230,34 +233,34 @@ check_mandatory_variables_set() {
             set -f
             ;;
     esac
-    for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
+    for _VAR_PTR_CP in ${MANDATORY_VARIABLES_NAMES}
     do
         # Names from SOURCE_OF_TRUTH_FILE_NAME are interpolated via eval below, so they
         # must be valid shell identifiers before being used.
         # Explicit enumeration avoids locale-dependent bracket ranges
         # (e.g. [A-Z] does not reliably mean ASCII A-Z in UTF-8 locales).
-        if ! printf '%s\n' "${VAR_PTR}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZ][ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_]+$'
+        if ! printf '%s\n' "${_VAR_PTR_CP}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZ][ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_]+$'
         then
-            die "Invalid variable name in ${SOURCE_OF_TRUTH_FILE_NAME}: ${VAR_PTR}"
+            die "Invalid variable name in ${SOURCE_OF_TRUTH_FILE_NAME}: ${_VAR_PTR_CP}"
         fi
-        VAR_VALUE=""
-        VAR_VALUE="$(env | awk -v VAR_PTR="${VAR_PTR}" -F '=' '$1==VAR_PTR { print $2}')"
-        if [ -z "${VAR_VALUE}" ]
+        _VAR_VALUE_CP=""
+        _VAR_VALUE_CP="$(env | awk -v VAR_PTR="${_VAR_PTR_CP}" -F '=' '$1==VAR_PTR { print $2}')"
+        if [ -z "${_VAR_VALUE_CP}" ]
         then
-            die "Mandatory variable ${VAR_PTR} is not defined or blank"
+            die "Mandatory variable ${_VAR_PTR_CP} is not defined or blank"
         fi
-        if [ "${VAR_PTR}" = "BACKUP_DIR" ] || [ "${VAR_PTR}" = "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" ] || [ "${VAR_PTR}" = "BACKUP_LOG_FILE" ] || [ "${VAR_PTR}" = "RUNNING_FILE" ]
+        if [ "${_VAR_PTR_CP}" = "BACKUP_DIR" ] || [ "${_VAR_PTR_CP}" = "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" ] || [ "${_VAR_PTR_CP}" = "BACKUP_LOG_FILE" ] || [ "${_VAR_PTR_CP}" = "RUNNING_FILE" ]
         then
-            check_path "${VAR_PTR}" "${VAR_VALUE}"
+            check_path "${_VAR_PTR_CP}" "${_VAR_VALUE_CP}"
         fi
-        unset VAR_VALUE
+        unset _VAR_VALUE_CP
     done
     if [ "${HAD_F}" -eq 0 ]
     then
         set +f
     fi
     # Clean up variables to mimic local scoping
-    unset MANDATORY_VARIABLES_NAMES VAR_PTR HAD_F
+    unset MANDATORY_VARIABLES_NAMES _VAR_PTR_CP HAD_F
 
     # DAYS_TO_KEEP_BACKUPS feeds `find -mtime`: a leading '+' is mandatory for
     # the 'older than N days' semantic (a bare number would match a 24h window,
