@@ -239,7 +239,7 @@ check_mandatory_variables_set() {
         # must be valid shell identifiers before being used.
         # Explicit enumeration avoids locale-dependent bracket ranges
         # (e.g. [A-Z] does not reliably mean ASCII A-Z in UTF-8 locales).
-        if ! printf '%s\n' "${VAR_PTR}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZ][ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_]+$'
+        if ! printf '%s\n' "${VAR_PTR}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZ][ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_]*$'
         then
             die "Invalid variable name in ${SOURCE_OF_TRUTH_FILE_NAME}: ${_VAR_PTR_CP}"
         fi
