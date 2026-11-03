@@ -272,7 +272,7 @@ check_mandatory_variables_set() {
         die "DAYS_TO_KEEP_BACKUPS must be of the form '+N' (older than N days), got '${DAYS_TO_KEEP_BACKUPS}'"
     fi
 
-    if ! printf '%s\n' "${BACKUP_TIMEOUT_SECONDS}" | grep -qE '^[0123456789]+$'
+    if ! printf '%s\n' "${BACKUP_TIMEOUT_SECONDS}" | grep -qE '^[123456789][0123456789]*$'
     then
         die "BACKUP_TIMEOUT_SECONDS must be a plain number of seconds, got '${BACKUP_TIMEOUT_SECONDS}'"
     fi
