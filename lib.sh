@@ -290,7 +290,7 @@ check_mandatory_variables_set() {
         fi
     done
     unset VM_NAME
-    if ! printf '%s\n' "${ANOTHER_SERVER_IP}" | grep -qE '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
+    if ! printf '%s\n' "${ANOTHER_SERVER_IP}" | grep -qE '^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$'
     then
         die "ANOTHER_SERVER_IP is not a valid IP v4 (${ANOTHER_SERVER_IP}). If you do not rc.sh, fill ANOTHER_SERVER_IP with the default 127.0.0.2 in .env"
     fi
