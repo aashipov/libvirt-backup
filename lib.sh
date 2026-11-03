@@ -233,34 +233,34 @@ check_mandatory_variables_set() {
             set -f
             ;;
     esac
-    for _VAR_PTR_CP in ${MANDATORY_VARIABLES_NAMES}
+    for VAR_PTR in ${MANDATORY_VARIABLES_NAMES}
     do
         # Names from SOURCE_OF_TRUTH_FILE_NAME are interpolated via eval below, so they
         # must be valid shell identifiers before being used.
         # Explicit enumeration avoids locale-dependent bracket ranges
         # (e.g. [A-Z] does not reliably mean ASCII A-Z in UTF-8 locales).
-        if ! printf '%s\n' "${_VAR_PTR_CP}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZ][ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_]+$'
+        if ! printf '%s\n' "${VAR_PTR}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZ][ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_]+$'
         then
             die "Invalid variable name in ${SOURCE_OF_TRUTH_FILE_NAME}: ${_VAR_PTR_CP}"
         fi
-        _VAR_VALUE_CP=""
-        _VAR_VALUE_CP="$(env | awk -v VAR_PTR="${_VAR_PTR_CP}" -F '=' '$1==VAR_PTR { print $2}')"
-        if [ -z "${_VAR_VALUE_CP}" ]
+        VAR_VALUE=""
+        VAR_VALUE="$(env | awk -v VAR_PTR="${VAR_PTR}" 'index($0, VAR_PTR "=") == 1 { print substr($0, length(VAR_PTR) + 2) }')"
+        if [ -z "${VAR_VALUE}" ]
         then
-            die "Mandatory variable ${_VAR_PTR_CP} is not defined or blank"
+            die "Mandatory variable ${VAR_PTR} is not defined or blank"
         fi
-        if [ "${_VAR_PTR_CP}" = "BACKUP_DIR" ] || [ "${_VAR_PTR_CP}" = "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" ] || [ "${_VAR_PTR_CP}" = "BACKUP_LOG_FILE" ] || [ "${_VAR_PTR_CP}" = "RUNNING_FILE" ]
+        if [ "${VAR_PTR}" = "BACKUP_DIR" ] || [ "${VAR_PTR}" = "ANOTHER_SERVER_ANOTHER_BACKUP_DIR" ] || [ "${VAR_PTR}" = "BACKUP_LOG_FILE" ] || [ "${VAR_PTR}" = "RUNNING_FILE" ]
         then
-            check_path "${_VAR_PTR_CP}" "${_VAR_VALUE_CP}"
+            check_path "${VAR_PTR}" "${VAR_VALUE}"
         fi
-        unset _VAR_VALUE_CP
+        unset VAR_VALUE
     done
     if [ "${HAD_F}" -eq 0 ]
     then
         set +f
     fi
     # Clean up variables to mimic local scoping
-    unset MANDATORY_VARIABLES_NAMES _VAR_PTR_CP HAD_F
+    unset MANDATORY_VARIABLES_NAMES VAR_PTR HAD_F
 
     # DAYS_TO_KEEP_BACKUPS feeds `find -mtime`: a leading '+' is mandatory for
     # the 'older than N days' semantic (a bare number would match a 24h window,
