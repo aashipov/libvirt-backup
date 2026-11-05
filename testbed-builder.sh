@@ -78,7 +78,7 @@ prime_alpine() {
     if [ ! -e "${ALPINE_TGT_FILE_PRIMED}" ]
     then
         download
-        virt-customize -a "${ALPINE_TGT_FILE}" --install qemu-guest-agent --run-command 'rc-update add qemu-guest-agent default'
+        virt-customize -a "${ALPINE_TGT_FILE}" --install qemu-guest-agent --run-command 'rc-update add qemu-guest-agent default' || die "virt-customize failed for ${ALPINE_TGT_FILE}"
         touch "${ALPINE_TGT_FILE_PRIMED}"
     fi
 }
