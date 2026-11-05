@@ -598,6 +598,7 @@ check_available_disk_space() {
     do
         VM_BACKUP_DIR="${CURRENT_BACKUP_DIR}/${VM_NAME}"
         VM_DISKS_FILE="${VM_BACKUP_DIR}/disks.psv"
+        [ -r "${VM_DISKS_FILE}" ] || die "Missing disk list ${VM_DISKS_FILE} for ${VM_NAME}"
         DISK_NAME=""
         DISK_FILE_ABSOLUTE_PATH=""
         while IFS='|' read -r DISK_NAME DISK_FILE_ABSOLUTE_PATH
