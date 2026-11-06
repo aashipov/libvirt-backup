@@ -28,10 +28,10 @@ remove_vm() {
         fi
         while virsh list --name --state-running | grep -q "\b${TARGET_VM_NAME}\b"
         do
-            echo "${TARGET_VM_NAME} is still running. Waiting..."
+            printf '%s is still running. Waiting...\n' "${TARGET_VM_NAME}"
             sleep 5
         done
-        echo "${TARGET_VM_NAME} has shut down."
+        printf '%s has shut down.\n' "${TARGET_VM_NAME}"
         virsh undefine "${TARGET_VM_NAME}" || die "Failed to undefine ${TARGET_VM_NAME}"
         rm -rf "${TARGET_DISK_FILE}"
     fi
