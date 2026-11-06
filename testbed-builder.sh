@@ -155,19 +155,16 @@ closure() {
     virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
     ${CLOUD_INIT_ARGS}
 
-    printf '%s\n' "Connect to ${TARGET_VM_NAME} under cloud-init"
-    printf '%s\n' "setsid --fork virt-manager --connect qemu:///system --show-domain-console ${TARGET_VM_NAME}"
-    printf '%s\n' "wait for \`cloud-init status\` 'done'"
-    printf '%s\n' "cd ${BASE_DIR} && virsh shutdown ${TARGET_VM_NAME} ; sleep 30s && virt-copy-in -d ${TARGET_VM_NAME} testbed-configurator.sh /home/admin/ && virt-copy-in -d ${TARGET_VM_NAME} ${ALPINE_TGT_FILE} /home/admin/ && virsh start ${TARGET_VM_NAME}"
-    printf '%s\n' "Connect via virt-manager"
-    printf '%s\n' "setsid --fork virt-manager --connect qemu:///system --show-domain-console ${TARGET_VM_NAME}"
-    printf '%s\n' "or via SSH"
+    printf '%s\n' "Connect to ${TARGET_VM_NAME} under cloud-init as admin/admin"
     printf '%s\n' "ssh admin@${TARGET_VM_NAME}"
-    printf '%s\n' "authenticate admin/admin & launch"
-    printf '%s\n' "./testbed-configurator.sh"
+    printf '%s\n' "wait for \`cloud-init status\` 'done'"
+    printf '%s\n' "From host:"
+    printf '%s\n' "scp -r ${BASE_DIR} admin@${TARGET_VM_NAME}:/home/admin/ ; scp ${ALPINE_TGT_FILE} admin@${TARGET_VM_NAME}:/home/admin/"
+    printf '%s\n' "With guest, launch:"
+    printf '%s\n' "/home/admin/libvirt-backup/testbed-configurator.sh"
     printf '%s\n' "If anything fails, check network connection, log-out and re-login"
-    printf '%s\n' "Copy ssh pair out"
-    printf '%s\n' "virt-copy-out -d ${TARGET_VM_NAME} /home/admin/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
+    printf '%s\n' "From host, copy guest ssh pair out:"
+    printf '%s\n' "scp admin@${TARGET_VM_NAME}:/home/admin/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
     printf '%s\n' "Rename ${TARGET_DISK_FILE} and attach to the unix VM"
 
     unset BASE_DIR ALPINE_SRC_URL ALPINE_TGT_FILE DISTRO TARGET_VM_NAME TARGET_DISK_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS

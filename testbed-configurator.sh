@@ -283,7 +283,7 @@ closure() {
     configure_ssh
 
     touch "${HOME}/configured"
-    sudo poweroff
+    #sudo poweroff
     unset DISTRO
 }
 
