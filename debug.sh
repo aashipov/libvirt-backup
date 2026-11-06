@@ -23,19 +23,21 @@ get_base_dir() {
 #  Main function to prevent occasional environment pollution
 # ------------------------------------------------------------
 closure() {
-    BASE_DIR="$(get_base_dir)"
+    #set -x # debug
 
+    # Define BASE_DIR
+    BASE_DIR="$(get_base_dir)"
     # Load library
     LIB_SH="${BASE_DIR}/lib.sh"
     if [ ! -e "${LIB_SH}" ]
     then
-        printf "${LIB_SH} does not exist, exiting\n"
+        printf '%s does not exist, exiting\n' "${LIB_SH}"
         exit 1
     fi
     # shellcheck source=lib.sh
     if ! . "${LIB_SH}"
     then
-        printf "Could not load ${LIB_SH}, exiting\n"
+        printf 'Could not load %s, exiting\n' "${LIB_SH}"
         exit 1
     fi
     unset LIB_SH
