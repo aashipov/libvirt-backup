@@ -51,7 +51,7 @@ configure_libvirt() {
 
     mkdir -p "${HOME}/.config/libvirt/"
     printf '%s\n' "uri_default = \"qemu:///system\"" > "${HOME}/.config/libvirt/libvirt.conf"
-    if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "astra" ]
+    if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "astra" ] || [ "${DISTRO}" = "arch" ]
     then
         adjust_default_network
     fi
@@ -142,6 +142,35 @@ astra_privileged() {
     sudo update-locale LANG=C
     sudo usermod -aG libvirt-admin "${USER}"
     sudo usermod -aG kvm "${USER}"
+}
+
+arch_privileged() {
+    sudo pacman --noconfirm -Syu
+    sudo pacman --noconfirm -S cronie git rsync acl qemu-desktop libvirt tree curl mc openssh qemu-guest-agent networkmanager vim dnsmasq
+    sudo pacman --noconfirm -S virt-manager weston freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb
+    sudo pacman --noconfirm -S debugedit fakeroot patch autoconf automake libtool pkg-config gcc make xorg-xinit
+    mkdir -p "${HOME}"/arch/ 
+    cd "${HOME}"/arch/
+    if [ ! -d "${HOME}"/arch/xrdp ]
+    then
+        git clone https://aur.archlinux.org/xrdp.git
+        cd xrdp
+        makepkg -si
+    fi
+    cd "${HOME}"/arch/
+    if [ ! -d "${HOME}"/arch/xorgxrdp ]
+    then
+        git clone https://aur.archlinux.org/xorgxrdp.git
+        cd xorgxrdp
+        gpg --keyserver keys.gnupg.net --recv-keys 03993B4065E7193B
+        makepkg -si
+    fi
+    if pacman -Qi "cloud-init" &> /dev/null
+    then
+        sudo pacman -Rns --noconfirm "cloud-init"
+    fi
+    pacman -Qe | grep "debug" | cut -d ' ' -f 1 |  tr '\n' ' ' | xargs sudo pacman -Rns --noconfirm
+    sudo systemctl enable --now cronie NetworkManager
 }
 
 tune_xinitrc() {
@@ -272,6 +301,10 @@ closure() {
         then
             DISTRO=fedora
             fedora_privileged
+        elif grep -q "archlinux" "/etc/os-release"
+        then
+            DISTRO=arch
+            arch_privileged
         fi
     fi
 

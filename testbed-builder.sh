@@ -137,6 +137,9 @@ closure() {
         fedora)
             SRC_URL="https://download.fedoraproject.org/pub/fedora/linux/releases/44/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-44-1.7.x86_64.qcow2"
             ;;
+        arch)
+            SRC_URL="https://fastly.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg.qcow2"
+            ;;
         debian) ;;
         [[:upper:]]*) die "Distro name, lowercase" ;;
         *) die "Distro ${DISTRO} is not supported at the moment" ;;
