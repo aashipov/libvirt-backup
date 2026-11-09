@@ -68,7 +68,7 @@ Debian comes with no `sudo`, so use `su -` for the first steps.
 Enable package manager mirror, if not done before. For Debian 13 (Trixie) it may look like:
 
 ```sh
-cat << 'EOF' | tee /etc/apt/sources.list
+cat << 'EOF' > /etc/apt/sources.list
 deb http://deb.debian.org/debian trixie main contrib non-free
 deb-src http://deb.debian.org/debian trixie main contrib non-free
 
