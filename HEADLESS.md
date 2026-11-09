@@ -22,6 +22,8 @@ Recent GNOME & KDE versions advertize RDP support, which requires a headful set-
 
 Debian is fast, stable and open-licensed, makes a good Operating System for virtualization host & guests. Ubuntu is slower, but may work as well. Expect the very basic things like kernel upgrade to break the system (Ubuntu adds complexity of its own and inherits Debian testing, which is more error-prone than Debian stable + backports). Other distros may work as well
 
+Limitations of cloud-init kernel (e.g., modules missing for L2TP VPN)
+
 ## Host Requirements
 
 - Virtualization-capable CPU
