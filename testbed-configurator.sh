@@ -64,7 +64,7 @@ rhel_privileged() {
     sudo dnf -y install epel-release
     sudo dnf -y config-manager --disable epel-cisco-openh264
     sudo dnf -y install cronie git rsync acl sudo qemu-kvm libvirt virt-install mc tree curl qemu-guest-agent
-    sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston #gvfs-sftp
+    sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston dmenu
     sudo dnf -y remove cloud-init
     sudo dnf -y clean all
     sudo systemctl enable --now crond
@@ -73,7 +73,7 @@ rhel_privileged() {
 redos_privileged() {
     sudo dnf -y upgrade
     sudo dnf -y install cronie git rsync acl sudo qemu-kvm libvirt virt-install mc tree curl qemu-guest-agent
-    sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston #gvfs-sftp
+    sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston dmenu
     sudo dnf -y clean all
     sudo systemctl enable --now crond
 }
@@ -82,7 +82,7 @@ fedora_privileged() {
     sudo dnf -y upgrade
     sudo dnf -y config-manager disable fedora-cisco-openh264
     sudo dnf -y install cronie git rsync acl sudo qemu-kvm libvirt virt-install mc tree curl qemu-guest-agent
-    sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston
+    sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston dmenu
     sudo dnf -y remove cloud-init
     sudo dnf -y clean all
     sudo systemctl enable --now crond
@@ -99,7 +99,7 @@ EOF
     export DEBIAN_FRONTEND=noninteractive
     sudo apt-get update && sudo apt-get -y upgrade
     sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server systemd-resolved qemu-guest-agent
-    sudo apt-get install -y virt-manager weston winpr3-utils xrdp xorgxrdp openbox chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-backends
+    sudo apt-get install -y virt-manager weston winpr3-utils xrdp xorgxrdp openbox chromium firefox-esr thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-backends suckless-tools
     sudo apt-get remove -y cloud-init
     sudo apt clean && sudo apt -y autoremove
     sudo systemctl enable --now cron
@@ -116,7 +116,7 @@ EOF
     export DEBIAN_FRONTEND=noninteractive
     sudo apt-get update && sudo apt-get -y upgrade
     sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server qemu-guest-agent
-    sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-backends
+    sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-backends dmenu
     if which snap > /dev/null 2>&1
     then
         sudo snap remove lxd
@@ -131,7 +131,7 @@ astra_privileged() {
     export DEBIAN_FRONTEND=noninteractive
     sudo apt-get update
     sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server qemu-guest-agent
-    sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox chromium firefox gvfs gvfs-backends mate-terminal nautilus geany gvfs gvfs-backends
+    sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox chromium firefox gvfs gvfs-backends mate-terminal nautilus geany gvfs gvfs-backends suckless-tools
     sudo apt-get remove -y cloud-init
     sudo apt clean && sudo apt -y autoremove
     sudo systemctl enable --now cron
@@ -148,8 +148,8 @@ arch_privileged() {
     sudo pacman --noconfirm -Syu
     sudo pacman --noconfirm -S cronie git rsync acl qemu-desktop libvirt tree curl mc openssh qemu-guest-agent networkmanager vim dnsmasq
     sudo pacman --noconfirm -S virt-manager weston freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb
-    sudo pacman --noconfirm -S debugedit fakeroot patch autoconf automake libtool pkg-config gcc make xorg-xinit
-    mkdir -p "${HOME}"/arch/ 
+    sudo pacman --noconfirm -S debugedit fakeroot patch autoconf automake libtool pkg-config gcc make xorg-xinit dmenu
+    mkdir -p "${HOME}"/arch/
     cd "${HOME}"/arch/
     if [ ! -d "${HOME}"/arch/xrdp ]
     then
@@ -171,6 +171,7 @@ arch_privileged() {
     fi
     pacman -Qe | grep "debug" | cut -d ' ' -f 1 |  tr '\n' ' ' | xargs sudo pacman -Rns --noconfirm
     sudo systemctl enable --now cronie NetworkManager
+    sudo ln -s /usr/bin/vim /usr/bin/vi
 }
 
 tune_xinitrc() {
@@ -193,6 +194,11 @@ EOF
     then
         ln -s .xinitrc startwm.sh
     fi
+}
+
+tune_openbox() {
+    mkdir -p "${HOME}/.config/openbox"
+    cp "${HOME}/libvirt-backup/openbox-rc.xml" "${HOME}/.config/openbox/rc.xml"
 }
 
 configure_ssh() {
@@ -312,6 +318,7 @@ closure() {
     configure_libvirt
     configure_backup_dirs
     tune_xinitrc
+    tune_openbox
     configure_vms
     configure_ssh
 

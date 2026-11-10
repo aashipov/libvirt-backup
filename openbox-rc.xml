@@ -328,6 +328,12 @@
        <command>openbox --exit</command>
      </action>
    </keybind>
+   <!-- Menu -->
+    <keybind key="W-m">
+      <action name="Execute">
+        <command>dmenu_run</command>
+      </action>
+    </keybind>
 </keyboard>
 
 <mouse>
