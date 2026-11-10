@@ -115,23 +115,19 @@ closure() {
     ALPINE_TGT_FILE="${BACKUP_DIR}/$(basename "${ALPINE_SRC_URL}")"
     prime_alpine
 
-    DISTRO=debian
-    SRC_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
+    DISTRO=arch
     [ -n "${1}" ] && DISTRO="${1}"
     case "${DISTRO}" in
         alma)
-            SRC_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-ext4-latest.x86_64.qcow2"
             SRC_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
            ;;
         ubuntu)
             SRC_URL="https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
-            SRC_URL="https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img"
             ;;
         redos)
             SRC_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/redos-8-20260716.0-x86_64-post-cloud-init.qcow2"
             ;;
         astra)
-            SRC_URL="https://registry.astralinux.ru/artifactory/mg-generic/alse/cloudinit/alse-1.7.11-base-cloudinit-mg16.5.0-amd64.qcow2"
             SRC_URL="https://registry.astralinux.ru/artifactory/mg-generic/alse/cloudinit/alse-1.8.7-base-cloudinit-mg16.7.0-amd64.qcow2"
             ;;
         fedora)
@@ -140,8 +136,12 @@ closure() {
         arch)
             SRC_URL="https://fastly.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg.qcow2"
             ;;
-        debian) ;;
-        [[:upper:]]*) die "Distro name, lowercase" ;;
+        debian)
+            SRC_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
+            ;;
+        [[:upper:]]*)
+            die "Distro name, lowercase"
+            ;;
         *) die "Distro ${DISTRO} is not supported at the moment" ;;
     esac
 
