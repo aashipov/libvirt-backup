@@ -3,15 +3,9 @@
 # ------------------------------------------------------------
 # testbed-configurator.sh – Post-cloud-init configurator, as unprivileged admin
 #
-# cloud-init does not handle complex configuration well, it's simpler than ansible though
-# This script performs post cloud-init prototype configuration
-#
-# virsh shutdown debian-builder
-# virt-copy-in -d debian-builder testbed-configurator.sh /home/admin/
-# virsh start debian-builder
-# virsh console debian-builder
-# "${HOME}/testbed-configurator.sh" debian
-# virt-copy-out -d debian-builder /home/admin/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa
+# cloud-init does not handle complex configuration well, it's simpler than ansible though.
+# It handles default user creation well.
+# This script performs post cloud-init prototype configuration, suits non-cloud-init VM/baremetal as well.
 # ------------------------------------------------------------
 
 adjust_default_network() {
