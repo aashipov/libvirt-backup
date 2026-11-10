@@ -185,7 +185,10 @@ arch_privileged() {
     DEBUG_PACKAGES_TO_DROP="$(pacman -Qe | grep "debug" | cut -d ' ' -f 1 |  tr '\n' ' ')"
     if [ -n "${DEBUG_PACKAGES_TO_DROP}" ]
     then
-        sudo pacman -Rns --noconfirm "${DEBUG_PACKAGES_TO_DROP}"
+        for package in ${DEBUG_PACKAGES_TO_DROP}
+        do
+            sudo pacman -Rns --noconfirm "${package}"
+        done
     fi
     sudo systemctl enable --now cronie NetworkManager
     if [ ! -e /usr/bin/vi ]
