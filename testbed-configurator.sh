@@ -16,11 +16,11 @@
 
 adjust_default_network() {
     DEFAULT_NETWORK_NAME=default
-    if virsh net-list | grep -q "default"
+    if virsh net-list | grep -q "${DEFAULT_NETWORK_NAME}"
     then
         virsh net-destroy "${DEFAULT_NETWORK_NAME}"
     fi
-    if virsh net-list --all | grep -q "default"
+    if virsh net-list --all | grep -q "${DEFAULT_NETWORK_NAME}"
     then
         virsh net-undefine "${DEFAULT_NETWORK_NAME}"
         sleep 5
@@ -144,11 +144,24 @@ astra_privileged() {
     sudo usermod -aG kvm "${USER}"
 }
 
+arch_install_if_missing() {
+    if [ -n "${1}" ]
+    then
+        for package in ${1}
+        do
+            if ! pacman -Qi "${package}" &> /dev/null
+            then
+                sudo pacman --noconfirm -S "${package}"
+            fi
+        done
+    fi
+}
+
 arch_privileged() {
     sudo pacman --noconfirm -Syu
-    sudo pacman --noconfirm -S cronie git rsync acl qemu-desktop libvirt tree curl mc openssh qemu-guest-agent networkmanager vim dnsmasq
-    sudo pacman --noconfirm -S virt-manager weston freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb
-    sudo pacman --noconfirm -S debugedit fakeroot patch autoconf automake libtool pkg-config gcc make xorg-xinit dmenu
+    arch_install_if_missing "cronie git rsync acl qemu-desktop libvirt tree curl mc openssh qemu-guest-agent networkmanager vim dnsmasq"
+    arch_install_if_missing "virt-manager weston freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb"
+    arch_install_if_missing "debugedit fakeroot patch autoconf automake libtool pkg-config gcc make xorg-xinit dmenu"
     mkdir -p "${HOME}"/arch/
     cd "${HOME}"/arch/
     if [ ! -d "${HOME}"/arch/xrdp ]
@@ -169,9 +182,16 @@ arch_privileged() {
     then
         sudo pacman -Rns --noconfirm "cloud-init"
     fi
-    pacman -Qe | grep "debug" | cut -d ' ' -f 1 |  tr '\n' ' ' | xargs sudo pacman -Rns --noconfirm
+    DEBUG_PACKAGES_TO_DROP="$(pacman -Qe | grep "debug" | cut -d ' ' -f 1 |  tr '\n' ' ')"
+    if [ -n "${DEBUG_PACKAGES_TO_DROP}" ]
+    then
+        sudo pacman -Rns --noconfirm "${DEBUG_PACKAGES_TO_DROP}"
+    fi
     sudo systemctl enable --now cronie NetworkManager
-    sudo ln -s /usr/bin/vim /usr/bin/vi
+    if [ ! -e /usr/bin/vi ]
+    then
+        sudo ln -s /usr/bin/vim /usr/bin/vi
+    fi
 }
 
 tune_xinitrc() {
