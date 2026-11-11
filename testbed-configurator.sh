@@ -195,6 +195,7 @@ arch_privileged() {
         git clone https://aur.archlinux.org/xrdp.git
         cd xrdp
         makepkg -si
+        sudo sed -i.bak 's/^#\s*SessionSockdirGroup=xrdp/SessionSockdirGroup=xrdp/' /etc/xrdp/sesman.ini
     fi
     cd "${HOME}"/arch/
     if [ ! -d "${HOME}"/arch/xorgxrdp ]
