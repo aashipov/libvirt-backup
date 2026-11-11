@@ -1,0 +1,12 @@
+#!/sbin/openrc-run
+
+name="xrdp-sesman"
+description="xrdp session manager"
+command="/usr/bin/xrdp-sesman"
+command_args="--nodaemon"
+command_background=true
+pidfile="/run/${RC_SVCNAME}-openrc.pid"
+
+depend() {
+    need net
+}

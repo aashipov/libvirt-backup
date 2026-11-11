@@ -8,6 +8,21 @@
 # This script performs post cloud-init prototype configuration, suits non-cloud-init VM/baremetal as well.
 # ------------------------------------------------------------
 
+# ------------------------------------------------------------
+# Script/base dir
+# ------------------------------------------------------------
+get_base_dir() {
+    if [ -f "${0}" ]
+    then
+        # $0 points to a file on disk
+        printf '%s\n' "$(cd -- "$(dirname -- "${0}")" && pwd -P)"
+    else
+        # The script was sourced in a shell where $0 is not the script path
+        # Fallback to the current working directory
+        printf '%s\n' "$(pwd -P)"
+    fi
+}
+
 adjust_default_network() {
     DEFAULT_NETWORK_NAME=default
     if virsh net-list | grep -q "${DEFAULT_NETWORK_NAME}"
@@ -41,11 +56,15 @@ EOF
 configure_libvirt() {
     sudo groupmod -g "10001" "${USER}"
     sudo usermod -aG libvirt "${USER}"
-    sudo systemctl enable --now libvirtd
+
+    if [ -d /run/systemd/system ]
+    then
+      sudo systemctl enable --now libvirtd
+    fi
 
     mkdir -p "${HOME}/.config/libvirt/"
     printf '%s\n' "uri_default = \"qemu:///system\"" > "${HOME}/.config/libvirt/libvirt.conf"
-    if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "astra" ] || [ "${DISTRO}" = "arch" ]
+    if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "astra" ] || [ "${DISTRO}" = "arch" ] || [ "${DISTRO}" = "artix" ]
     then
         adjust_default_network
     fi
@@ -191,6 +210,43 @@ arch_privileged() {
     fi
 }
 
+artix_privileged() {
+    sudo pacman --noconfirm -Syu
+    arch_install_if_missing "cronie cronie-openrc git rsync acl tree curl mc openssh networkmanager vim dnsmasq xfsprogs"
+    arch_install_if_missing "weston freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb"
+    arch_install_if_missing "debugedit fakeroot patch autoconf automake libtool pkg-config gcc make xorg-xinit dmenu xrdp"
+    arch_install_if_missing "qemu-full libvirt libvirt-openrc dnsmasq dmidecode openbsd-netcat virt-manager"
+    mkdir -p "${HOME}"/arch/
+    cd "${HOME}"/arch/
+    if [ ! -d "${HOME}"/arch/xorgxrdp ]
+    then
+        git clone https://aur.archlinux.org/xorgxrdp.git
+        cd xorgxrdp
+        gpg --keyserver keys.gnupg.net --recv-keys 03993B4065E7193B
+        makepkg -si
+    fi
+    DEBUG_PACKAGES_TO_DROP="$(pacman -Qe | grep "debug" | cut -d ' ' -f 1 |  tr '\n' ' ')"
+    if [ -n "${DEBUG_PACKAGES_TO_DROP}" ]
+    then
+        for package in ${DEBUG_PACKAGES_TO_DROP}
+        do
+            sudo pacman -Rns --noconfirm "${package}"
+        done
+    fi
+    sudo rc-update add NetworkManager default
+    sudo rc-update add cronie default
+    sudo rm -f /run/xrdp.pid /run/xrdp-sesman.pid
+    sudo cp "${BASE_DIR}/artix/"* /etc/init.d/
+    sudo rc-update add xrdp default
+    sudo rc-update add xrdp-sesman default
+    sudo rc-update add virtlogd default
+    sudo rc-update add libvirtd default
+    if [ ! -e /usr/bin/vi ]
+    then
+        sudo ln -s /usr/bin/vim /usr/bin/vi
+    fi
+}
+
 tune_xinitrc() {
     cat << 'EOF' | tee "${HOME}/.xinitrc"
 #!/bin/sh
@@ -298,7 +354,10 @@ closure() {
 
     [ -f "${HOME}/configured" ] && printf '%s\n' "Already configured, exiting" && exit 0
 
-    DISTRO=debian
+    # Define BASE_DIR
+    BASE_DIR="$(get_base_dir)"
+
+    DISTRO=arch
     if [ -e "/etc/os-release" ]
     then
         if grep -q "Debian" "/etc/os-release"
@@ -328,10 +387,17 @@ closure() {
         then
             DISTRO=arch
             arch_privileged
+        elif grep -q "artixlinux" "/etc/os-release"
+        then
+            DISTRO=artix
+            artix_privileged
         fi
     fi
 
-    sudo systemctl enable --now xrdp qemu-guest-agent
+    if [ -d /run/systemd/system ]
+    then
+      sudo systemctl enable --now xrdp qemu-guest-agent
+    fi
     configure_libvirt
     configure_backup_dirs
     tune_xinitrc
@@ -341,7 +407,7 @@ closure() {
 
     touch "${HOME}/configured"
     #sudo poweroff
-    unset DISTRO
+    unset DISTRO BASE_DIR
 }
 
 closure "${@}"

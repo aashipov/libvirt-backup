@@ -1,0 +1,13 @@
+#!/sbin/openrc-run
+
+name="xrdp"
+description="Remote Desktop Protocol (RDP) server"
+command="/usr/bin/xrdp"
+command_args="--nodaemon"
+command_background=true
+pidfile="/run/${RC_SVCNAME}-openrc.pid"
+
+depend() {
+    need net
+    after xrdp-sesman
+}
