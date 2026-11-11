@@ -170,6 +170,19 @@ arch_install_if_missing() {
     fi
 }
 
+arch_remove_if_installed() {
+    if [ -n "${1}" ]
+    then
+        for package in ${1}
+        do
+            if pacman -Qi "${package}" &> /dev/null
+            then
+                sudo pacman --noconfirm -Rns "${package}"
+            fi
+        done
+    fi
+}
+
 arch_privileged() {
     sudo pacman --noconfirm -Syu
     arch_install_if_missing "cronie git rsync acl qemu-desktop libvirt tree curl mc openssh qemu-guest-agent networkmanager vim dnsmasq"
@@ -191,10 +204,7 @@ arch_privileged() {
         gpg --keyserver keys.gnupg.net --recv-keys 03993B4065E7193B
         makepkg -si
     fi
-    if pacman -Qi "cloud-init" &> /dev/null
-    then
-        sudo pacman -Rns --noconfirm "cloud-init"
-    fi
+    arch_remove_if_installed "cloud-init linux-firmware"
     DEBUG_PACKAGES_TO_DROP="$(pacman -Qe | grep "debug" | cut -d ' ' -f 1 |  tr '\n' ' ')"
     if [ -n "${DEBUG_PACKAGES_TO_DROP}" ]
     then
@@ -225,6 +235,7 @@ artix_privileged() {
         gpg --keyserver keys.gnupg.net --recv-keys 03993B4065E7193B
         makepkg -si
     fi
+    arch_remove_if_installed "cloud-init linux-firmware"
     DEBUG_PACKAGES_TO_DROP="$(pacman -Qe | grep "debug" | cut -d ' ' -f 1 |  tr '\n' ' ')"
     if [ -n "${DEBUG_PACKAGES_TO_DROP}" ]
     then
