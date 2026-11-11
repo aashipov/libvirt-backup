@@ -8,6 +8,7 @@ sudo fdisk /dev/vda
 o n p w
 
 ```sh
+sudo mkfs.xfs -n ftype=1 /dev/vda1
 sudo mount /dev/vda1 /mnt
 sudo basestrap /mnt base base-devel openrc elogind-openrc linux grub qemu-guest-agent qemu-guest-agent-openrc sudo vim networkmanager networkmanager-openrc openssh openssh-openrc xfsprogs
 fstabgen -U /mnt | sudo tee /mnt/etc/fstab
