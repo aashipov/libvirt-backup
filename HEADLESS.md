@@ -22,7 +22,7 @@ Recent GNOME & KDE versions advertize RDP support, but require a headful set-up.
 
 [xrdp](https://github.com/neutrinolabs/xrdp) with [xorgxrdp](https://github.com/neutrinolabs/xorgxrdp) have been around for decades, are compatible to the majority of Window Managers and some of Desktop Environments (Xfce, KDE, Trinity, MATE).
 
-`Openbox`, a stacking Window Manager (capable to replace LXDE/LXQt, KDE, Xfce default WM), `Dmenu` a dynamic menu, `xfce4-terminal` terminal emulator do provide basic facilities for both headful (`startx` from VM's TTY) and headless (`xrdp` with `xorgxrdp`) user experience.
+`Openbox`, a stacking Window Manager (capable to replace LXDE/LXQt, KDE, Xfce default WM), `Dmenu` a dynamic menu, `Thunar`, an Xfce file manager, `xfce4-terminal` terminal emulator do provide basic facilities for both headful (`startx` from VM's TTY) and headless (`xrdp` with `xorgxrdp`) user experience.
 
 ## Host Requirements
 
