@@ -142,7 +142,7 @@ astra_privileged() {
     export DEBIAN_FRONTEND=noninteractive
     sudo apt-get update
     sudo apt-get install -y cron git rsync acl qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils tree curl mc openssh-server qemu-guest-agent
-    sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox chromium firefox gvfs gvfs-backends mate-terminal nautilus geany gvfs gvfs-backends #suckless-tools
+    sudo apt-get install -y virt-manager weston winpr-utils xrdp xorgxrdp openbox chromium firefox gvfs gvfs-backends mate-terminal nautilus geany gvfs gvfs-backends gnome-themes-extra adwaita-icon-theme #suckless-tools
     sudo apt-get remove -y cloud-init
     sudo apt clean && sudo apt -y autoremove
     sudo systemctl enable --now cron
@@ -153,6 +153,17 @@ astra_privileged() {
     sudo update-locale LANG=C
     sudo usermod -aG libvirt-admin "${USER}"
     sudo usermod -aG kvm "${USER}"
+    # dmenu
+    if [ ! -e "${HOME}/src/dmenu/" ]
+    then
+        sudo apt install build-essential libx11-dev libxinerama-dev libxft-dev
+        mkdir -p "${HOME}/src/"
+        cd "${HOME}/src/"
+        git clone git://git.suckless.org/dmenu
+        cd "${HOME}/src/dmenu/"
+        make
+        sudo make install
+    fi
 }
 
 arch_install_if_missing() {
