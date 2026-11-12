@@ -38,7 +38,7 @@ check_dot_env_file() {
 # rsync cwd
 # ------------------------------------------------------------
 deploy_src() {
-    rsync --times --partial --recursive --delete --rsh="ssh -o BatchMode=yes" . "${TEST_HOSTNAME}:${TEST_REMOTE_HOME}/${TEST_APP_NAME}" || fail_internal "Failed to deploy source code"
+    rsync --times --partial --recursive --delete --copy-links --rsh="ssh -o BatchMode=yes" . "${TEST_HOSTNAME}:${TEST_REMOTE_HOME}/${TEST_APP_NAME}" || fail_internal "Failed to deploy source code"
 }
 
 # ------------------------------------------------------------

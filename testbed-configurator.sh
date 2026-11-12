@@ -184,7 +184,7 @@ arch_remove_if_installed() {
 arch_privileged() {
     sudo pacman --noconfirm -Syu
     arch_install_if_missing "cronie git rsync acl qemu-desktop libvirt tree curl mc openssh qemu-guest-agent networkmanager vim dnsmasq"
-    arch_install_if_missing "virt-manager weston freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb"
+    arch_install_if_missing "virt-manager weston freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb gnome-themes-extra adwaita-icon-theme"
     arch_install_if_missing "debugedit fakeroot patch autoconf automake libtool pkg-config gcc make xorg-xinit dmenu"
     mkdir -p "${HOME}"/arch/
     cd "${HOME}"/arch/
