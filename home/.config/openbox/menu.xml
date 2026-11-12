@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openbox_menu>
+    <menu id="root-menu" label="OpenBox 3">
+        <item label="menu">
+            <action name="Execute">
+                <execute>dmenu_run</execute>
+            </action>
+        </item>
+        <item label="Reconfigure">
+            <action name="Reconfigure" />
+        </item>
+        <item label="Exit">
+            <action name="Exit">
+                <prompt>no</prompt>
+            </action>
+        </item>
+    </menu>
+</openbox_menu>

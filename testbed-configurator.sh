@@ -61,9 +61,7 @@ configure_libvirt() {
     then
       sudo systemctl enable --now libvirtd
     fi
-
-    mkdir -p "${HOME}/.config/libvirt/"
-    printf '%s\n' "uri_default = \"qemu:///system\"" > "${HOME}/.config/libvirt/libvirt.conf"
+    
     if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "astra" ] || [ "${DISTRO}" = "arch" ] || [ "${DISTRO}" = "artix" ]
     then
         adjust_default_network
@@ -259,33 +257,6 @@ artix_privileged() {
     fi
 }
 
-tune_xinitrc() {
-    cat << 'EOF' | tee "${HOME}/.xinitrc"
-#!/bin/sh
-export XDG_CURRENT_DESKTOP=openbox
-exec dbus-run-session -- openbox-session
-EOF
-    cd "${HOME}"
-    chmod +x .xinitrc
-    if [ ! -e "${HOME}/.xsession" ]
-    then
-        ln -s .xinitrc .xsession
-    fi
-    if [ ! -e "${HOME}/.Xclients" ]
-    then
-        ln -s .xinitrc .Xclients
-    fi
-    if [ ! -e "${HOME}/startwm.sh" ]
-    then
-        ln -s .xinitrc startwm.sh
-    fi
-}
-
-tune_openbox() {
-    mkdir -p "${HOME}/.config/openbox"
-    cp "${HOME}/libvirt-backup/openbox-rc.xml" "${HOME}/.config/openbox/rc.xml"
-}
-
 configure_ssh() {
     mkdir -p "${HOME}/.ssh"
     if [ ! -f "${HOME}/.ssh/id_rsa" ]
@@ -360,6 +331,10 @@ configure_backup_dirs() {
     sudo chown -R "${USER}":"${USER}" /backup-vm/ /other_backup/
 }
 
+tune_users_home() {
+    cp -rT "${BASE_DIR}/home" "${HOME}"
+}
+
 closure() {
     set -e
     #set -x # Debug
@@ -368,6 +343,9 @@ closure() {
 
     # Define BASE_DIR
     BASE_DIR="$(get_base_dir)"
+
+    # Copy skeleton config before calling virsh
+    tune_users_home
 
     DISTRO=arch
     if [ -e "/etc/os-release" ]
@@ -412,8 +390,6 @@ closure() {
     fi
     configure_libvirt
     configure_backup_dirs
-    tune_xinitrc
-    tune_openbox
     configure_vms
     configure_ssh
 
