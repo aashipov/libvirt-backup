@@ -84,7 +84,7 @@ rhel_privileged() {
 redos_privileged() {
     sudo dnf -y upgrade
     sudo dnf -y install cronie git rsync acl sudo qemu-kvm libvirt virt-install mc tree curl qemu-guest-agent
-    sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston dmenu
+    sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston dmenu gnome-themes-extra adwaita-icon-theme
     sudo dnf -y clean all
     sudo systemctl enable --now crond
 }

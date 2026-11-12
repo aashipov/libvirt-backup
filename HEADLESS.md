@@ -1,6 +1,6 @@
 # Headless Linux
 
-## cloud-init flavor (TL;DR)
+# cloud-init flavor (TL;DR)
 
 Linux distros (Debian, Alma, Ubuntu, Astra) provide rapid deployment from a cloud-init prototype
 
@@ -12,7 +12,7 @@ testbed-builder.sh
 
 Follow script instructions
 
-## Manual flavor
+# Long read
 
 Debian is fast, stable and open-licensed, makes a good Operating System for production virtualization host & guests. Ubuntu is slower, doesn't handle updates well. From local development prospective `Archlinux` looks way simpler
 
