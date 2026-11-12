@@ -38,7 +38,7 @@ check_dot_env_file() {
 # rsync cwd
 # ------------------------------------------------------------
 deploy_src() {
-    rsync --times --partial --recursive --delete --copy-links --rsh="ssh -o BatchMode=yes" . "${TEST_HOSTNAME}:${TEST_REMOTE_HOME}/${TEST_APP_NAME}" || fail_internal "Failed to deploy source code"
+    rsync --times --partial --recursive --delete --copy-links --rsh="ssh -o BatchMode=yes" . "${TEST_USERNAME}@${TEST_HOSTNAME}:${TEST_REMOTE_HOME}/${TEST_APP_NAME}" || fail_internal "Failed to deploy source code"
 }
 
 # ------------------------------------------------------------
@@ -74,10 +74,10 @@ closure() {
     then
         fail_internal "TEST_APP_NAME contains unsafe characters ${TEST_APP_NAME} — only latin letters and '-' are allowed"
     fi
-    ssh "${TEST_HOSTNAME}" "rm -rf ${TEST_APP_NAME}" || fail_internal "Failed to remove ${TEST_APP_NAME} via SSH"
+    ssh "${TEST_USERNAME}@${TEST_HOSTNAME}" "rm -rf ${TEST_APP_NAME}" || fail_internal "Failed to remove ${TEST_APP_NAME} via SSH"
     deploy_src
-    ssh "${TEST_HOSTNAME}" "${TEST_APP_NAME}/debug.sh" || fail_internal "./debug.sh via SSH failed"
-    ssh "${TEST_HOSTNAME}" "${TEST_APP_NAME}/test.sh" || fail_internal "./test.sh via SSH failed"
+    ssh "${TEST_USERNAME}@${TEST_HOSTNAME}" "${TEST_APP_NAME}/debug.sh" || fail_internal "./debug.sh via SSH failed"
+    ssh "${TEST_USERNAME}@${TEST_HOSTNAME}" "${TEST_APP_NAME}/test.sh" || fail_internal "./test.sh via SSH failed"
     unset BASE_DIR
 }
 
