@@ -140,7 +140,7 @@ closure() {
             SRC_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
             ;;
         artix)
-            SRC_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/artix-prototype-base-openrc-20261102-x86_64.qcow2"
+            SRC_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/artix-base-openrc-20261102-x86_64-post-cloud-init.qcow2"
             ;;
         [[:upper:]]*)
             die "Distro name, lowercase"

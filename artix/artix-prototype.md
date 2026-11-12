@@ -25,7 +25,9 @@ passwd admin
 usermod -aG wheel admin
 ln -s /usr/bin/vim /usr/bin/vi
 visudo
+passwd
 rc-update add NetworkManager default
 rc-update add sshd default
 rc-update add qemu-guest-agent default
+pacman -Scc
 ```
