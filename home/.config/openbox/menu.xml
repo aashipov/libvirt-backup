@@ -1,15 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <openbox_menu>
     <menu id="root-menu" label="OpenBox 3">
-        <item label="menu">
+        <item label="Menu">
             <action name="Execute">
                 <execute>dmenu_run</execute>
             </action>
         </item>
-        <item label="Reconfigure">
+        <item label="Terminal Emulator">
+            <action name="Execute">
+                <execute>xfce4-terminal</execute>
+            </action>
+        </item>
+        <item label="File Manager">
+            <action name="Execute">
+                <execute>thunar</execute>
+            </action>
+        </item>
+        <item label="Reconfigure Openbox">
             <action name="Reconfigure" />
         </item>
-        <item label="Exit">
+        <item label="Exit Openbox">
             <action name="Exit">
                 <prompt>no</prompt>
             </action>
