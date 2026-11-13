@@ -115,7 +115,7 @@ closure() {
     ALPINE_TGT_FILE="${BACKUP_DIR}/$(basename "${ALPINE_SRC_URL}")"
     prime_alpine
 
-    DISTRO=arch
+    DISTRO=archxfs
     [ -n "${1}" ] && DISTRO="${1}"
     case "${DISTRO}" in
         alma)
@@ -132,6 +132,9 @@ closure() {
             ;;
         fedora)
             SRC_URL="https://download.fedoraproject.org/pub/fedora/linux/releases/44/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-44-1.7.x86_64.qcow2"
+            ;;
+        archxfs)
+            SRC_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/archlinux-2026.11.01-x86_64-xfs-post-cloud-init.qcow2"
             ;;
         arch)
             SRC_URL="https://fastly.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg.qcow2"
