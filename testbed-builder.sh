@@ -71,16 +71,10 @@ download() {
     fi
 }
 
-prime_alpine() {
-    SRC_URL="${ALPINE_SRC_URL}"
-    TGT_FILE="${ALPINE_TGT_FILE}"
-    ALPINE_TGT_FILE_PRIMED="${ALPINE_TGT_FILE}.primed"
-    if [ ! -e "${ALPINE_TGT_FILE_PRIMED}" ]
-    then
-        download
-        virt-customize -a "${ALPINE_TGT_FILE}" --install qemu-guest-agent --run-command 'rc-update add qemu-guest-agent default' || die "virt-customize failed for ${ALPINE_TGT_FILE}"
-        touch "${ALPINE_TGT_FILE_PRIMED}"
-    fi
+download_archxfs() {
+    SRC_URL="${ARCHXFS_SRC_URL}"
+    TGT_FILE="${ARCHXFS_TGT_FILE}"
+    download
 }
 
 # ------------------------------------------------------------
@@ -111,9 +105,9 @@ closure() {
     environment
     create_backup_dirs_and_log || die "Failed to create_backup_dirs_and_log"
 
-    ALPINE_SRC_URL="https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/cloud/alpine-3.23.6-x86_64-bios-tiny-r0.qcow2"
-    ALPINE_TGT_FILE="${BACKUP_DIR}/$(basename "${ALPINE_SRC_URL}")"
-    prime_alpine
+    ARCHXFS_SRC_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/archlinux-2026.11.01-x86_64-xfs-post-cloud-init.qcow2"
+    ARCHXFS_TGT_FILE="${BACKUP_DIR}/$(basename "${ARCHXFS_SRC_URL}")"
+    download_archxfs
 
     DISTRO=archxfs
     [ -n "${1}" ] && DISTRO="${1}"
@@ -134,7 +128,7 @@ closure() {
             SRC_URL="https://download.fedoraproject.org/pub/fedora/linux/releases/44/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-44-1.7.x86_64.qcow2"
             ;;
         archxfs)
-            SRC_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/archlinux-2026.11.01-x86_64-xfs-post-cloud-init.qcow2"
+            SRC_URL="${ARCHXFS_SRC_URL}"
             ;;
         arch)
             SRC_URL="https://fastly.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg.qcow2"
@@ -168,7 +162,7 @@ closure() {
     printf '%s\n' "ssh admin@${TARGET_VM_NAME}"
     printf '%s\n' "For distros, except RedOS & Artix, wait for \`cloud-init status\` 'done'"
     printf '%s\n' "From host:"
-    printf '%s\n' "scp -r ${BASE_DIR} admin@${TARGET_VM_NAME}:/home/admin/ ; scp ${ALPINE_TGT_FILE} admin@${TARGET_VM_NAME}:/home/admin/"
+    printf '%s\n' "scp -r ${BASE_DIR} admin@${TARGET_VM_NAME}:/home/admin/ ; scp ${ARCHXFS_TGT_FILE} admin@${TARGET_VM_NAME}:/home/admin/"
     printf '%s\n' "With guest, launch:"
     printf '%s\n' "/home/admin/libvirt-backup/testbed-configurator.sh"
     printf '%s\n' "If anything fails, check network connection, reboot the VM"
@@ -176,7 +170,7 @@ closure() {
     printf '%s\n' "scp admin@${TARGET_VM_NAME}:/home/admin/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
     printf '%s\n' "Rename ${TARGET_DISK_FILE} and attach to the unix VM"
 
-    unset BASE_DIR ALPINE_SRC_URL ALPINE_TGT_FILE DISTRO TARGET_VM_NAME TARGET_DISK_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS
+    unset BASE_DIR ARCHXFS_SRC_URL ARCHXFS_TGT_FILE DISTRO TARGET_VM_NAME TARGET_DISK_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS
 }
 
 closure "${@}"

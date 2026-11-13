@@ -306,20 +306,22 @@ configure_vms() {
     done
 
     # keep in sync with testbed-builder.sh
-    ALPINE_SRC_URL="https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/cloud/alpine-3.23.6-x86_64-bios-tiny-r0.qcow2"
-    ALPINE_TGT_FILE="${HOME}/$(basename "${ALPINE_SRC_URL}")"
-    SRC_URL="${ALPINE_SRC_URL}"
-    TGT_FILE="${ALPINE_TGT_FILE}"
+    ARCHXFS_SRC_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/archlinux-2026.11.01-x86_64-xfs-post-cloud-init.qcow2"
+    ARCHXFS_TGT_FILE="${HOME}/$(basename "${ARCHXFS_SRC_URL}")"
+    SRC_URL="${ARCHXFS_SRC_URL}"
+    TGT_FILE="${ARCHXFS_TGT_FILE}"
     download
 
     qemu-img convert -O qcow2 -c -o compression_type=zstd "${TGT_FILE}" prototype.qcow2
-    unset ALPINE_SRC_URL ALPINE_TGT_FILE SRC_URL TGT_FILE
     qemu-img create -f qcow2 -o compression_type=zstd blank-prototype.qcow2 256M
 
     for item in a b c; do
       sudo cp prototype.qcow2 /var/lib/libvirt/images/"$item".qcow2
       sudo cp blank-prototype.qcow2 /var/lib/libvirt/images/"$item$item".qcow2
     done
+
+    rm "${TGT_FILE}" prototype.qcow2 blank-prototype.qcow2
+    unset ARCHXFS_SRC_URL ARCHXFS_TGT_FILE SRC_URL TGT_FILE
 
     sudo chmod 0755 /var/lib/libvirt/images
 
