@@ -33,7 +33,7 @@ Perform a thorough, line-by-line and file-by-file review of the project in the c
 
 **Constraints:**
 
-- **Ignore these directories:** .git, .github, .zed, artix, cloud-init, home
+- **Ignore these directories:** .git, .github, .zed, archxfs, artix, cloud-init, home
 - **Ignore these files:** .gitignore, CONTRIBUTING.md, gui, HEADLESS.md, LICENSE, SECURITY.md, TEST.md, weston-runner
 - **Rules:** You have full read permissions to analyze the code line by line, but you must not modify any files.
 
