@@ -306,7 +306,7 @@ configure_vms() {
     done
 
     # keep in sync with testbed-builder.sh
-    ARCHXFS_SRC_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/archlinux-2026.11.01-x86_64-xfs-post-cloud-init.qcow2"
+    ARCHXFS_SRC_URL="https://github.com/aashipov/arch-boxes-xfs/releases/latest/download/Arch-Linux-x86_64-cloudimg-xfs.qcow2"
     ARCHXFS_TGT_FILE="${HOME}/$(basename "${ARCHXFS_SRC_URL}")"
     SRC_URL="${ARCHXFS_SRC_URL}"
     TGT_FILE="${ARCHXFS_TGT_FILE}"

@@ -105,7 +105,7 @@ closure() {
     environment
     create_backup_dirs_and_log || die "Failed to create_backup_dirs_and_log"
 
-    ARCHXFS_SRC_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/archlinux-2026.11.01-x86_64-xfs-post-cloud-init.qcow2"
+    ARCHXFS_SRC_URL="https://github.com/aashipov/arch-boxes-xfs/releases/latest/download/Arch-Linux-x86_64-cloudimg-xfs.qcow2"
     ARCHXFS_TGT_FILE="${BACKUP_DIR}/$(basename "${ARCHXFS_SRC_URL}")"
     download_archxfs
 
