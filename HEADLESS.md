@@ -2,7 +2,7 @@
 
 # cloud-init flavor (TL;DR)
 
-Linux distros (Debian, Alma, Ubuntu, Astra) provide rapid deployment from a cloud-init prototype
+Rapid deployment from a cloud-init prototype
 
 Credentials `admin/admin`
 
@@ -177,9 +177,13 @@ uri_default = "qemu:///system"
 EOF
 ```
 
-### SSH connectivity
+### Guest name resolution
 
-Host: install the Libvirt NSS plugin (`sudo apt install libnss-libvirt`, `sudo dnf install libvirt-nss`, ...). Edit `/etc/nsswitch.conf`, append `libvirt libvirt_guest` on the left of `dns`, line starting with `hosts:`
+Host: install the Libvirt NSS plugin (`sudo apt install libnss-libvirt`, `sudo dnf install libvirt-nss`, ...). 
+
+Edit `/etc/nsswitch.conf`, line starting with `hosts:`, append `libvirt libvirt_guest` to the left of `dns`
+
+### SSH connectivity
 
 Host: generate SSH key for rsync & access: `mkdir -p ${HOME}/.ssh/unix/ && ssh-keygen -t rsa -b 4096 -C "dummy@dummy.org" -f ${HOME}/.ssh/unix/id_rsa`. Deploy the pair to guest's `${HOME}/.ssh/`.
 
