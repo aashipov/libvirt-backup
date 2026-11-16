@@ -121,7 +121,6 @@ BASE_DIR="$(get_base_dir)"
 #   - shell metacharacters (backticks, parentheses, braces, brackets)
 # ------------------------------------------------------------
 check_path() {
-    (
     _VAR_PTR_CP="${1}"
     _VAR_VALUE_CP="${2}"
     _USERS_HOME_CP="${HOME}"
@@ -184,8 +183,7 @@ check_path() {
         *[!/]*) ;;
         *) die "${_VAR_PTR_CP} contains only slashes ($_VAR_VALUE_CP)";;
     esac
-    unset _VAR_PTR_CP _VAR_PTR_CP _USERS_HOME_CP
-    )
+    unset _VAR_PTR_CP _VAR_VALUE_CP _USERS_HOME_CP
 }
 
 # ------------------------------------------------------------
