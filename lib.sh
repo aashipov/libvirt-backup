@@ -241,7 +241,7 @@ check_mandatory_variables_set() {
         # (e.g. [A-Z] does not reliably mean ASCII A-Z in UTF-8 locales).
         if ! printf '%s\n' "${VAR_PTR}" | grep -qE '^[ABCDEFGHIJKLMNOPQRSTUVWXYZ][ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_]*$'
         then
-            die "Invalid variable name in ${SOURCE_OF_TRUTH_FILE_NAME}: ${_VAR_PTR_CP}"
+            die "Invalid variable name in ${SOURCE_OF_TRUTH_FILE_NAME}: ${VAR_PTR}"
         fi
         VAR_VALUE=""
         VAR_VALUE="$(env | awk -v VAR_PTR="${VAR_PTR}" 'index($0, VAR_PTR "=") == 1 { print substr($0, length(VAR_PTR) + 2) }')"
