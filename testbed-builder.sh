@@ -19,64 +19,6 @@ get_base_dir() {
     fi
 }
 
-remove_vm() {
-    if virsh list --all | grep -q "\b${TARGET_VM_NAME}\b"
-    then
-        if virsh list --name --state-running | grep -q "${TARGET_VM_NAME}"
-        then
-            virsh destroy "${TARGET_VM_NAME}" || die "Failed to destroy ${TARGET_VM_NAME}"
-        fi
-        while virsh list --name --state-running | grep -q "\b${TARGET_VM_NAME}\b"
-        do
-            printf '%s is still running. Waiting...\n' "${TARGET_VM_NAME}"
-            sleep 5
-        done
-        printf '%s has shut down.\n' "${TARGET_VM_NAME}"
-        virsh undefine "${TARGET_VM_NAME}" || die "Failed to undefine ${TARGET_VM_NAME}"
-        rm -rf "${TARGET_DISK_FILE}"
-    fi
-}
-
-build_disk() {
-    TARGET_DISK_CAPACITY="32G"
-    if [ ! -f "${TARGET_DISK_FILE}" ]
-    then
-        qemu-img convert -O qcow2 -o compression_type=zstd -c "${TGT_FILE}" "${TARGET_DISK_FILE}" || die "Failed to convert ${TGT_FILE} to ${TARGET_DISK_FILE}"
-        qemu-img resize "${TARGET_DISK_FILE}" "${TARGET_DISK_CAPACITY}" || die "Failed to resize ${TARGET_DISK_FILE} to ${TARGET_DISK_CAPACITY}"
-    fi
-    unset TARGET_DISK_CAPACITY
-}
-
-cpu_count() {
-    CPU_COUNT=$(($(getconf _NPROCESSORS_ONLN) + 0))
-    printf '%d\n' "${CPU_COUNT}"
-    unset CPU_COUNT
-}
-
-download() {
-    if [ ! -e "${TGT_FILE}" ]
-    then
-        printf 'Downloading %s to %s\n' "${SRC_URL}" "${TGT_FILE}"
-        if ! curl -fL --retry 3 -o "${TGT_FILE}.part" "${SRC_URL}"
-        then
-            rm -f "${TGT_FILE}.part"
-            die "Failed to download ${SRC_URL}"
-        fi
-        mv "${TGT_FILE}.part" "${TGT_FILE}"
-    fi
-
-    if ! qemu-img check "${TGT_FILE}" > /dev/null 2>&1
-    then
-        die "Bad file ${TGT_FILE}: remove and re-run"
-    fi
-}
-
-download_archxfs() {
-    SRC_URL="${ARCHXFS_SRC_URL}"
-    TGT_FILE="${ARCHXFS_TGT_FILE}"
-    download
-}
-
 # ------------------------------------------------------------
 #  Main function to prevent occasional environment pollution
 # ------------------------------------------------------------
@@ -86,26 +28,29 @@ closure() {
 
     # Define BASE_DIR
     BASE_DIR="$(get_base_dir)"
-    # Load library
-    LIB_SH="${BASE_DIR}/lib.sh"
-    if [ ! -e "${LIB_SH}" ]
-    then
-        printf '%s does not exist, exiting\n' "${LIB_SH}"
-        exit 1
-    fi
-    # shellcheck source=lib.sh
-    if ! . "${LIB_SH}"
-    then
-        printf 'Could not load %s, exiting\n' "${LIB_SH}"
-        exit 1
-    fi
-    unset LIB_SH
+    # Load libraries
+    LIB_NAMES="lib.sh test-lib.sh"
+    for LIB_NAME in ${LIB_NAMES}
+    do
+        if [ ! -e "${BASE_DIR}/${LIB_NAME}" ]
+        then
+            printf '%s does not exist, exiting\n' "${BASE_DIR}/${LIB_NAME}"
+            exit 1
+        fi
+        # shellcheck source=lib.sh
+        if ! . "${BASE_DIR}/${LIB_NAME}"
+        then
+            printf 'Could not load %s, exiting\n' "${BASE_DIR}/${LIB_NAME}"
+            exit 1
+        fi
+    done
+    unset LIB_NAMES
 
     # Do the job
+    check_dot_env_file
     environment
     create_backup_dirs_and_log || die "Failed to create_backup_dirs_and_log"
 
-    ARCHXFS_SRC_URL="https://github.com/aashipov/arch-boxes-xfs/releases/latest/download/Arch-Linux-x86_64-cloudimg-xfs.qcow2"
     ARCHXFS_TGT_FILE="${BACKUP_DIR}/$(basename "${ARCHXFS_SRC_URL}")"
     download_archxfs
 
@@ -113,31 +58,31 @@ closure() {
     [ -n "${1}" ] && DISTRO="${1}"
     case "${DISTRO}" in
         alma)
-            SRC_URL="https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
+            SRC_URL="${ALMA_SRC_URL}"
            ;;
         ubuntu)
-            SRC_URL="https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
+            SRC_URL="${UBUNTU_SRC_URL}"
             ;;
         redos)
-            SRC_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/redos-8-20260716.0-x86_64-post-cloud-init.qcow2"
+            SRC_URL="${REDOS_SRC_URL}"
             ;;
         astra)
-            SRC_URL="https://registry.astralinux.ru/artifactory/mg-generic/alse/cloudinit/alse-1.8.7-base-cloudinit-mg16.7.0-amd64.qcow2"
+            SRC_URL="${ASTRA_SRC_URL}"
             ;;
         fedora)
-            SRC_URL="https://download.fedoraproject.org/pub/fedora/linux/releases/44/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-44-1.7.x86_64.qcow2"
+            SRC_URL="${FEDORA_SRC_URL}"
             ;;
         archxfs)
             SRC_URL="${ARCHXFS_SRC_URL}"
             ;;
         arch)
-            SRC_URL="https://fastly.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg.qcow2"
+            SRC_URL="${ARCH_SRC_URL}"
             ;;
         debian)
-            SRC_URL="https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
+            SRC_URL="${DEBIAN_SRC_URL}"
             ;;
         artix)
-            SRC_URL="https://github.com/aashipov/libvirt-backup/releases/download/store/artix-base-openrc-20261102-x86_64-post-cloud-init.qcow2"
+            SRC_URL="${ARTIX_SRC_URL}"
             ;;
         [[:upper:]]*)
             die "Distro name, lowercase"

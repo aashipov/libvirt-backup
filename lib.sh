@@ -297,9 +297,11 @@ check_mandatory_variables_set() {
 }
 
 # ------------------------------------------------------------
-#  Environment loader
+#  Load environment from .env
+#  Copy-pasteable between lib.sh and test-lib.sh
+#  .env does not hold secrets or functions (a key-value store)
 # ------------------------------------------------------------
-environment() {
+load_dot_env_file() {
     # BASE_DIR is set up the call stack
     # Loads environment variables from .env
     ENV_FILE="${BASE_DIR}/.env"
@@ -322,6 +324,13 @@ environment() {
     [ "${HAD_A}" -eq 0 ] && set +a
     # allexport .env
     unset ENV_FILE HAD_A
+}
+
+# ------------------------------------------------------------
+#  Environment loader
+# ------------------------------------------------------------
+environment() {
+    load_dot_env_file
     check_mandatory_variables_set
     check_libvirt
     check_qemu_img

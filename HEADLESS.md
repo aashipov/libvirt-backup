@@ -6,6 +6,8 @@ Rapid deployment from a cloud-init prototype
 
 Credentials `admin/admin`
 
+Configure [Libvirt NSS module](https://libvirt.org/nss.html) or VM MAC to static IP via DHCP assignment (`virsh net-edit default`) first
+
 ```sh
 testbed-builder.sh
 ```
@@ -179,7 +181,7 @@ EOF
 
 ### Guest name resolution
 
-Host: install the Libvirt NSS plugin (`sudo apt install libnss-libvirt`, `sudo dnf install libvirt-nss`, ...). 
+Host: install the Libvirt NSS plugin (`sudo apt install libnss-libvirt`, `sudo dnf install libvirt-nss`, ...).
 
 Edit `/etc/nsswitch.conf`, line starting with `hosts:`, append `libvirt libvirt_guest` to the left of `dns`
 

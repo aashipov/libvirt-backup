@@ -19,55 +19,6 @@ get_base_dir() {
     fi
 }
 
-clean_leftovers() {
-    find "${BACKUP_DIR}/" -type d -depth -mindepth 1 -exec rm -rf {} \;
-    find "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR}/" -type d -depth -mindepth 1 -exec rm -rf {} \;
-}
-
-start_vm() {
-    if ! virsh domstate "${1}" | grep -E -q "running|paused"
-    then
-        virsh start "${1}"
-    fi
-}
-
-start_vms() {
-    start_vm a
-    start_vm c
-    virsh suspend c
-    sleep 30
-    virsh list --all
-}
-
-backup_and_sync() {
-    ./bc.sh
-    ./rc.sh
-}
-
-stop_vms() {
-    virsh resume c 2>/dev/null || true
-    virsh destroy c 2>/dev/null || true
-    virsh shutdown a 2>/dev/null || true
-    sleep 30
-    virsh list --all
-}
-
-display_result() {
-    printf '%s\n' "${BACKUP_DIR:?}/ content"
-    tree -ha "${BACKUP_DIR:?}/"
-
-    printf '\n%s\n' "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR:?}/ content"
-    tree -ha "${ANOTHER_SERVER_ANOTHER_BACKUP_DIR:?}/"
-}
-
-happy_path() {
-    clean_leftovers
-    start_vms
-    backup_and_sync
-    stop_vms
-    display_result
-}
-
 # ------------------------------------------------------------
 #  Main function to prevent occasional environment pollution
 # ------------------------------------------------------------
@@ -77,20 +28,23 @@ closure() {
 
     # Define BASE_DIR
     BASE_DIR="$(get_base_dir)"
-    # Load library
-    LIB_SH="${BASE_DIR}/lib.sh"
-    if [ ! -e "${LIB_SH}" ]
-    then
-        printf '%s does not exist, exiting\n' "${LIB_SH}"
-        exit 1
-    fi
-    # shellcheck source=lib.sh
-    if ! . "${LIB_SH}"
-    then
-        printf 'Could not load %s, exiting\n' "${LIB_SH}"
-        exit 1
-    fi
-    unset LIB_SH
+    # Load libraries
+    LIB_NAMES="lib.sh test-lib.sh"
+    for LIB_NAME in ${LIB_NAMES}
+    do
+        if [ ! -e "${BASE_DIR}/${LIB_NAME}" ]
+        then
+            printf '%s does not exist, exiting\n' "${BASE_DIR}/${LIB_NAME}"
+            exit 1
+        fi
+        # shellcheck source=lib.sh
+        if ! . "${BASE_DIR}/${LIB_NAME}"
+        then
+            printf 'Could not load %s, exiting\n' "${BASE_DIR}/${LIB_NAME}"
+            exit 1
+        fi
+    done
+    unset LIB_NAMES
 
     # Do the job
     cd "${BASE_DIR}"

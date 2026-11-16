@@ -20,28 +20,6 @@ get_base_dir() {
 }
 
 # ------------------------------------------------------------
-# Check .env presence
-# ------------------------------------------------------------
-check_dot_env_file() {
-    if [ ! -f "${BASE_DIR}/.env" ]
-    then
-        cp "${BASE_DIR}/.env.template" "${BASE_DIR}/.env"
-    fi
-    if ! grep -q '^TEST_HOSTNAME=' "${BASE_DIR}/.env"
-    then
-        printf '\n' >> .env
-        cat "${BASE_DIR}/.test.env.template" >> "${BASE_DIR}/.env"
-    fi
-}
-
-# ------------------------------------------------------------
-# rsync cwd
-# ------------------------------------------------------------
-deploy_src() {
-    scp -r "${BASE_DIR}" "${TEST_USERNAME}@${TEST_HOSTNAME}:${TEST_REMOTE_HOME}" || fail_internal "Failed to deploy source code"
-}
-
-# ------------------------------------------------------------
 #  Main function to prevent occasional environment pollution
 # ------------------------------------------------------------
 closure() {
@@ -50,20 +28,23 @@ closure() {
 
     # Define BASE_DIR
     BASE_DIR="$(get_base_dir)"
-    # Load library
-    LIB_SH="${BASE_DIR}/lib.sh"
-    if [ ! -e "${LIB_SH}" ]
-    then
-        printf '%s does not exist, exiting\n' "${LIB_SH}"
-        exit 1
-    fi
-    # shellcheck source=lib.sh
-    if ! . "${LIB_SH}"
-    then
-        printf 'Could not load %s, exiting\n' "${LIB_SH}"
-        exit 1
-    fi
-    unset LIB_SH
+    # Load libraries
+    LIB_NAMES="lib.sh test-lib.sh"
+    for LIB_NAME in ${LIB_NAMES}
+    do
+        if [ ! -e "${BASE_DIR}/${LIB_NAME}" ]
+        then
+            printf '%s does not exist, exiting\n' "${BASE_DIR}/${LIB_NAME}"
+            exit 1
+        fi
+        # shellcheck source=lib.sh
+        if ! . "${BASE_DIR}/${LIB_NAME}"
+        then
+            printf 'Could not load %s, exiting\n' "${BASE_DIR}/${LIB_NAME}"
+            exit 1
+        fi
+    done
+    unset LIB_NAMES
 
     # Do the job
     cd "${BASE_DIR}"
