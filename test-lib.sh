@@ -469,6 +469,29 @@ artix_privileged() {
     fi
 }
 
+alpine_privileged() {
+    doas apk update
+    doas apk upgrade
+    doas apk add sudo cronie git rsync acl qemu-system-x86_64 qemu-ui-gtk qemu-audio-pa libvirt-daemon libvirt-client tree curl mc openssh qemu-guest-agent networkmanager networkmanager-cli vim dnsmasq qemu-img virt-install openssl
+    doas apk add weston weston-backend-drm weston-backend-wayland weston-shell-desktop freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb dmenu xrdp xorgxrdp dbus polkit
+    doas openssl req -x509 -newkey rsa:2048 -nodes -keyout /etc/xrdp/key.pem -out /etc/xrdp/cert.pem -days 365 -subj "/CN=$(hostname)"
+    doas chmod 640 /etc/xrdp/key.pem
+    doas chmod 644 /etc/xrdp/cert.pem
+    doas setup-xorg-base
+    doas rc-service xrdp start
+    doas rc-service xrdp-sesman start
+    doas rc-update add xrdp
+    doas rc-update add xrdp-sesman
+    doas rc-service dbus start
+    doas rc-update add dbus default
+    doas rc-service polkit start
+    doas rc-update add polkit default
+    doas rc-service libvirtd start
+    doas rc-update add libvirtd default
+    doas apk del cloud-init
+    doas apk add --no-cache shadow
+}
+
 configure_ssh() {
     mkdir -p "${HOME}/.ssh"
     if [ ! -f "${HOME}/.ssh/id_rsa" ]

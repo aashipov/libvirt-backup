@@ -84,6 +84,9 @@ closure() {
         artix)
             SRC_URL="${ARTIX_SRC_URL}"
             ;;
+        alpine)
+            SRC_URL="${ALPINE_SRC_URL}"
+            ;;
         [[:upper:]]*)
             fail_internal "Distro name, lowercase"
             ;;

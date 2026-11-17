@@ -87,6 +87,10 @@ closure() {
         then
             DISTRO=artix
             artix_privileged
+        elif grep -q "alpinelinux" "/etc/os-release"
+        then
+            DISTRO=alpine
+            alpine_privileged
         fi
     fi
 
