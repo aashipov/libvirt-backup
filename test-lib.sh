@@ -263,7 +263,7 @@ configure_libvirt() {
       sudo systemctl enable --now libvirtd
     fi
 
-    if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "astra" ] || [ "${DISTRO}" = "arch" ] || [ "${DISTRO}" = "artix" ]
+    if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "astra" ] || [ "${DISTRO}" = "arch" ] || [ "${DISTRO}" = "artix" ] || [ "${DISTRO}" = "alpine" ]
     then
         adjust_default_network
     fi
