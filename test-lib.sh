@@ -45,6 +45,15 @@ load_dot_env_file() {
     then
         die "No ${ENV_FILE} file found, craft one from ${ENV_FILE}.template"
     fi
+    # Preflight .env check
+    if ! LC_ALL=C awk '
+      /^[[:space:]]*($|#)/ { next }
+      !/^[[:space:]]*[A-Za-z_][A-Za-z0-9_]*=/ { exit 1 }
+      /\$\(|`|;[[:space:]]*[^#]|&&|\|\|/ { exit 1 }
+    ' "${ENV_FILE}"; then
+      printf 'Unsafe or invalid syntax in %s\n' "${ENV_FILE}" >&2
+      exit 1
+    fi
     # allexport .env
     case "${-}" in
         *a*)
@@ -242,7 +251,7 @@ configure_libvirt() {
     then
       sudo systemctl enable --now libvirtd
     fi
-    
+
     if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "astra" ] || [ "${DISTRO}" = "arch" ] || [ "${DISTRO}" = "artix" ]
     then
         adjust_default_network
