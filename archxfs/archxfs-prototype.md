@@ -1,6 +1,6 @@
 Complex disk layout beyond an XFS partition makes little sense (from performance prospective for a VM with backups)
 
-With the most recent archlinux-YYYY.MM.DD-x86_64.iso
+With the most recent archlinux-YYYY.MM.DD-x86_64.iso or re-use [arch-boxes](https://github.com/aashipov/arch-boxes-xfs)
 
 ```sh
 passwd
