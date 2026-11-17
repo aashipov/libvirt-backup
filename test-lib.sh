@@ -33,6 +33,18 @@ get_base_dir() {
 BASE_DIR="$(get_base_dir)"
 
 # ------------------------------------------------------------
+#  Print to stderr and exit
+#  Copy-pasteable between lib.sh and test-lib.sh
+# ------------------------------------------------------------
+fail_internal() {
+    EXIT_CODE_TRAP=${?}
+    [ "${EXIT_CODE_TRAP}" -eq 0 ] && EXIT_CODE_TRAP=1
+    printf '%s\n' "${*}" >&2
+    exit ${EXIT_CODE_TRAP}
+    unset EXIT_CODE_TRAP
+}
+
+# ------------------------------------------------------------
 #  Load environment from .env
 #  Copy-pasteable between lib.sh and test-lib.sh
 #  .env does not hold secrets or functions (a key-value store)
@@ -43,7 +55,7 @@ load_dot_env_file() {
     ENV_FILE="${BASE_DIR}/.env"
     if [ ! -f "${ENV_FILE}" ]
     then
-        die "No ${ENV_FILE} file found, craft one from ${ENV_FILE}.template"
+        fail_internal "No ${ENV_FILE} file found, craft one from ${ENV_FILE}.template"
     fi
     # Preflight .env check
     if ! LC_ALL=C awk '
@@ -156,7 +168,7 @@ remove_vm() {
     then
         if virsh list --name --state-running | grep -q "${TARGET_VM_NAME}"
         then
-            virsh destroy "${TARGET_VM_NAME}" || die "Failed to destroy ${TARGET_VM_NAME}"
+            virsh destroy "${TARGET_VM_NAME}" || fail_internal "Failed to destroy ${TARGET_VM_NAME}"
         fi
         while virsh list --name --state-running | grep -q "\b${TARGET_VM_NAME}\b"
         do
@@ -164,17 +176,16 @@ remove_vm() {
             sleep 5
         done
         printf '%s has shut down.\n' "${TARGET_VM_NAME}"
-        virsh undefine "${TARGET_VM_NAME}" || die "Failed to undefine ${TARGET_VM_NAME}"
+        virsh undefine "${TARGET_VM_NAME}" || fail_internal "Failed to undefine ${TARGET_VM_NAME}"
         rm -rf "${TARGET_DISK_FILE}"
     fi
 }
 
 build_disk() {
-    TARGET_DISK_CAPACITY="32G"
     if [ ! -f "${TARGET_DISK_FILE}" ]
     then
-        qemu-img convert -O qcow2 -o compression_type=zstd -c "${TGT_FILE}" "${TARGET_DISK_FILE}" || die "Failed to convert ${TGT_FILE} to ${TARGET_DISK_FILE}"
-        qemu-img resize "${TARGET_DISK_FILE}" "${TARGET_DISK_CAPACITY}" || die "Failed to resize ${TARGET_DISK_FILE} to ${TARGET_DISK_CAPACITY}"
+        qemu-img convert -O qcow2 -o compression_type=zstd -c "${TGT_FILE}" "${TARGET_DISK_FILE}" || fail_internal "Failed to convert ${TGT_FILE} to ${TARGET_DISK_FILE}"
+        qemu-img resize "${TARGET_DISK_FILE}" "${TESTBED_DISK_CAPACITY}" || fail_internal "Failed to resize ${TARGET_DISK_FILE} to ${TESTBED_DISK_CAPACITY}"
     fi
     unset TARGET_DISK_CAPACITY
 }
@@ -192,14 +203,14 @@ download() {
         if ! curl -fL --retry 3 -o "${TGT_FILE}.part" "${SRC_URL}"
         then
             rm -f "${TGT_FILE}.part"
-            die "Failed to download ${SRC_URL}"
+            fail_internal "Failed to download ${SRC_URL}"
         fi
         mv "${TGT_FILE}.part" "${TGT_FILE}"
     fi
 
     if ! qemu-img check "${TGT_FILE}" > /dev/null 2>&1
     then
-        die "Bad file ${TGT_FILE}: remove and re-run"
+        fail_internal "Bad file ${TGT_FILE}: remove and re-run"
     fi
 }
 

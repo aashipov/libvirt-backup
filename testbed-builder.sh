@@ -49,7 +49,7 @@ closure() {
     # Do the job
     check_dot_env_file
     environment
-    create_backup_dirs_and_log || die "Failed to create_backup_dirs_and_log"
+    create_backup_dirs_and_log || fail_internal "Failed to create_backup_dirs_and_log"
 
     ARCHXFS_TGT_FILE="${BACKUP_DIR}/$(basename "${ARCHXFS_SRC_URL}")"
     download_archxfs
@@ -85,9 +85,9 @@ closure() {
             SRC_URL="${ARTIX_SRC_URL}"
             ;;
         [[:upper:]]*)
-            die "Distro name, lowercase"
+            fail_internal "Distro name, lowercase"
             ;;
-        *) die "Distro ${DISTRO} is not supported at the moment" ;;
+        *) fail_internal "Distro ${DISTRO} is not supported at the moment" ;;
     esac
 
     TARGET_VM_NAME="${DISTRO}-builder"

@@ -39,10 +39,14 @@ die() {
     unset EXIT_CODE_TRAP
 }
 
+# ------------------------------------------------------------
+#  Print to stderr and exit
+#  Copy-pasteable between lib.sh and test-lib.sh
+# ------------------------------------------------------------
 fail_internal() {
     EXIT_CODE_TRAP=${?}
     [ "${EXIT_CODE_TRAP}" -eq 0 ] && EXIT_CODE_TRAP=1
-    printf '%s\n' "${*}"
+    printf '%s\n' "${*}" >&2
     exit ${EXIT_CODE_TRAP}
     unset EXIT_CODE_TRAP
 }
