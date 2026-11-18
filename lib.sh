@@ -134,10 +134,13 @@ check_path() {
 
     # 1.1 Newline
     case "${_VAR_VALUE_CP}" in
-        *'\n'*) die "${_VAR_VALUE_CP} contains a newline!" ;;
-        *) ;;
+        *'
+    '*)
+        die "${_VAR_VALUE_CP} contains a newline!"
+        ;;
+        *)
+        ;;
     esac
-
 
     # 2. Refers to the user’s home directory
     if [ "${_VAR_VALUE_CP}" = "${_USERS_HOME_CP}" ] || [ "${_VAR_VALUE_CP}" = "${_USERS_HOME_CP}/" ]
