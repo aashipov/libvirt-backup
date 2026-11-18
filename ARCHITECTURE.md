@@ -10,7 +10,7 @@
 
 ## Conventions
 
-- [POSIX.1-2024](https://pubs.opengroup.org/onlinepubs/9799919799/) conformance
+- [POSIX.1-2024](https://pubs.opengroup.org/onlinepubs/9799919799/) conformance, GNU / BusyBox userland
 - **closure pattern**: every entry-point script wraps its logic in a `closure()` function (not `main`) to isolate the environment.
 - **No root** / **No sudo/doas ** : `block_root()` checks `id -u` at startup; `sudo` and `doas` are overridden to abort (except `testbed-configurator.sh`).
 - **Lock file**: `${BACKUP_DIR}/running` prevents concurrent `bc.sh` runs. "Stale lock" would complicate things without bringing much value.
