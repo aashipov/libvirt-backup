@@ -4,3 +4,4 @@ nohup.out
 .codewhale
 .nanocoder
 *.iso
+home/.ssh/*

@@ -101,10 +101,8 @@ closure() {
     configure_libvirt
     configure_backup_dirs
     configure_vms
-    configure_ssh
 
     touch "${HOME}/configured"
-    #sudo poweroff
     unset DISTRO BASE_DIR
 }
 

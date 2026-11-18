@@ -50,7 +50,7 @@ closure() {
     check_dot_env_file
     environment
     create_backup_dirs_and_log || fail_internal "Failed to create_backup_dirs_and_log"
-
+    configure_testbed_ssh
     ARCHXFS_TGT_FILE="${BACKUP_DIR}/$(basename "${ARCHXFS_SRC_URL}")"
     download_archxfs
 
@@ -114,8 +114,6 @@ closure() {
     printf '%s\n' "With guest, launch:"
     printf '%s\n' "/home/admin/libvirt-backup/testbed-configurator.sh"
     printf '%s\n' "If anything fails, check network connection, reboot the VM"
-    printf '%s\n' "From host, copy guest ssh pair out:"
-    printf '%s\n' "scp admin@${TARGET_VM_NAME}:/home/admin/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
     printf '%s\n' "Rename ${TARGET_DISK_FILE} and attach to the unix VM"
 
     unset BASE_DIR ARCHXFS_SRC_URL ARCHXFS_TGT_FILE DISTRO TARGET_VM_NAME TARGET_DISK_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS

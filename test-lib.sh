@@ -505,6 +505,34 @@ configure_ssh() {
     ssh-copy-id 127.0.0.2
 }
 
+# ------------------------------------------------------------
+#  Generates per-testbed SSH key pair, adjusts config
+# ------------------------------------------------------------
+configure_testbed_ssh() {
+    mkdir -p "${BASE_DIR}/home/.ssh" || fail_internal "Failed to create ${BASE_DIR}/home/.ssh directory"
+    if [ ! -e "${BASE_DIR}/home/.ssh/id_rsa" ]
+    then
+        chmod 700 "${BASE_DIR}/home/.ssh"
+        ssh-keygen -t rsa -b 4096 -N "" -C "dummy@dummy.org" -f "${BASE_DIR}/home/.ssh/id_rsa"
+        chmod 0600 "${BASE_DIR}/home/.ssh/id_rsa"
+        cat "${BASE_DIR}/home/.ssh/id_rsa.pub" >> "${BASE_DIR}/home/.ssh/authorized_keys"
+        chmod 600 "${BASE_DIR}/home/.ssh/authorized_keys"
+        mkdir -p "${HOME}/.ssh/unix" || fail_internal "Failed to create ${HOME}/.ssh/unix directory"
+        cp "${BASE_DIR}/home/.ssh/id_rsa" "${HOME}/.ssh/unix"
+        cp "${BASE_DIR}/home/.ssh/id_rsa.pub" "${HOME}/.ssh/unix"
+    fi
+    if [ ! -e "${HOME}/.ssh/config" ] || ! grep -q "unix" "${HOME}/.ssh/config"
+    then
+cat << 'EOF' >> "${HOME}/.ssh/config"
+Host unix
+    HostName unix
+    User admin
+    IdentityFile ~/.ssh/unix/id_rsa
+    IdentitiesOnly yes
+EOF
+    fi
+}
+
 configure_vms() {
     cd "${HOME}" || true
     for item in a b c
