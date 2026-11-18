@@ -495,16 +495,6 @@ alpine_privileged() {
     doas apk add --no-cache shadow
 }
 
-configure_ssh() {
-    mkdir -p "${HOME}/.ssh"
-    if [ ! -f "${HOME}/.ssh/id_rsa" ]
-    then
-        ssh-keygen -t rsa -b 4096 -N "" -C "dummy@dummy.org" -f "${HOME}/.ssh/id_rsa"
-        chmod 0600 "${HOME}/.ssh/id_rsa"
-    fi
-    ssh-copy-id 127.0.0.2
-}
-
 # ------------------------------------------------------------
 #  Generates per-testbed SSH key pair, adjusts config
 # ------------------------------------------------------------
@@ -531,7 +521,23 @@ EOF
     fi
 }
 
-configure_vms() {
+# ------------------------------------------------------------
+#  Generates per-VM SSH key pair
+#  If configure_testbed_ssh is not possible (e.g., non-Linux host)
+# ------------------------------------------------------------
+configure_vm_ssh() {
+    mkdir -p "${HOME}/.ssh"
+    if [ ! -f "${HOME}/.ssh/id_rsa" ]
+    then
+        ssh-keygen -t rsa -b 4096 -N "" -C "dummy@dummy.org" -f "${HOME}/.ssh/id_rsa"
+        chmod 0600 "${HOME}/.ssh/id_rsa"
+        printf '%s\n' "From host, copy guest ssh pair out:"
+        printf '%s\n' "scp admin@${DISTRO}-builder:/home/admin/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
+    fi
+    ssh-copy-id 127.0.0.2
+}
+
+configure_nested_vms() {
     cd "${HOME}" || true
     for item in a b c
     do
