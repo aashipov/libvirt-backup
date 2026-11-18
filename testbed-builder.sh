@@ -103,7 +103,7 @@ closure() {
 
     CLOUD_INIT_ARGS=""
     [ "${DISTRO}" != "redos" ] && CLOUD_INIT_ARGS="--cloud-init meta-data=${BASE_DIR}/cloud-init/meta-data,user-data=${BASE_DIR}/cloud-init/user-data"
-    virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
+    virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
     ${CLOUD_INIT_ARGS}
 
     printf '%s\n' "Connect to ${TARGET_VM_NAME} under cloud-init as admin/admin"
@@ -115,7 +115,7 @@ closure() {
     printf '%s\n' "/home/admin/libvirt-backup/testbed-configurator.sh"
     printf '%s\n' "If anything fails, check network connection, reboot the VM"
     printf '%s\n' "Once done, renew unix VM out of ${TARGET_DISK_FILE}:"
-    printf '%s\n' "virsh shutdown ${TARGET_VM_NAME}; virsh shutdown unix; sleep 30; virsh list --name --state-running | grep -q unix && echo \"Still running, turn off manually\" && exit 1; virsh undefine --remove-all-storage unix; qemu-img convert -O qcow2 -c -o compression_type=zstd ${TARGET_DISK_FILE} ${BACKUP_DIR}/unix.qcow2; virt-install --name unix --memory 4096 --vcpus $(cpu_count) --cpu host-passthrough --disk path=${BACKUP_DIR}/unix.qcow2,format=qcow2,bus=virtio --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole"
+    printf '%s\n' "virsh shutdown ${TARGET_VM_NAME}; virsh shutdown unix; sleep 30; virsh list --name --state-running | grep -q unix && echo \"Still running, turn off manually\" && exit 1; virsh undefine --remove-all-storage unix; qemu-img convert -O qcow2 -c -o compression_type=zstd ${TARGET_DISK_FILE} ${BACKUP_DIR}/unix.qcow2; virt-install --name unix --memory 4096 --vcpus $(cpu_count) --cpu host-passthrough --disk path=${BACKUP_DIR}/unix.qcow2,format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole"
 
     unset BASE_DIR ARCHXFS_SRC_URL ARCHXFS_TGT_FILE DISTRO TARGET_VM_NAME TARGET_DISK_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS
 }
