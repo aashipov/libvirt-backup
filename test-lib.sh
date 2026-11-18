@@ -473,7 +473,7 @@ alpine_privileged() {
     doas apk update
     doas apk upgrade
     doas apk add sudo cronie git rsync acl qemu-system-x86_64 qemu-ui-gtk qemu-audio-pa libvirt-daemon libvirt-client tree curl mc openssh qemu-guest-agent networkmanager networkmanager-cli vim dnsmasq qemu-img virt-install openssl
-    doas apk add weston weston-backend-drm weston-backend-wayland weston-shell-desktop freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb dmenu xrdp xorgxrdp dbus polkit fontconfig font-liberation # font-dejavu font-noto
+    doas apk add weston weston-backend-drm weston-backend-wayland weston-shell-desktop freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb dmenu xrdp xorgxrdp dbus polkit fontconfig font-liberation font-dejavu #font-noto
     if [ ! -e /etc/xrdp/key.pem ] && [ ! -e /etc/xrdp/cert.pem ]
     then
         doas openssl req -x509 -newkey rsa:2048 -nodes -keyout /etc/xrdp/key.pem -out /etc/xrdp/cert.pem -days 365 -subj "/CN=$(hostname)"
