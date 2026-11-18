@@ -102,8 +102,8 @@ closure() {
     configure_backup_dirs
     configure_nested_vms
     configure_vm_ssh
-
     touch "${HOME}/configured"
+    
     unset DISTRO BASE_DIR
 }
 
