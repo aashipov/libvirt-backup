@@ -515,8 +515,6 @@ configure_testbed_ssh() {
         chmod 700 "${BASE_DIR}/home/.ssh"
         ssh-keygen -t rsa -b 4096 -N "" -C "dummy@dummy.org" -f "${BASE_DIR}/home/.ssh/id_rsa"
         chmod 0600 "${BASE_DIR}/home/.ssh/id_rsa"
-        cat "${BASE_DIR}/home/.ssh/id_rsa.pub" >> "${BASE_DIR}/home/.ssh/authorized_keys"
-        chmod 600 "${BASE_DIR}/home/.ssh/authorized_keys"
         mkdir -p "${HOME}/.ssh/unix" || fail_internal "Failed to create ${HOME}/.ssh/unix directory"
         cp "${BASE_DIR}/home/.ssh/id_rsa" "${HOME}/.ssh/unix"
         cp "${BASE_DIR}/home/.ssh/id_rsa.pub" "${HOME}/.ssh/unix"

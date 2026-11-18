@@ -101,6 +101,7 @@ closure() {
     configure_libvirt
     configure_backup_dirs
     configure_vms
+    ssh-copy-id 127.0.0.2
 
     touch "${HOME}/configured"
     unset DISTRO BASE_DIR
