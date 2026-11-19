@@ -19,12 +19,16 @@ get_base_dir() {
     fi
 }
 
+print_builder_to_testbed_instruction() {
+    printf '%s\n' "virsh shutdown ${TARGET_VM_NAME}; virsh shutdown ${TEST_HOSTNAME}; sleep 30; virsh list --name --state-running | grep -q ${TEST_HOSTNAME} && echo \"Still running, turn off manually\" && exit 1; virsh undefine --remove-all-storage ${TEST_HOSTNAME}; qemu-img convert -O qcow2 -c -o compression_type=zstd ${TARGET_DISK_FILE} ${BACKUP_DIR}/${TEST_HOSTNAME}.qcow2; virt-install --name ${TEST_HOSTNAME} --memory 4096 --vcpus $(cpu_count) --cpu host-passthrough --disk path=${BACKUP_DIR}/${TEST_HOSTNAME}.qcow2,format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel ${TEST_HOSTNAME},target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole"
+}
+
 create_vm() {
     remove_vm
     build_disk
     CLOUD_INIT_ARGS=""
     [ "${DISTRO}" != "redos" ] && CLOUD_INIT_ARGS="--cloud-init meta-data=${BASE_DIR}/cloud-init/meta-data,user-data=${BASE_DIR}/cloud-init/user-data"
-    virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
+    virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel ${TEST_HOSTNAME},target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
     ${CLOUD_INIT_ARGS}
 
     printf '%s\n' "Connect to ${TARGET_VM_NAME} under cloud-init as admin/admin"
@@ -35,8 +39,8 @@ create_vm() {
     printf '%s\n' "With guest, launch:"
     printf '%s\n' "/home/admin/libvirt-backup/testbed-configurator.sh"
     printf '%s\n' "If anything fails, check network connection, reboot the VM"
-    printf '%s\n' "Once done, renew unix VM out of ${TARGET_DISK_FILE}:"
-    printf '%s\n' "virsh shutdown ${TARGET_VM_NAME}; virsh shutdown unix; sleep 30; virsh list --name --state-running | grep -q unix && echo \"Still running, turn off manually\" && exit 1; virsh undefine --remove-all-storage unix; qemu-img convert -O qcow2 -c -o compression_type=zstd ${TARGET_DISK_FILE} ${BACKUP_DIR}/unix.qcow2; virt-install --name unix --memory 4096 --vcpus $(cpu_count) --cpu host-passthrough --disk path=${BACKUP_DIR}/unix.qcow2,format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole"
+    printf '%s\n' "Once done, renew ${TEST_HOSTNAME} VM out of ${TARGET_DISK_FILE}:"
+    print_builder_to_testbed_instruction
 }
 
 # ------------------------------------------------------------
@@ -124,6 +128,9 @@ closure() {
         if yes_no_dialog "${TARGET_VM_NAME} exists, would you like to recreate it?"
         then
             create_vm
+        else
+            printf '%s\n' "If you know that ${TARGET_VM_NAME} prototype is consistent and want to renew testbed ${TEST_HOSTNAME} VM out it, follow instructions below"
+            print_builder_to_testbed_instruction
         fi
     fi
 
