@@ -20,15 +20,60 @@ get_base_dir() {
 }
 
 print_builder_to_testbed_instruction() {
-    printf '%s\n' "virsh shutdown ${TARGET_VM_NAME}; virsh shutdown ${TEST_HOSTNAME}; sleep 30; virsh list --name --state-running | grep -q ${TEST_HOSTNAME} && echo \"Still running, turn off manually\" && exit 1; virsh undefine --remove-all-storage ${TEST_HOSTNAME}; qemu-img convert -O qcow2 -c -o compression_type=zstd ${TARGET_DISK_FILE} ${BACKUP_DIR}/${TEST_HOSTNAME}.qcow2; virt-install --name ${TEST_HOSTNAME} --memory 4096 --vcpus $(cpu_count) --cpu host-passthrough --disk path=${BACKUP_DIR}/${TEST_HOSTNAME}.qcow2,format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,password=${TEST_USERNAME},listen=0.0.0.0 --video virtio --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole"
+    printf '%s\n' "virsh shutdown ${TARGET_VM_NAME}; virsh shutdown ${TEST_HOSTNAME}; sleep 30; virsh list --name --state-running | grep -q ${TEST_HOSTNAME} && echo \"Still running, turn off manually\" && exit 1; virsh undefine --remove-all-storage ${TEST_HOSTNAME}; qemu-img convert -O qcow2 -c -o compression_type=zstd ${TARGET_DISK_FILE} ${BACKUP_DIR}/${TEST_HOSTNAME}.qcow2; virt-install --name ${TEST_HOSTNAME} --memory 4096 --vcpus $(cpu_count) --cpu host-passthrough --disk path=${BACKUP_DIR}/${TEST_HOSTNAME}.qcow2,format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --video virtio --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole"
+}
+
+generate_cloud_init() {
+    CLOUD_INIT_DIR="/tmp/cloud-init-${DISTRO}"
+    mkdir -p "${CLOUD_INIT_DIR}"
+cat << EOF > "${CLOUD_INIT_DIR}/meta-data"
+instance-id: ${DISTRO}
+local-hostname: ${DISTRO}
+EOF
+NO_USER_GROUP=""
+if [ "${DISTRO}" = "ubuntu" ]
+then
+    NO_USER_GROUP="no_user_group: true"
+fi
+cat << EOF > "${CLOUD_INIT_DIR}/user-data"
+#cloud-config
+hostname: ${DISTRO}
+
+users:
+  - name: ${TEST_USERNAME}
+    ${NO_USER_GROUP}
+    uid: 10001
+    groups: [sudo, wheel] # sudo debian/ubuntu, wheel the rest
+    shell: /bin/sh
+    sudo: "ALL=(ALL) ALL"
+    lock_passwd: false
+    passwd: $(openssl passwd -6 "${TEST_USERNAME}")
+    ssh_authorized_keys:
+      - $(cat "${BASE_DIR}/home/.ssh/id_rsa.pub")
+
+ssh_pwauth: true
+disable_root: false
+
+# Re-use client SSH pair for server host key
+ssh_deletekeys: true
+ssh_keys:
+  rsa_private: |
+$(sed 's/^/    /' "${BASE_DIR}/home/.ssh/id_rsa")
+  rsa_public: $(cat "${BASE_DIR}/home/.ssh/id_rsa.pub")
+EOF
 }
 
 create_vm() {
     remove_vm
     build_disk
     CLOUD_INIT_ARGS=""
-    [ "${DISTRO}" != "redos" ] && CLOUD_INIT_ARGS="--cloud-init meta-data=${BASE_DIR}/cloud-init/meta-data,user-data=${BASE_DIR}/cloud-init/user-data"
-    virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,password=${TEST_USERNAME},listen=0.0.0.0 --video virtio --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
+    CLOUD_INIT_DIR="/tmp"
+    if [ "${DISTRO}" != "redos" ] && [ "${DISTRO}" != "artix" ]
+    then
+        generate_cloud_init
+        CLOUD_INIT_ARGS="--cloud-init meta-data=${CLOUD_INIT_DIR}/meta-data,user-data=${CLOUD_INIT_DIR}/user-data"
+    fi
+    virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --video virtio --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
     ${CLOUD_INIT_ARGS}
 
     printf '%s\n' "Connect to ${TARGET_VM_NAME} under cloud-init as admin/admin"
@@ -136,7 +181,7 @@ closure() {
         create_vm
     fi
 
-    unset BASE_DIR ARCHXFS_SRC_URL ARCHXFS_TGT_FILE DISTRO TARGET_VM_NAME TARGET_DISK_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS VM_LIST
+    unset BASE_DIR ARCHXFS_SRC_URL ARCHXFS_TGT_FILE DISTRO TARGET_VM_NAME TARGET_DISK_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS CLOUD_INIT_DIR VM_LIST
 }
 
 closure "${@}"
