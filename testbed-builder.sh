@@ -28,7 +28,7 @@ create_vm() {
     build_disk
     CLOUD_INIT_ARGS=""
     [ "${DISTRO}" != "redos" ] && CLOUD_INIT_ARGS="--cloud-init meta-data=${BASE_DIR}/cloud-init/meta-data,user-data=${BASE_DIR}/cloud-init/user-data"
-    virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel ${TEST_HOSTNAME},target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
+    virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
     ${CLOUD_INIT_ARGS}
 
     printf '%s\n' "Connect to ${TARGET_VM_NAME} under cloud-init as admin/admin"
@@ -122,7 +122,7 @@ closure() {
     TGT_FILE="${BACKUP_DIR}/$(basename "${SRC_URL}")"
     download
 
-    VM_LIST="$(virsh list --all)" || fail_internal "Failed to list VMs"
+    VM_LIST="$(virsh list --all --name)" || fail_internal "Failed to list VMs"
     if printf '%s\n' "${VM_LIST}" | grep -q "${TARGET_VM_NAME}"
     then
         if yes_no_dialog "${TARGET_VM_NAME} exists, would you like to recreate it?"
@@ -132,6 +132,8 @@ closure() {
             printf '%s\n' "If you know that ${TARGET_VM_NAME} prototype VM is consistent and want to renew ${TEST_HOSTNAME} VM out it, follow instructions below"
             print_builder_to_testbed_instruction
         fi
+    else
+        create_vm
     fi
 
     unset BASE_DIR ARCHXFS_SRC_URL ARCHXFS_TGT_FILE DISTRO TARGET_VM_NAME TARGET_DISK_FILE SRC_URL TGT_FILE CLOUD_INIT_ARGS VM_LIST
