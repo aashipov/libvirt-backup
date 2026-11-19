@@ -506,17 +506,17 @@ configure_testbed_ssh() {
         chmod 700 "${BASE_DIR}/home/.ssh"
         ssh-keygen -t rsa -b 4096 -N "" -C "dummy@dummy.org" -f "${BASE_DIR}/home/.ssh/id_rsa"
         chmod 0600 "${BASE_DIR}/home/.ssh/id_rsa"
-        mkdir -p "${HOME}/.ssh/unix" || fail_internal "Failed to create ${HOME}/.ssh/unix directory"
-        cp "${BASE_DIR}/home/.ssh/id_rsa" "${HOME}/.ssh/unix"
-        cp "${BASE_DIR}/home/.ssh/id_rsa.pub" "${HOME}/.ssh/unix"
     fi
+    mkdir -p "${HOME}/.ssh/${TEST_HOSTNAME}" || fail_internal "Failed to create ${HOME}/.ssh/${TEST_HOSTNAME} directory"
+    cp "${BASE_DIR}/home/.ssh/id_rsa" "${HOME}/.ssh/${TEST_HOSTNAME}"
+    cp "${BASE_DIR}/home/.ssh/id_rsa.pub" "${HOME}/.ssh/${TEST_HOSTNAME}"
     if [ ! -e "${HOME}/.ssh/config" ] || ! grep -q "unix" "${HOME}/.ssh/config"
     then
-cat << 'EOF' >> "${HOME}/.ssh/config"
-Host unix
-    HostName unix
+cat << EOF >> "${HOME}/.ssh/config"
+Host ${TEST_HOSTNAME}
+    HostName ${TEST_HOSTNAME}
     User admin
-    IdentityFile ~/.ssh/unix/id_rsa
+    IdentityFile ~/.ssh/${TEST_HOSTNAME}/id_rsa
     IdentitiesOnly yes
 EOF
     fi
