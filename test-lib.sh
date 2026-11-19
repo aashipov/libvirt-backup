@@ -540,15 +540,22 @@ configure_vm_ssh() {
         printf '%s\n' "From host, copy guest ssh pair out:"
         printf '%s\n' "scp admin@${DISTRO}-builder:/home/admin/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
     fi
+    if [ "${DISTRO}" == "arch" ] || [ "${DISTRO}" == "archxfs" ] || [ "${DISTRO}" == "alma" ]
+    then
+        sudo rm -f /etc/ssh/ssh_host_ecdsa_key
+        sudo rm -f /etc/ssh/ssh_host_ecdsa_key.pub
+        sudo rm -f /etc/ssh/ssh_host_ed25519_key
+        sudo rm -f /etc/ssh/ssh_host_ed25519_key.pub
+        sudo rm -f /etc/ssh/ssh_host_mldsa44_ed25519_key
+        sudo rm -f /etc/ssh/ssh_host_mldsa44_ed25519_key.pub
+    fi
     if [ "${DISTRO}" == "arch" ] || [ "${DISTRO}" == "archxfs" ]
     then
-        sudo rm /etc/ssh/ssh_host_ecdsa_key
-        sudo rm /etc/ssh/ssh_host_ecdsa_key.pub
-        sudo rm /etc/ssh/ssh_host_ed25519_key
-        sudo rm /etc/ssh/ssh_host_ed25519_key.pub
-        sudo rm /etc/ssh/ssh_host_mldsa44_ed25519_key
-        sudo rm /etc/ssh/ssh_host_mldsa44_ed25519_key.pub
         sudo systemctl mask sshdgenkeys.service
+    fi
+    if [ "${DISTRO}" == "alma" ]
+    then
+        sudo systemctl mask sshd-keygen.target sshd-keygen@.service
     fi
     ssh-copy-id 127.0.0.2
 }
@@ -629,10 +636,15 @@ cat << EOF > "${CLOUD_INIT_DIR}/meta-data"
 instance-id: ${DISTRO}
 local-hostname: ${DISTRO}
 EOF
-NO_USER_GROUP=""
+NO_USER_GROUP_KV=""
 if [ "${DISTRO}" = "ubuntu" ]
 then
-    NO_USER_GROUP="no_user_group: true"
+    NO_USER_GROUP_KV="no_user_group: true"
+fi
+GROUPS_KV="groups: [wheel]"
+if [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "ubuntu" ]
+then
+    GROUPS_KV="groups: [sudo]"
 fi
 cat << EOF > "${CLOUD_INIT_DIR}/user-data"
 #cloud-config
@@ -640,9 +652,9 @@ hostname: ${DISTRO}
 
 users:
   - name: ${TEST_USERNAME}
-    ${NO_USER_GROUP}
+    ${NO_USER_GROUP_KV}
     uid: 10001
-    groups: [sudo, wheel] # sudo debian/ubuntu, wheel the rest
+    ${GROUPS_KV}
     shell: /bin/sh
     sudo: "ALL=(ALL) ALL"
     lock_passwd: false
@@ -654,10 +666,12 @@ ssh_pwauth: true
 disable_root: false
 
 # Re-use client SSH pair for server host key
-ssh_deletekeys: true
+ssh_genkeytypes: []
+ssh_deletekeys: false
 ssh_keys:
   rsa_private: |
 $(sed 's/^/    /' "${BASE_DIR}/home/.ssh/id_rsa")
   rsa_public: $(cat "${BASE_DIR}/home/.ssh/id_rsa.pub")
 EOF
+    unset NO_USER_GROUP_KV GROUPS_KV
 }
