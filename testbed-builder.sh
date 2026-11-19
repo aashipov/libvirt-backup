@@ -119,7 +119,6 @@ closure() {
     check_dot_env_file
     environment
     create_backup_dirs_and_log || fail_internal "Failed to create_backup_dirs_and_log"
-    configure_testbed_ssh
     ARCHXFS_TGT_FILE="${BACKUP_DIR}/$(basename "${ARCHXFS_SRC_URL}")"
     download_archxfs
 
@@ -166,6 +165,9 @@ closure() {
     TARGET_DISK_FILE="${BACKUP_DIR}/${DISTRO}-builder.qcow2"
     TGT_FILE="${BACKUP_DIR}/$(basename "${SRC_URL}")"
     download
+
+    configure_testbed_ssh "${DISTRO}"
+    configure_testbed_ssh "${TARGET_VM_NAME}"
 
     VM_LIST="$(virsh list --all --name)" || fail_internal "Failed to list VMs"
     if printf '%s\n' "${VM_LIST}" | grep -q "${TARGET_VM_NAME}"

@@ -498,8 +498,13 @@ alpine_privileged() {
 
 # ------------------------------------------------------------
 #  Generates per-testbed SSH key pair, adjusts config
+#  Expects a hostname as ${1}
 # ------------------------------------------------------------
 configure_testbed_ssh() {
+    if [ -z "${1}" ]
+    then
+        fail_internal "No hostname provided"
+    fi
     mkdir -p "${BASE_DIR}/home/.ssh" || fail_internal "Failed to create ${BASE_DIR}/home/.ssh directory"
     if [ ! -e "${BASE_DIR}/home/.ssh/id_rsa" ]
     then
@@ -507,16 +512,16 @@ configure_testbed_ssh() {
         ssh-keygen -t rsa -b 4096 -N "" -C "dummy@dummy.org" -f "${BASE_DIR}/home/.ssh/id_rsa"
         chmod 0600 "${BASE_DIR}/home/.ssh/id_rsa"
     fi
-    mkdir -p "${HOME}/.ssh/${TEST_HOSTNAME}" || fail_internal "Failed to create ${HOME}/.ssh/${TEST_HOSTNAME} directory"
-    cp "${BASE_DIR}/home/.ssh/id_rsa" "${HOME}/.ssh/${TEST_HOSTNAME}"
-    cp "${BASE_DIR}/home/.ssh/id_rsa.pub" "${HOME}/.ssh/${TEST_HOSTNAME}"
-    if [ ! -e "${HOME}/.ssh/config" ] || ! grep -q "${TEST_HOSTNAME}" "${HOME}/.ssh/config"
+    mkdir -p "${HOME}/.ssh/${1}" || fail_internal "Failed to create ${HOME}/.ssh/${1} directory"
+    cp "${BASE_DIR}/home/.ssh/id_rsa" "${HOME}/.ssh/${1}"
+    cp "${BASE_DIR}/home/.ssh/id_rsa.pub" "${HOME}/.ssh/${1}"
+    if [ ! -e "${HOME}/.ssh/config" ] || ! grep -q "${1}" "${HOME}/.ssh/config"
     then
 cat << EOF >> "${HOME}/.ssh/config"
-Host ${TEST_HOSTNAME}
-    HostName ${TEST_HOSTNAME}
+Host ${1}
+    HostName ${1}
     User admin
-    IdentityFile ~/.ssh/${TEST_HOSTNAME}/id_rsa
+    IdentityFile ~/.ssh/${1}/id_rsa
     IdentitiesOnly yes
 EOF
     fi
