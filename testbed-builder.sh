@@ -129,7 +129,7 @@ closure() {
         then
             create_vm
         else
-            printf '%s\n' "If you know that ${TARGET_VM_NAME} prototype VM is consistent and want to renew ${TEST_HOSTNAME} VM out it, follow instructions below"
+            printf '%s\n' "If you know that ${TARGET_VM_NAME} prototype VM is consistent and want to renew ${TEST_HOSTNAME} VM out of it, follow instructions below"
             print_builder_to_testbed_instruction
         fi
     else
