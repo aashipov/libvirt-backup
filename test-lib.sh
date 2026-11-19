@@ -510,7 +510,7 @@ configure_testbed_ssh() {
     mkdir -p "${HOME}/.ssh/${TEST_HOSTNAME}" || fail_internal "Failed to create ${HOME}/.ssh/${TEST_HOSTNAME} directory"
     cp "${BASE_DIR}/home/.ssh/id_rsa" "${HOME}/.ssh/${TEST_HOSTNAME}"
     cp "${BASE_DIR}/home/.ssh/id_rsa.pub" "${HOME}/.ssh/${TEST_HOSTNAME}"
-    if [ ! -e "${HOME}/.ssh/config" ] || ! grep -q "unix" "${HOME}/.ssh/config"
+    if [ ! -e "${HOME}/.ssh/config" ] || ! grep -q "${TEST_HOSTNAME}" "${HOME}/.ssh/config"
     then
 cat << EOF >> "${HOME}/.ssh/config"
 Host ${TEST_HOSTNAME}
