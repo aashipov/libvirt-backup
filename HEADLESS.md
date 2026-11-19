@@ -162,6 +162,12 @@ xfreerdp /w:1600 /h:900 +clipboard /d:local /u:admin /p:admin /v:unix /port:3390
 
 Weston got no menu, so use terminal `setsid --fork virt-manager &` or [gui](./gui) wrapper to launch `virt-manager` and detach it from terminal window
 
+### VNC
+
+```sh
+vncviewer 0.0.0.0$(virsh vncdisplay unix)
+```
+
 ### libvirtd & virsh configuration
 
 > [!NOTE]
