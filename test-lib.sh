@@ -540,6 +540,16 @@ configure_vm_ssh() {
         printf '%s\n' "From host, copy guest ssh pair out:"
         printf '%s\n' "scp admin@${DISTRO}-builder:/home/admin/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
     fi
+    if [ "${DISTRO}" == "arch" ] || [ "${DISTRO}" == "archxfs" ]
+    then
+        sudo rm /etc/ssh/ssh_host_ecdsa_key
+        sudo rm /etc/ssh/ssh_host_ecdsa_key.pub
+        sudo rm /etc/ssh/ssh_host_ed25519_key
+        sudo rm /etc/ssh/ssh_host_ed25519_key.pub
+        sudo rm /etc/ssh/ssh_host_mldsa44_ed25519_key
+        sudo rm /etc/ssh/ssh_host_mldsa44_ed25519_key.pub
+        sudo systemctl mask sshdgenkeys.service
+    fi
     ssh-copy-id 127.0.0.2
 }
 
@@ -606,4 +616,48 @@ yes_no_dialog() {
             *) printf "Please answer yes or no.\n" ;;
         esac
     done
+}
+
+print_builder_to_testbed_instruction() {
+    printf '%s\n' "virsh shutdown ${TARGET_VM_NAME}; virsh shutdown ${TEST_HOSTNAME}; sleep 30; virsh list --name --state-running | grep -q ${TEST_HOSTNAME} && echo \"Still running, turn off manually\" && exit 1; virsh undefine --remove-all-storage ${TEST_HOSTNAME}; qemu-img convert -O qcow2 -c -o compression_type=zstd ${TARGET_DISK_FILE} ${BACKUP_DIR}/${TEST_HOSTNAME}.qcow2; virt-install --name ${TEST_HOSTNAME} --memory 4096 --vcpus $(cpu_count) --cpu host-passthrough --disk path=${BACKUP_DIR}/${TEST_HOSTNAME}.qcow2,format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --video virtio --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole"
+}
+
+generate_cloud_init() {
+    CLOUD_INIT_DIR="/tmp/cloud-init-${DISTRO}"
+    mkdir -p "${CLOUD_INIT_DIR}"
+cat << EOF > "${CLOUD_INIT_DIR}/meta-data"
+instance-id: ${DISTRO}
+local-hostname: ${DISTRO}
+EOF
+NO_USER_GROUP=""
+if [ "${DISTRO}" = "ubuntu" ]
+then
+    NO_USER_GROUP="no_user_group: true"
+fi
+cat << EOF > "${CLOUD_INIT_DIR}/user-data"
+#cloud-config
+hostname: ${DISTRO}
+
+users:
+  - name: ${TEST_USERNAME}
+    ${NO_USER_GROUP}
+    uid: 10001
+    groups: [sudo, wheel] # sudo debian/ubuntu, wheel the rest
+    shell: /bin/sh
+    sudo: "ALL=(ALL) ALL"
+    lock_passwd: false
+    passwd: $(openssl passwd -6 "${TEST_USERNAME}")
+    ssh_authorized_keys:
+      - $(cat "${BASE_DIR}/home/.ssh/id_rsa.pub")
+
+ssh_pwauth: true
+disable_root: false
+
+# Re-use client SSH pair for server host key
+ssh_deletekeys: true
+ssh_keys:
+  rsa_private: |
+$(sed 's/^/    /' "${BASE_DIR}/home/.ssh/id_rsa")
+  rsa_public: $(cat "${BASE_DIR}/home/.ssh/id_rsa.pub")
+EOF
 }
