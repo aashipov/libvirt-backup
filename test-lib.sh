@@ -587,3 +587,18 @@ configure_backup_dirs() {
 tune_users_home() {
     cp -rT "${BASE_DIR}/home" "${HOME}"
 }
+
+# ------------------------------------------------------------
+#  Yes/No dialog, default No
+# ------------------------------------------------------------
+yes_no_dialog() {
+    while true; do
+        printf "%s [y/N]: " "${1:-Are you sure?}"
+        read -r reply
+        case "$reply" in
+            [yY]|[yY][eE][sS]) return 0 ;;
+            [nN]|[nN][oO]|"") return 1 ;;
+            *) printf "Please answer yes or no.\n" ;;
+        esac
+    done
+}
