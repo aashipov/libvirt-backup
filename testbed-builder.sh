@@ -32,13 +32,13 @@ create_vm() {
     virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --video virtio --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
     ${CLOUD_INIT_ARGS}
 
-    printf '%s\n' "Connect to ${TARGET_VM_NAME} under cloud-init as admin/admin"
-    printf '%s\n' "ssh admin@${TARGET_VM_NAME}"
+    printf '%s\n' "Connect to ${TARGET_VM_NAME} under cloud-init as ${TEST_USERNAME}/${TEST_USERNAME}"
+    printf '%s\n' "ssh ${TEST_USERNAME}@${TARGET_VM_NAME}"
     printf '%s\n' "For distros, except RedOS & Artix, wait for \`cloud-init status\` 'done'"
     printf '%s\n' "From host:"
-    printf '%s\n' "scp -r ${BASE_DIR} admin@${TARGET_VM_NAME}:/home/admin/ ; scp ${ARCHXFS_TGT_FILE} admin@${TARGET_VM_NAME}:/home/admin/"
+    printf '%s\n' "scp -r ${BASE_DIR} ${TEST_USERNAME}@${TARGET_VM_NAME}:/home/${TEST_USERNAME}/ ; scp ${ARCHXFS_TGT_FILE} ${TEST_USERNAME}@${TARGET_VM_NAME}:/home/${TEST_USERNAME}/"
     printf '%s\n' "With guest, launch:"
-    printf '%s\n' "/home/admin/libvirt-backup/testbed-configurator.sh"
+    printf '%s\n' "/home/${TEST_USERNAME}/libvirt-backup/testbed-configurator.sh"
     printf '%s\n' "If anything fails, check network connection, reboot the VM"
     printf '%s\n' "Once done, renew ${TEST_HOSTNAME} VM out of ${TARGET_DISK_FILE}:"
     print_builder_to_testbed_instruction
