@@ -498,12 +498,18 @@ alpine_privileged() {
 
 # ------------------------------------------------------------
 #  Generates per-testbed SSH key pair, adjusts config
-#  Expects a hostname as ${1}
+#  Expects
+#    a hostname as ${1}
+#    a username as ${2}
 # ------------------------------------------------------------
 configure_testbed_ssh() {
     if [ -z "${1}" ]
     then
         fail_internal "No hostname provided"
+    fi
+    if [ -z "${2}" ]
+    then
+        fail_internal "No username provided"
     fi
     mkdir -p "${BASE_DIR}/home/.ssh" || fail_internal "Failed to create ${BASE_DIR}/home/.ssh directory"
     if [ ! -e "${BASE_DIR}/home/.ssh/id_rsa" ]
@@ -515,12 +521,12 @@ configure_testbed_ssh() {
     mkdir -p "${HOME}/.ssh/${1}" || fail_internal "Failed to create ${HOME}/.ssh/${1} directory"
     cp "${BASE_DIR}/home/.ssh/id_rsa" "${HOME}/.ssh/${1}"
     cp "${BASE_DIR}/home/.ssh/id_rsa.pub" "${HOME}/.ssh/${1}"
-    if [ ! -e "${HOME}/.ssh/config" ] || ! grep -q "${1}" "${HOME}/.ssh/config"
+    if [ ! -e "${HOME}/.ssh/config" ] || ! grep -q "${1}" "${HOME}/.ssh/config" || ! grep -q "${2}" "${HOME}/.ssh/config"
     then
 cat << EOF >> "${HOME}/.ssh/config"
 Host ${1}
     HostName ${1}
-    User admin
+    User ${2}
     IdentityFile ~/.ssh/${1}/id_rsa
     IdentitiesOnly yes
 EOF
@@ -540,7 +546,7 @@ configure_vm_ssh() {
         printf '%s\n' "From host, copy guest ssh pair out:"
         printf '%s\n' "scp admin@${DISTRO}-builder:/home/admin/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
     fi
-    
+
     sudo rm -f /etc/ssh/ssh_host_ecdsa_key
     sudo rm -f /etc/ssh/ssh_host_ecdsa_key.pub
     sudo rm -f /etc/ssh/ssh_host_ed25519_key

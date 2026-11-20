@@ -122,8 +122,8 @@ closure() {
     TGT_FILE="${BACKUP_DIR}/$(basename "${SRC_URL}")"
     download
 
-    configure_testbed_ssh "${DISTRO}"
-    configure_testbed_ssh "${TARGET_VM_NAME}"
+    configure_testbed_ssh "${DISTRO}" "${TEST_USERNAME}"
+    configure_testbed_ssh "${TARGET_VM_NAME}" "${TEST_USERNAME}"
 
     VM_LIST="$(virsh list --all --name)" || fail_internal "Failed to list VMs"
     if printf '%s\n' "${VM_LIST}" | grep -q "${TARGET_VM_NAME}"
