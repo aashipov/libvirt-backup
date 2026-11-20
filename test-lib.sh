@@ -540,20 +540,20 @@ configure_vm_ssh() {
         printf '%s\n' "From host, copy guest ssh pair out:"
         printf '%s\n' "scp admin@${DISTRO}-builder:/home/admin/.ssh/id_rsa{,.pub} ~/.ssh/unix/ && chmod 0600 ~/.ssh/unix/id_rsa"
     fi
-    if [ "${DISTRO}" == "arch" ] || [ "${DISTRO}" == "archxfs" ] || [ "${DISTRO}" == "alma" ]
-    then
-        sudo rm -f /etc/ssh/ssh_host_ecdsa_key
-        sudo rm -f /etc/ssh/ssh_host_ecdsa_key.pub
-        sudo rm -f /etc/ssh/ssh_host_ed25519_key
-        sudo rm -f /etc/ssh/ssh_host_ed25519_key.pub
-        sudo rm -f /etc/ssh/ssh_host_mldsa44_ed25519_key
-        sudo rm -f /etc/ssh/ssh_host_mldsa44_ed25519_key.pub
-    fi
+    
+    sudo rm -f /etc/ssh/ssh_host_ecdsa_key
+    sudo rm -f /etc/ssh/ssh_host_ecdsa_key.pub
+    sudo rm -f /etc/ssh/ssh_host_ed25519_key
+    sudo rm -f /etc/ssh/ssh_host_ed25519_key.pub
+    sudo rm -f /etc/ssh/ssh_host_mldsa44_ed25519_key
+    sudo rm -f /etc/ssh/ssh_host_mldsa44_ed25519_key.pub
+
     if [ "${DISTRO}" == "arch" ] || [ "${DISTRO}" == "archxfs" ]
     then
         sudo systemctl mask sshdgenkeys.service
     fi
-    if [ "${DISTRO}" == "alma" ]
+
+    if [ "${DISTRO}" == "alma" ] || [ "${DISTRO}" == "fedora" ]
     then
         sudo systemctl mask sshd-keygen.target sshd-keygen@.service
     fi
