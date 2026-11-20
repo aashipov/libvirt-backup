@@ -504,6 +504,7 @@ case "$*" in
 esac
 EOF
     doas chmod +x /usr/bin/ssh-keygen
+    doas usermod -aG video "${USER}"
 }
 
 # ------------------------------------------------------------
