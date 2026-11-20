@@ -494,6 +494,16 @@ alpine_privileged() {
     doas apk del cloud-init
     doas apk add --no-cache shadow
     doas fc-cache -fv
+    doas mv /usr/bin/ssh-keygen /usr/bin/ssh-keygen.real
+cat << 'EOF' | doas tee /usr/bin/ssh-keygen
+#!/bin/sh
+# Blocks all automatic generation (ssh-keygen -A during boot or cloud-init provisioning)
+case "$*" in
+    *-A*) exit 0 ;;
+    *) exec /usr/bin/ssh-keygen.real "$@" ;;
+esac
+EOF
+    doas chmod +x /usr/bin/ssh-keygen
 }
 
 # ------------------------------------------------------------
