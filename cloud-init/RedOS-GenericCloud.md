@@ -20,6 +20,8 @@ After reboot
 ```sh
 dnf -y upgrade
 dnf -y install cloud-init cloud-utils-growpart qemu-guest-agent
+dnf remove --oldinstallonly --setopt installonly_limit=2 kernel # sudo dnf remove $(dnf repoquery --installed --installonly --latest-limit=-2 -q)
+rpm -qa | grep -i firmware | xargs dnf -y remove
 printf 'datasource_list: [ NoCloud, ConfigDrive, None ]\n' > /etc/cloud/cloud.cfg.d/99-datasource.cfg
 systemctl enable cloud-init-local cloud-init cloud-config cloud-final qemu-guest-agent
 dnf clean all
