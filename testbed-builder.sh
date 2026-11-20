@@ -24,7 +24,7 @@ create_vm() {
     build_disk
     CLOUD_INIT_ARGS=""
     CLOUD_INIT_DIR="/tmp"
-    if [ "${DISTRO}" != "redos" ] && [ "${DISTRO}" != "artix" ]
+    if [ "${DISTRO}" != "artix" ]
     then
         generate_cloud_init
         CLOUD_INIT_ARGS="--cloud-init meta-data=${CLOUD_INIT_DIR}/meta-data,user-data=${CLOUD_INIT_DIR}/user-data"
@@ -34,7 +34,7 @@ create_vm() {
 
     printf '%s\n' "Connect to ${TARGET_VM_NAME} under cloud-init as ${TEST_USERNAME}/${TEST_USERNAME}"
     printf '%s\n' "ssh ${TEST_USERNAME}@${TARGET_VM_NAME}"
-    printf '%s\n' "For distros, except RedOS & Artix, wait for \`cloud-init status\` 'done'"
+    printf '%s\n' "For distros, except Artix, wait for \`cloud-init status\` 'done'"
     printf '%s\n' "From host:"
     printf '%s\n' "scp -r ${BASE_DIR} ${TEST_USERNAME}@${TARGET_VM_NAME}:/home/${TEST_USERNAME}/ ; scp ${ARCHXFS_TGT_FILE} ${TEST_USERNAME}@${TARGET_VM_NAME}:/home/${TEST_USERNAME}/"
     printf '%s\n' "With guest, launch:"
