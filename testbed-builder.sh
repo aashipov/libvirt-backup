@@ -72,14 +72,15 @@ closure() {
     unset LIB_NAMES
 
     # Do the job
+    DISTRO=archxfs
+    [ -n "${1}" ] && DISTRO="${1}"
+    
     check_dot_env_file
     environment
     create_backup_dirs_and_log || fail_internal "Failed to create_backup_dirs_and_log"
     ARCHXFS_TGT_FILE="${BACKUP_DIR}/$(basename "${ARCHXFS_SRC_URL}")"
     download_archxfs
 
-    DISTRO=archxfs
-    [ -n "${1}" ] && DISTRO="${1}"
     case "${DISTRO}" in
         alma)
             SRC_URL="${ALMA_SRC_URL}"

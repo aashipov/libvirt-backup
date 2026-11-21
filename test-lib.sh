@@ -96,6 +96,7 @@ check_dot_env_file() {
         printf '\n' >> .env
         cat "${BASE_DIR}/.test.env.template" >> "${BASE_DIR}/.env"
     fi
+    sed -i "s|^TEST_HOSTNAME=.*|TEST_HOSTNAME=${DISTRO}|" .env
 }
 
 # ------------------------------------------------------------
