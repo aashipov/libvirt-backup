@@ -284,7 +284,7 @@ rhel_privileged() {
 
 redos_privileged() {
     sudo dnf -y upgrade
-    sudo dnf -y install cronie git rsync acl sudo qemu-kvm libvirt virt-install mc tree curl qemu-guest-agent
+    sudo dnf -y install cronie git rsync acl sudo qemu-kvm libvirt virt-install mc tree curl qemu-guest-agent spice-vdagent
     sudo dnf -y install xorg-x11-server-Xorg virt-manager xrdp xorgxrdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad dbus-daemon gvfs gvfs-smb weston dmenu gnome-themes-extra adwaita-icon-theme
     sudo dnf -y clean all
     sudo systemctl enable --now crond
@@ -395,7 +395,7 @@ arch_remove_if_installed() {
 
 arch_privileged() {
     sudo pacman --noconfirm -Syu
-    arch_install_if_missing "cronie git rsync acl qemu-desktop libvirt tree curl mc openssh qemu-guest-agent networkmanager vim dnsmasq"
+    arch_install_if_missing "cronie git rsync acl qemu-desktop libvirt tree curl mc openssh qemu-guest-agent spice-vdagent networkmanager vim dnsmasq"
     arch_install_if_missing "virt-manager weston freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb gnome-themes-extra adwaita-icon-theme"
     arch_install_if_missing "debugedit fakeroot patch autoconf automake libtool pkg-config gcc make xorg-xinit dmenu"
     mkdir -p "${HOME}"/arch/
@@ -570,7 +570,7 @@ configure_vm_ssh() {
         sudo systemctl mask sshdgenkeys.service
     fi
 
-    if [ "${DISTRO}" == "alma" ] || [ "${DISTRO}" == "fedora" ]
+    if [ "${DISTRO}" == "alma" ] || [ "${DISTRO}" == "fedora" ] || [ "${DISTRO}" == "redos" ]
     then
         sudo systemctl mask sshd-keygen.target sshd-keygen@.service
     fi
@@ -643,7 +643,7 @@ yes_no_dialog() {
 }
 
 print_builder_to_testbed_instruction() {
-    printf '%s\n' "virsh shutdown ${TARGET_VM_NAME}; virsh shutdown ${TEST_HOSTNAME}; sleep 30; virsh list --name --state-running | grep -q ${TEST_HOSTNAME} && echo \"Still running, turn off manually\" && exit 1; virsh undefine --remove-all-storage ${TEST_HOSTNAME}; qemu-img convert -O qcow2 -c -o compression_type=zstd ${TARGET_DISK_FILE} ${BACKUP_DIR}/${TEST_HOSTNAME}.qcow2; virt-install --name ${TEST_HOSTNAME} --memory 4096 --vcpus $(cpu_count) --cpu host-passthrough --disk path=${BACKUP_DIR}/${TEST_HOSTNAME}.qcow2,format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --video virtio --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole"
+    printf '%s\n' "virsh shutdown ${TARGET_VM_NAME}; virsh shutdown ${TEST_HOSTNAME}; sleep 30; virsh list --name --state-running | grep -q ${TEST_HOSTNAME} && echo \"Still running, turn off manually\" && exit 1; virsh undefine --remove-all-storage ${TEST_HOSTNAME}; qemu-img convert -O qcow2 -c -o compression_type=zstd ${TARGET_DISK_FILE} ${BACKUP_DIR}/${TEST_HOSTNAME}.qcow2; virt-install --name ${TEST_HOSTNAME} --memory 4096 --vcpus $(cpu_count) --cpu host-passthrough --disk path=${BACKUP_DIR}/${TEST_HOSTNAME}.qcow2,format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --video virtio --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --channel qemu-vdagent,source.clipboard.copypaste=on,source.mouse.mode=client,target.type=virtio,target.name=com.redhat.spice.0 --import --noautoconsole"
 }
 
 generate_cloud_init() {

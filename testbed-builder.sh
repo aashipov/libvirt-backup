@@ -29,7 +29,7 @@ create_vm() {
         generate_cloud_init
         CLOUD_INIT_ARGS="--cloud-init meta-data=${CLOUD_INIT_DIR}/meta-data,user-data=${CLOUD_INIT_DIR}/user-data"
     fi
-    virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --video virtio --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --import --noautoconsole \
+    virt-install --name "${TARGET_VM_NAME}" --memory 4096 --vcpus "$(cpu_count)" --cpu host-passthrough --disk path="${TARGET_DISK_FILE}",format=qcow2,bus=virtio,cache=writeback --network network=default,model=virtio --graphics vnc,listen=0.0.0.0 --video virtio --osinfo detect=on,require=off --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --channel qemu-vdagent,source.clipboard.copypaste=on,source.mouse.mode=client,target.type=virtio,target.name=com.redhat.spice.0 --import --noautoconsole \
     ${CLOUD_INIT_ARGS}
 
     printf '%s\n' "Connect to ${TARGET_VM_NAME} under cloud-init as ${TEST_USERNAME}/${TEST_USERNAME}"
