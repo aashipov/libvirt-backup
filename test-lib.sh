@@ -319,6 +319,7 @@ EOF
     sudo apt-get remove -y cloud-init
     sudo apt clean && sudo apt -y autoremove
     sudo systemctl enable --now cron
+    sudo usermod -aG ssl-cert xrdp
 }
 
 ubuntu_privileged() {
