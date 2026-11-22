@@ -397,19 +397,15 @@ arch_remove_if_installed() {
     fi
 }
 
-arch_privileged() {
-    sudo pacman --noconfirm -Syu
-    arch_install_if_missing "cronie git rsync acl qemu-desktop libvirt tree curl mc openssh qemu-guest-agent spice-vdagent networkmanager vim dnsmasq"
-    arch_install_if_missing "virt-manager weston freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb gnome-themes-extra adwaita-icon-theme"
-    arch_install_if_missing "debugedit fakeroot patch autoconf automake libtool pkg-config gcc make xorg-xinit dmenu"
+archlike_install_xrdp_xorgxrdp() {
     mkdir -p "${HOME}"/arch/
     cd "${HOME}"/arch/
     if [ ! -d "${HOME}"/arch/xrdp ]
     then
+        arch_install_if_missing "debugedit fakeroot patch autoconf automake libtool pkg-config gcc make xorg-xinit"
         git clone https://aur.archlinux.org/xrdp.git
         cd xrdp
         makepkg -si
-        sudo sed -i.bak 's/^#\s*SessionSockdirGroup=xrdp/SessionSockdirGroup=xrdp/' /etc/xrdp/sesman.ini
     fi
     cd "${HOME}"/arch/
     if [ ! -d "${HOME}"/arch/xorgxrdp ]
@@ -419,6 +415,14 @@ arch_privileged() {
         gpg --keyserver keys.gnupg.net --recv-keys 03993B4065E7193B
         makepkg -si
     fi
+}
+
+arch_privileged() {
+    sudo pacman --noconfirm -Syu
+    arch_install_if_missing "cronie git rsync acl qemu-desktop libvirt tree curl mc openssh qemu-guest-agent spice-vdagent networkmanager vim dnsmasq"
+    arch_install_if_missing "virt-manager weston freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb gnome-themes-extra adwaita-icon-theme dmenu"
+    archlike_install_xrdp_xorgxrdp
+    sudo sed -i.bak 's/^#\s*SessionSockdirGroup=xrdp/SessionSockdirGroup=xrdp/' /etc/xrdp/sesman.ini
     arch_remove_if_installed "cloud-init linux-firmware"
     DEBUG_PACKAGES_TO_DROP="$(pacman -Qe | grep "debug" | cut -d ' ' -f 1 |  tr '\n' ' ')"
     if [ -n "${DEBUG_PACKAGES_TO_DROP}" ]
@@ -439,17 +443,9 @@ artix_privileged() {
     sudo pacman --noconfirm -Syu
     arch_install_if_missing "cronie cronie-openrc git rsync acl tree curl mc openssh networkmanager vim dnsmasq xfsprogs"
     arch_install_if_missing "weston freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb gnome-themes-extra adwaita-icon-theme"
-    arch_install_if_missing "debugedit fakeroot patch autoconf automake libtool pkg-config gcc make xorg-xinit dmenu xrdp"
+    arch_install_if_missing "debugedit fakeroot patch autoconf automake libtool pkg-config gcc make xorg-xinit dmenu"
     arch_install_if_missing "qemu-full libvirt libvirt-openrc dnsmasq dmidecode openbsd-netcat virt-manager"
-    mkdir -p "${HOME}"/arch/
-    cd "${HOME}"/arch/
-    if [ ! -d "${HOME}"/arch/xorgxrdp ]
-    then
-        git clone https://aur.archlinux.org/xorgxrdp.git
-        cd xorgxrdp
-        gpg --keyserver keys.gnupg.net --recv-keys 03993B4065E7193B
-        makepkg -si
-    fi
+    archlike_install_xrdp_xorgxrdp
     arch_remove_if_installed "cloud-init linux-firmware"
     DEBUG_PACKAGES_TO_DROP="$(pacman -Qe | grep "debug" | cut -d ' ' -f 1 |  tr '\n' ' ')"
     if [ -n "${DEBUG_PACKAGES_TO_DROP}" ]
@@ -498,16 +494,6 @@ alpine_privileged() {
     doas apk del cloud-init
     doas apk add --no-cache shadow
     doas fc-cache -fv
-    doas mv /usr/bin/ssh-keygen /usr/bin/ssh-keygen.real
-cat << 'EOF' | doas tee /usr/bin/ssh-keygen
-#!/bin/sh
-# Blocks all automatic generation (ssh-keygen -A during boot or cloud-init provisioning)
-case "$*" in
-    *-A*) exit 0 ;;
-    *) exec /usr/bin/ssh-keygen.real "$@" ;;
-esac
-EOF
-    doas chmod +x /usr/bin/ssh-keygen
     doas usermod -aG video "${USER}"
 }
 
@@ -553,6 +539,16 @@ EOF
 #  If configure_testbed_ssh is not possible (e.g., non-Linux host)
 # ------------------------------------------------------------
 configure_vm_ssh() {
+    sudo mv /usr/bin/ssh-keygen /usr/bin/ssh-keygen.real
+cat << 'EOF' | sudo tee /usr/bin/ssh-keygen
+#!/bin/sh
+# Blocks all automatic generation (ssh-keygen -A during boot or cloud-init provisioning)
+case "$*" in
+    *-A*) exit 0 ;;
+    *) exec /usr/bin/ssh-keygen.real "$@" ;;
+esac
+EOF
+    sudo chmod +x /usr/bin/ssh-keygen
     mkdir -p "${HOME}/.ssh"
     if [ ! -f "${HOME}/.ssh/id_rsa" ]
     then
