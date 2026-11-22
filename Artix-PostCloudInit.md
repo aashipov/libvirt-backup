@@ -1,5 +1,3 @@
-With the latest [iso](https://mirrors.dotsrc.org/artix-linux/iso/)
-
 As of Nov 2026, cloud-init refers systemctl (which is missing from openrc flavor)
 
 Post Cloud-init (`root/root`, `admin/admin`)
@@ -7,15 +5,19 @@ Post Cloud-init (`root/root`, `admin/admin`)
 Install `gptfdisk` (`sgdisk`)
 
 ```sh
-touch artix-post-cloud-init-builder.img
-truncate -s 32G artix-post-cloud-init-builder.img
-sgdisk --align-end \
+qemu-img create -f qcow2 -o compression_type=zstd artix-post-cloud-init-builder.qcow2 32G
+sudo modprobe nbd max_part=8
+sudo qemu-nbd -c /dev/nbd0 ./artix-post-cloud-init-builder.qcow2
+sudo sgdisk --align-end \
   --clear \
   --new 0:0:+1M --typecode=0:ef02 --change-name=0:'BIOS boot partition' \
   --new 0:0:+300M --typecode=0:ef00 --change-name=0:'EFI system partition' \
   --new 0:0:0 --typecode=0:8304 --change-name=0:'Arch Linux root' \
-  artix-post-cloud-init-builder.img
+  /dev/nbd0
+sudo qemu-nbd --disconnect /dev/nbd0
 ```
+
+With the latest [iso](https://mirrors.dotsrc.org/artix-linux/iso/)
 
 Q35, EFI
 
@@ -64,5 +66,5 @@ sudo shutdown -h now
 Fabricate a post-cloud-init image
 
 ```sh
-qemu-img convert -O qcow2 -c -o compression_type=zstd artix-post-cloud-init-builder.img artix-base-openrc-20261102-x86_64-post-cloud-init.qcow2
+qemu-img convert -O qcow2 -c -o compression_type=zstd artix-post-cloud-init-builder.qcow2 artix-base-openrc-20261102-x86_64-post-cloud-init.qcow2
 ```

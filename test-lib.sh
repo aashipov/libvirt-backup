@@ -467,6 +467,14 @@ artix_privileged() {
     then
         sudo ln -s /usr/bin/vim /usr/bin/vi
     fi
+    if [ -e "${BASE_DIR}/home/.ssh/id_rsa" ]
+    then
+        cat "${BASE_DIR}/home/.ssh/id_rsa" | sudo tee /etc/ssh/ssh_host_rsa_key
+    fi
+    if [ -e "${BASE_DIR}/home/.ssh/id_rsa.pub" ]
+    then
+        cat "${BASE_DIR}/home/.ssh/id_rsa.pub" | sudo tee /etc/ssh/ssh_host_rsa_key.pub
+    fi
 }
 
 alpine_privileged() {
