@@ -94,6 +94,7 @@ closure() {
         fi
     fi
 
+    configure_vm_xrdp_ssl
     if [ -d /run/systemd/system ]
     then
       sudo systemctl enable --now xrdp qemu-guest-agent

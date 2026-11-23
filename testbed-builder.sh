@@ -34,7 +34,7 @@ create_vm() {
 
     printf '%s\n' "Connect to ${TARGET_VM_NAME} under cloud-init as ${TEST_USERNAME}/${TEST_USERNAME}"
     printf '%s\n' "ssh ${TEST_USERNAME}@${TARGET_VM_NAME}"
-    printf '%s\n' "For distros, except Artix, wait for \`cloud-init status\` 'done'"
+    printf '%s\n' "Wait for \`cloud-init status\` 'done' (distros except Artix)"
     printf '%s\n' "From host:"
     printf '%s\n' "scp -r ${BASE_DIR} ${TEST_USERNAME}@${TARGET_VM_NAME}:/home/${TEST_USERNAME}/ ; scp ${ARCHXFS_TGT_FILE} ${TEST_USERNAME}@${TARGET_VM_NAME}:/home/${TEST_USERNAME}/"
     printf '%s\n' "With guest, launch:"
@@ -125,6 +125,7 @@ closure() {
 
     configure_testbed_ssh "${DISTRO}" "${TEST_USERNAME}"
     configure_testbed_ssh "${TARGET_VM_NAME}" "${TEST_USERNAME}"
+    configure_testbed_certificates
 
     VM_LIST="$(virsh list --all --name)" || fail_internal "Failed to list VMs"
     if printf '%s\n' "${VM_LIST}" | grep -q "${TARGET_VM_NAME}"

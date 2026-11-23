@@ -5,3 +5,4 @@ nohup.out
 .nanocoder
 *.iso
 home/.ssh/*
+home/.xrdp/*
