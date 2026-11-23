@@ -362,7 +362,7 @@ astra_privileged() {
     # dmenu
     if [ ! -e "${HOME}/src/dmenu/" ]
     then
-        sudo apt install build-essential libx11-dev libxinerama-dev libxft-dev
+        sudo apt-get install -y build-essential libx11-dev libxinerama-dev libxft-dev
         mkdir -p "${HOME}/src/"
         cd "${HOME}/src/"
         git clone git://git.suckless.org/dmenu
@@ -584,12 +584,12 @@ EOF
     sudo chmod 644 /etc/ssh/ssh_host_rsa_key.pub
     sudo chown root:root /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key.pub
     
-    if [ "${DISTRO}" == "arch" ] || [ "${DISTRO}" == "archxfs" ]
+    if [ "${DISTRO}" = "arch" ] || [ "${DISTRO}" = "archxfs" ]
     then
         sudo systemctl mask sshdgenkeys.service
     fi
 
-    if [ "${DISTRO}" == "alma" ] || [ "${DISTRO}" == "fedora" ] || [ "${DISTRO}" == "redos" ]
+    if [ "${DISTRO}" = "alma" ] || [ "${DISTRO}" = "fedora" ] || [ "${DISTRO}" = "redos" ]
     then
         sudo systemctl mask sshd-keygen.target sshd-keygen@.service
     fi
