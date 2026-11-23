@@ -145,7 +145,8 @@ cd ${HOME} && chmod +x .xinitrc && ln -s .xinitrc .xsession && ln -s .xinitrc .X
 At this point you should be able to RDP the Openbox in guest vm via `mstsc.exe`, `xfreerdp`/`wlfreerdp`, `Remmina` (Note: modern distros include `xfreerdp3`/`wlfreerdp3`, so craft symlinks in `/usr/bin` by hand):
 
 ```sh
-xfreerdp /w:1600 /h:900 +clipboard /d:local /u:admin /p:admin /v:unix /port:3389
+mkdir ${HOME}/shared
+xfreerdp /w:1600 /h:900 +clipboard /d:local /u:admin /p:admin /v:unix /port:3389 /drive:shared,${HOME}/shared
 ```
 
 Right click to see Openbox menu
