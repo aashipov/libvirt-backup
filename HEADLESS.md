@@ -18,7 +18,7 @@ Follow script instructions
 
 Debian is fast, stable and open-licensed, makes a good Operating System for production virtualization host & guests. Ubuntu is slower, doesn't handle updates well. From local development prospective `Archlinux` looks way simpler
 
-`cloud-init` kernel presents major limitations (e.g., modules missing for L2TP VPN)
+`cloud` kernel presents major limitations (e.g., modules missing for L2TP VPN)
 
 Recent GNOME & KDE versions advertize RDP support, but require a headful set-up. So does [lamco-rdp-server](https://github.com/lamco-admin/lamco-rdp-server) for wlroots-driven compositors like sway or labwc
 
