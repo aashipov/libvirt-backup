@@ -103,6 +103,9 @@ closure() {
         arch)
             SRC_URL="${ARCH_SRC_URL}"
             ;;
+        debianxfs)
+            SRC_URL="${DEBIAN_XFS_SRC_URL}"
+            ;;
         debian)
             SRC_URL="${DEBIAN_SRC_URL}"
             ;;
