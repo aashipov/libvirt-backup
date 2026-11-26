@@ -443,8 +443,7 @@ arch_privileged() {
 artix_privileged() {
     sudo pacman --noconfirm -Syu
     arch_install_if_missing "cronie cronie-openrc git rsync acl tree curl mc openssh networkmanager vim dnsmasq xfsprogs"
-    arch_install_if_missing "weston freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb gnome-themes-extra adwaita-icon-theme"
-    arch_install_if_missing "debugedit fakeroot patch autoconf automake libtool pkg-config gcc make xorg-xinit dmenu"
+    arch_install_if_missing "weston freerdp openbox chromium firefox thunar xfce4-terminal xfce4-taskmanager mousepad gvfs gvfs-smb gnome-themes-extra adwaita-icon-theme dmenu"
     arch_install_if_missing "qemu-full libvirt libvirt-openrc dnsmasq dmidecode openbsd-netcat virt-manager"
     archlike_install_xrdp_xorgxrdp
     arch_remove_if_installed "cloud-init linux-firmware"
