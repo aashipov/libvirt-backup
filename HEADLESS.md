@@ -69,18 +69,29 @@ Generation 1 VM, dynamic memory off, same as above
 
 Debian comes with no `sudo`, so use `su -` for the first steps.
 
-Enable package manager mirror, if not done before. For Debian 13 (Trixie) it may look like:
+Enable package manager mirror, if not done before. Examples for Bookworm (12) and Trixie (13):
 
 ```sh
 cat << 'EOF' > /etc/apt/sources.list
-deb http://deb.debian.org/debian trixie main contrib non-free
-deb-src http://deb.debian.org/debian trixie main contrib non-free
+deb https://deb.debian.org/debian bookworm main
+deb https://deb.debian.org/debian bookworm-updates main
+deb https://security.debian.org/debian-security bookworm-security main
+EOF
+```
 
-deb http://deb.debian.org/debian-security/ trixie-security main contrib non-free
-deb-src http://deb.debian.org/debian-security/ trixie-security main contrib non-free
+```sh
+cat << 'EOF' > /etc/apt/sources.list.d/debian.sources
+Types: deb
+URIs: https://deb.debian.org/debian
+Suites: trixie trixie-updates
+Components: main
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
 
-deb http://deb.debian.org/debian trixie-updates main contrib non-free
-deb-src http://deb.debian.org/debian trixie-updates main contrib non-free
+Types: deb
+URIs: https://security.debian.org/debian-security
+Suites: trixie-security
+Components: main
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
 EOF
 ```
 
