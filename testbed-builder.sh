@@ -74,7 +74,7 @@ closure() {
     # Do the job
     DISTRO=archxfs
     [ -n "${1}" ] && DISTRO="${1}"
-    
+
     check_dot_env_file
     environment
     create_backup_dirs_and_log || fail_internal "Failed to create_backup_dirs_and_log"
@@ -82,6 +82,9 @@ closure() {
     download_archxfs
 
     case "${DISTRO}" in
+        almaxfs)
+            SRC_URL="${ALMA_XFS_SRC_URL}"
+           ;;
         alma)
             SRC_URL="${ALMA_SRC_URL}"
            ;;

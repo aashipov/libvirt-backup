@@ -276,6 +276,7 @@ configure_libvirt() {
 
 rhel_privileged() {
     sudo dnf -y upgrade
+    sudo dnf install -y dnf-plugins-core
     sudo dnf -y config-manager --enable crb
     sudo dnf -y install epel-release
     sudo dnf -y config-manager --disable epel-cisco-openh264
