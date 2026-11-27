@@ -707,7 +707,7 @@ users:
       - $(cat "${BASE_DIR}/home/.ssh/id_rsa.pub")
 
 ssh_pwauth: true
-disable_root: false
+disable_root: true
 
 # Re-use client SSH pair for server host key
 ssh_genkeytypes: []
